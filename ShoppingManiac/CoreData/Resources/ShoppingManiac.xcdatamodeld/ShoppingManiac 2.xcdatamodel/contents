@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16F73" minimumToolsVersion="Xcode 7.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+    <entity name="Good" representedClassName="ShoppingManiac.Good" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="picture" optional="YES" attributeType="Binary" syncable="YES"/>
+    </entity>
+    <entity name="ShoppingList" representedClassName="ShoppingManiac.ShoppingList" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ShoppingListItem" inverseName="list" inverseEntity="ShoppingListItem" syncable="YES"/>
+    </entity>
+    <entity name="ShoppingListItem" representedClassName="ShoppingManiac.ShoppingListItem" syncable="YES">
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isWeight" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="price" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="purchased" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="purchaseDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="quantity" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="good" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Good" syncable="YES"/>
+        <relationship name="list" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingList" inverseName="items" inverseEntity="ShoppingList" syncable="YES"/>
+        <relationship name="store" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Store" syncable="YES"/>
+    </entity>
+    <entity name="Store" representedClassName="ShoppingManiac.Store" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Good" positionX="-18" positionY="27" width="128" height="73"/>
+        <element name="ShoppingList" positionX="-63" positionY="-18" width="128" height="88"/>
+        <element name="ShoppingListItem" positionX="-54" positionY="-9" width="128" height="180"/>
+        <element name="Store" positionX="-36" positionY="9" width="128" height="58"/>
+    </elements>
+</model>

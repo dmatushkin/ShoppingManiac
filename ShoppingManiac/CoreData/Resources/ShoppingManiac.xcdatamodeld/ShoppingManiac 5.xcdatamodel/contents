@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6254" systemVersion="14C109" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Good" representedClassName="ShoppingManiac.Good" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ShoppingListItem" inverseName="good" inverseEntity="ShoppingListItem" syncable="YES"/>
+        <relationship name="pictures" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Picture" inverseName="good" inverseEntity="Picture" syncable="YES"/>
+        <relationship name="ratings" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="GoodRating" inverseName="good" inverseEntity="GoodRating" syncable="YES"/>
+    </entity>
+    <entity name="GoodRating" representedClassName="ShoppingManiac.GoodRating" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="rating" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <relationship name="good" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Good" inverseName="ratings" inverseEntity="Good" syncable="YES"/>
+    </entity>
+    <entity name="Picture" representedClassName="ShoppingManiac.Picture" syncable="YES">
+        <attribute name="image" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="shotDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="good" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Good" inverseName="pictures" inverseEntity="Good" syncable="YES"/>
+    </entity>
+    <entity name="ShoppingList" representedClassName="ShoppingManiac.ShoppingList" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ShoppingListItem" inverseName="list" inverseEntity="ShoppingListItem" syncable="YES"/>
+    </entity>
+    <entity name="ShoppingListItem" representedClassName="ShoppingManiac.ShoppingListItem" syncable="YES">
+        <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isWeight" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="price" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="purchased" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
+        <attribute name="purchaseDate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="quantity" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="good" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Good" inverseName="items" inverseEntity="Good" syncable="YES"/>
+        <relationship name="list" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ShoppingList" inverseName="items" inverseEntity="ShoppingList" syncable="YES"/>
+        <relationship name="store" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Store" inverseName="items" inverseEntity="Store" syncable="YES"/>
+    </entity>
+    <entity name="Store" representedClassName="ShoppingManiac.Store" syncable="YES">
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="items" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ShoppingListItem" inverseName="store" inverseEntity="ShoppingListItem" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Good" positionX="288" positionY="-70" width="128" height="105"/>
+        <element name="GoodRating" positionX="369" positionY="99" width="128" height="88"/>
+        <element name="Picture" positionX="351" positionY="81" width="128" height="88"/>
+        <element name="ShoppingList" positionX="198" positionY="92" width="128" height="88"/>
+        <element name="ShoppingListItem" positionX="511" positionY="20" width="128" height="178"/>
+        <element name="Store" positionX="223" positionY="252" width="128" height="75"/>
+    </elements>
+</model>
