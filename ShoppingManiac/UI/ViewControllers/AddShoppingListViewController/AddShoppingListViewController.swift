@@ -15,6 +15,7 @@ class AddShoppingListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.shoppingNameEditField.becomeFirstResponder()
     }
 
     private func createItem(withName name: String) {

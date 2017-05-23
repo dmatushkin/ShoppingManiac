@@ -42,6 +42,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
         self.category = good?.category
         self.rating = Int(good?.personalRating ?? 0)
         self.categoriesTable.isHidden = true
+        self.goodNameEditField.becomeFirstResponder()
     }
     
     private func createItem(withName name: String) {
@@ -97,11 +98,12 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     private func getItem(forIndex: IndexPath) -> Category? {
-        guard let items = CoreStore.fetchAll(From<Category>(), OrderBy(.ascending("name"))) else { return nil }
         if forIndex.row == 0 {
             return nil
         } else {
-            return items[forIndex.row - 1]
+            return CoreStore.fetchOne(From<Category>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
+                fetchRequest.fetchOffset = forIndex.row - 1
+            }))
         }
     }
 

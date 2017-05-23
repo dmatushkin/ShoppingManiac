@@ -73,6 +73,7 @@
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <connections>
                                             <outlet property="listTitleLabel" destination="Qfq-ym-urE" id="5yF-au-R4M"/>
+                                            <segue destination="xGt-Cw-N2w" kind="show" identifier="shoppingListSegue" id="YWL-L8-uwR"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -117,7 +118,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Shopping list name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="mCb-qb-Y0h">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Shopping list name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="mCb-qb-Y0h" customClass="RoundRectTextField" customModule="ShoppingManiac" customModuleProvider="target">
                                 <rect key="frame" x="16" y="60" width="343" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="cKR-IL-Df5"/>
@@ -183,7 +184,90 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tRg-oK-0az" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="1iv-9B-nnZ" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="2364" y="-1962.3688155922041"/>
+            <point key="canvasLocation" x="3158" y="-1950"/>
+        </scene>
+        <!--Shopping list-->
+        <scene sceneID="PWe-Yn-Adm">
+            <objects>
+                <viewController storyboardIdentifier="ShoppingListViewController" id="xGt-Cw-N2w" customClass="ShoppingListViewController" customModule="ShoppingManiac" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Xil-3x-Kwo"/>
+                        <viewControllerLayoutGuide type="bottom" id="HLK-py-j1r"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ntx-KH-wh6">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="BXI-LZ-CeD">
+                                <rect key="frame" x="0.0" y="64" width="375" height="554"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ShoppingListTableViewCell" id="3Lb-Bg-7yd" customClass="ShoppingListTableViewCell" customModule="ShoppingManiac" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3Lb-Bg-7yd" id="hQN-kh-tvE">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="checkbox_unmarked" translatesAutoresizingMaskIntoConstraints="NO" id="WDh-hV-UjT">
+                                                    <rect key="frame" x="15" y="11" width="20" height="20"/>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="Шаурма" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="85D-hB-501">
+                                                    <rect key="frame" x="50" y="11" width="212.5" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tTd-6n-IKS">
+                                                    <rect key="frame" x="352" y="11" width="8" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Магнит" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LHi-o0-bpn">
+                                                    <rect key="frame" x="277.5" y="11" width="59.5" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                            <constraints>
+                                                <constraint firstItem="LHi-o0-bpn" firstAttribute="leading" secondItem="85D-hB-501" secondAttribute="trailing" constant="15" id="2q9-Jf-3ij"/>
+                                                <constraint firstItem="WDh-hV-UjT" firstAttribute="leading" secondItem="hQN-kh-tvE" secondAttribute="leading" constant="15" id="5jk-KX-zJS"/>
+                                                <constraint firstItem="tTd-6n-IKS" firstAttribute="leading" secondItem="LHi-o0-bpn" secondAttribute="trailing" constant="15" id="T15-JH-soU"/>
+                                                <constraint firstItem="85D-hB-501" firstAttribute="leading" secondItem="WDh-hV-UjT" secondAttribute="trailing" constant="15" id="UYg-1f-dbI"/>
+                                                <constraint firstItem="WDh-hV-UjT" firstAttribute="centerY" secondItem="hQN-kh-tvE" secondAttribute="centerY" id="ZyT-aA-Dta"/>
+                                                <constraint firstItem="85D-hB-501" firstAttribute="centerY" secondItem="WDh-hV-UjT" secondAttribute="centerY" id="dZ8-iw-vMd"/>
+                                                <constraint firstAttribute="trailing" secondItem="tTd-6n-IKS" secondAttribute="trailing" constant="15" id="ePi-uW-g5E"/>
+                                                <constraint firstItem="LHi-o0-bpn" firstAttribute="centerY" secondItem="tTd-6n-IKS" secondAttribute="centerY" id="m3e-0H-zjU"/>
+                                                <constraint firstItem="tTd-6n-IKS" firstAttribute="centerY" secondItem="hQN-kh-tvE" secondAttribute="centerY" id="mrh-Pv-iie"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <connections>
+                                            <outlet property="productQuantityLabel" destination="tTd-6n-IKS" id="jGr-qa-Fzx"/>
+                                            <outlet property="productTitleLabel" destination="85D-hB-501" id="IVJ-nV-yvu"/>
+                                            <outlet property="statusImageView" destination="WDh-hV-UjT" id="qxw-eN-QhY"/>
+                                            <outlet property="storeTitleLabel" destination="LHi-o0-bpn" id="97g-sf-jT4"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="BXI-LZ-CeD" secondAttribute="bottom" id="Aqr-Jn-Ljk"/>
+                            <constraint firstItem="BXI-LZ-CeD" firstAttribute="top" secondItem="Xil-3x-Kwo" secondAttribute="bottom" id="IwT-Zo-oP5"/>
+                            <constraint firstItem="BXI-LZ-CeD" firstAttribute="leading" secondItem="ntx-KH-wh6" secondAttribute="leading" id="fxf-0b-vxz"/>
+                            <constraint firstAttribute="trailing" secondItem="BXI-LZ-CeD" secondAttribute="trailing" id="yEX-r7-bcW"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Shopping list" id="9GV-DD-hvM"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="uo7-bn-DNh" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3158" y="-1281"/>
         </scene>
         <!--Goods List-->
         <scene sceneID="aJn-H9-ACP">
@@ -529,7 +613,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Good name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="wYP-ec-JWL">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Good name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="wYP-ec-JWL" customClass="RoundRectTextField" customModule="ShoppingManiac" customModuleProvider="target">
                                 <rect key="frame" x="16" y="60" width="343" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="URB-pt-kdY"/>
@@ -744,7 +828,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Store name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="CnZ-9V-2Pv">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Store name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="CnZ-9V-2Pv" customClass="RoundRectTextField" customModule="ShoppingManiac" customModuleProvider="target">
                                 <rect key="frame" x="16" y="60" width="343" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="IKI-Ls-xrc"/>
@@ -824,7 +908,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Category name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="BpW-Qr-93d">
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Category name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="BpW-Qr-93d" customClass="RoundRectTextField" customModule="ShoppingManiac" customModuleProvider="target">
                                 <rect key="frame" x="16" y="60" width="343" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="fYC-Kt-Apd"/>
@@ -895,6 +979,7 @@
     </scenes>
     <resources>
         <image name="categories" width="22" height="22"/>
+        <image name="checkbox_unmarked" width="20" height="20"/>
         <image name="documents" width="18" height="22"/>
         <image name="empty_cart" width="22" height="22"/>
         <image name="goods" width="22" height="22"/>

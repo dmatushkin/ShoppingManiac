@@ -16,6 +16,7 @@ class AddStoreViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.storeNameEditField.text = self.store?.name
+        self.storeNameEditField.becomeFirstResponder()
     }
     
     var store: Store?

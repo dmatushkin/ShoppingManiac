@@ -65,13 +65,17 @@ class ShoppingListsListViewController: UIViewController, UITableViewDataSource, 
     }
     
     private func getItem(forIndex: IndexPath) -> ShoppingList? {
-        guard let items = CoreStore.fetchAll(From<ShoppingList>(), OrderBy(.descending("date"))) else { return nil }
-        return items[forIndex.row]
+        return CoreStore.fetchOne(From<ShoppingList>(), OrderBy(.descending("date")), Tweak({ fetchRequest in
+            fetchRequest.fetchOffset = forIndex.row
+        }))
     }
     
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "shoppingListSegue", let controller = segue.destination as? ShoppingListViewController, let path = self.tableView.indexPathForSelectedRow, let item = self.getItem(forIndex: path) {
+            controller.shoppingList = item
+        }
     }
     
     @IBAction func shoppingListsList(unwindSegue: UIStoryboardSegue) {

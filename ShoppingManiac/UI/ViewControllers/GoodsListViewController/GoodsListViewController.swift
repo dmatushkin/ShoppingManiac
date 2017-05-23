@@ -65,8 +65,9 @@ class GoodsListViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     
     private func getItem(forIndex: IndexPath) -> Good? {
-        guard let items = CoreStore.fetchAll(From<Good>(), OrderBy(.ascending("name"))) else { return nil }
-        return items[forIndex.row]
+        return CoreStore.fetchOne(From<Good>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
+            fetchRequest.fetchOffset = forIndex.row
+        }))
     }
     
     // MARK: - Navigation

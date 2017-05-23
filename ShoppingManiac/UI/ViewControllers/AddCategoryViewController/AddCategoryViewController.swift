@@ -16,6 +16,7 @@ class AddCategoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.categoryNameEditField.text = self.category?.name
+        self.categoryNameEditField.becomeFirstResponder()
     }
     
     var category: Category?
