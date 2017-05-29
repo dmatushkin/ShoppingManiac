@@ -9,32 +9,6 @@
 import UIKit
 import CoreStore
 
-class GroupItem {
-    let objectId: NSManagedObjectID
-    let itemName: String
-    let itemGroupName: String?
-    let itemQuantityString: String
-    var purchased: Bool = false
-    
-    init(shoppingListItem: ShoppingListItem) {
-        self.objectId = shoppingListItem.objectID
-        self.itemName = shoppingListItem.good?.name ?? "No name"
-        self.itemGroupName = shoppingListItem.store?.name
-        self.itemQuantityString = shoppingListItem.quantityText
-        self.purchased = shoppingListItem.purchased
-    }
-}
-
-class ShoppingGroup {
-    let groupName: String?
-    let items: [GroupItem]
-    
-    init(name: String?, items:[GroupItem]) {
-        self.groupName = name
-        self.items = items
-    }
-}
-
 class ShoppingListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var tableView: UITableView!
@@ -43,14 +17,55 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     
     var shoppingGroups:[ShoppingGroup] = []
     
+    private var indexPathToEdit: IndexPath?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.automaticallyAdjustsScrollViewInsets = false
+        self.tableView.setBottomInset(inset: 60)
+        self.navigationItem.rightBarButtonItem = self.editButtonItem
+        self.reloadData()
     }
     
-    func reloadData() {
-        
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: true)
+        self.tableView.setEditing(editing, animated: animated)
     }
+    
+    //MARK: - Data processing
+    
+    private func reloadData() {
+        if let items = CoreStore.fetchAll(From<ShoppingListItem>(), Where("list = %@", self.shoppingList)) {
+            var groups: [ShoppingGroup] = []
+            for item in items {
+                let storeName = item.store?.name
+                let storeObjectId = item.store?.objectID
+                if let group = groups.filter({ $0.objectId == storeObjectId }).first {
+                    group.items.append(GroupItem(shoppingListItem: item))
+                } else {
+                    let group = ShoppingGroup(name: storeName, objectId: storeObjectId, items: [GroupItem(shoppingListItem: item)])
+                    groups.append(group)
+                }
+            }
+            self.shoppingGroups = self.sortGroups(groups: groups)
+        } else {
+            self.shoppingGroups = []
+        }
+        self.tableView.reloadData()
+    }
+    
+    private func sortGroups(groups: [ShoppingGroup]) -> [ShoppingGroup] {
+        for group in groups {
+            group.items = self.sortItems(items: group.items)
+        }
+        return groups.sorted(by: { ($0.0.groupName ?? "") < ($0.1.groupName ?? "") })
+    }
+    
+    private func sortItems(items: [GroupItem]) -> [GroupItem] {
+        return items.sorted(by: { $0.0.lessThan(item: $0.1) })
+    }
+    
+    //MARK: - UITableViewDataSource
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return self.shoppingGroups.count
@@ -69,50 +84,117 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         }
     }
     
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
+    //MARK: - UITableViewDelegate
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return self.shoppingGroups[section].groupName
     }
     
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let editAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Edit") { [unowned self] action, indexPath in
-            tableView.isEditing = false
-            /*if let item = self.getItem(forIndex: indexPath) {
-                let alertController = UIAlertController(title: "Delete store", message: "Are you sure you want to delete \(item.name ?? "store")?", confirmActionTitle: "Delete") {
-                    CoreStore.beginAsynchronous { (transaction) in
-                        transaction.delete(item)
-                        transaction.commit()
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData()
-                        }
-                    }
-                }
-                self.present(alertController, animated: true, completion: nil)
-            }*/
-        }
-        editAction.backgroundColor = UIColor.gray
-        
-        return [editAction]
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return self.shoppingGroups[section].groupName == nil ? 0.01 : 44
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude
     }
     
-    private func getItem(forIndex: IndexPath) -> ShoppingListItem? {
-        return CoreStore.fetchOne(From<ShoppingListItem>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-        }))
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let group = self.shoppingGroups[indexPath.section]
+        let item = group.items[indexPath.row]
+        let shoppingListItem = CoreStore.fetchExisting(item.objectId) as? ShoppingListItem
+        item.purchased = !item.purchased
+        shoppingListItem?.purchased = item.purchased
+        group.items = self.sortItems(items: group.items)
+        tableView.reloadData()
+        /*let sortedItems = self.sortItems(items: group.items)
+        print(sortedItems.map({ $0.itemName }))
+        var itemFound: Bool = false
+        for (idx, sortedItem) in sortedItems.enumerated() {
+            if item.objectId == sortedItem.objectId {
+                let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
+                itemFound = true
+                group.items = sortedItems
+                print("switching \(indexPath.row), \(sortedIndexPath.row)")
+                tableView.reloadRows(at: [indexPath, sortedIndexPath], with: .automatic)
+            }
+        }
+        if itemFound == false {
+            group.items = sortedItems
+            tableView.reloadData()
+        }*/
+    }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let item = self.shoppingGroups[indexPath.section].items[indexPath.row]
+        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [weak self] action, indexPath in
+            let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {
+                self?.tableView.isEditing = false
+                CoreStore.beginSynchronous { transaction in
+                    if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
+                        transaction.delete(shoppingListItem)
+                        let _ = transaction.commit()
+                    }
+                }
+                self?.reloadData()
+            }
+            self?.present(alertController, animated: true, completion: nil)
+        }
+        deleteAction.backgroundColor = UIColor.red
+        let editAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Edit") { [weak self] action, indexPath in
+            tableView.isEditing = false
+            self?.indexPathToEdit = indexPath
+            self?.performSegue(withIdentifier: "editShoppingListItemSegue", sender: self)
+        }
+        editAction.backgroundColor = UIColor.gray
+        
+        return [deleteAction, editAction]
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        
+    }
+    
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        if sourceIndexPath.section != destinationIndexPath.section {
+            let item = self.shoppingGroups[sourceIndexPath.section].items[sourceIndexPath.row]
+            CoreStore.beginSynchronous { transaction in
+                if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
+                    let destinationGroup = self.shoppingGroups[destinationIndexPath.section]
+                    if let storeObjectId = destinationGroup.objectId {
+                        shoppingListItem.store = transaction.fetchExisting(storeObjectId)
+                    } else {
+                        shoppingListItem.store = nil
+                    }
+                    let _ = transaction.commit()
+                }
+            }
+            self.reloadData()
+        }
     }
     
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "addShoppingListItemSegue", let destination = segue.destination as? AddShoppingItemViewController {
+            destination.shoppingList = self.shoppingList
+        } else if segue.identifier == "editShoppingListItemSegue", let indexPath = self.indexPathToEdit, let destination = segue.destination as? AddShoppingItemViewController {
+            let item = self.shoppingGroups[indexPath.section].items[indexPath.row]
+            destination.shoppingListItem = CoreStore.fetchExisting(item.objectId)
+            destination.shoppingList = self.shoppingList
+        }
     }
     
     @IBAction func shoppingList(unwindSegue: UIStoryboardSegue) {
+        if unwindSegue.identifier == "addShoppingItemSaveSegue" {
+            self.reloadData()
+        }
     }
 }

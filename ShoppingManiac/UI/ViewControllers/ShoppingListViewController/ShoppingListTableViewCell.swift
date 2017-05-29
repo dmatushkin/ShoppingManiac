@@ -22,7 +22,7 @@ class ShoppingListTableViewCell: UITableViewCell {
     func setup(withItem item: GroupItem) {
         self.statusImageView.image = item.purchased ? #imageLiteral(resourceName: "checkbox_marked") : #imageLiteral(resourceName: "checkbox_unmarked")
         self.productTitleLabel.text = item.itemName
-        self.storeTitleLabel.text = item.itemGroupName
+        self.storeTitleLabel.text = item.itemCategoryName
         self.productQuantityLabel.text = item.itemQuantityString
         self.productTitleLabel.textColor = item.purchased ? UIColor.gray : UIColor.black
         self.storeTitleLabel.textColor = item.purchased ? UIColor.gray : UIColor.black

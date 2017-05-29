@@ -8,7 +8,7 @@
 
 import Foundation
 import CoreData
-
+import CoreStore
 
 public class ShoppingListItem: NSManagedObject {
 
@@ -43,5 +43,5 @@ public class ShoppingListItem: NSManagedObject {
     
     func isInStore(_ inStore : Store?) -> Bool {
         return self.price != 0 && self.store != nil && (inStore == nil || inStore?.name == self.store?.name)
-    }
+    }    
 }

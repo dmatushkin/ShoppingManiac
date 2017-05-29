@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
+		5650C1341EDAA3EB00977503 /* AddShoppingItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */; };
+		5650C1361EDAA7E400977503 /* AutocompleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */; };
+		5650C1391EDBEF7B00977503 /* GroupItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1381EDBEF7B00977503 /* GroupItem.swift */; };
+		5650C13B1EDBEFA600977503 /* ShoppingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C13A1EDBEFA600977503 /* ShoppingGroup.swift */; };
 		565C3B7B1ED17D01003D8EE8 /* GoodsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B7A1ED17D01003D8EE8 /* GoodsListViewController.swift */; };
 		565C3B7E1ED17D70003D8EE8 /* StoresListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B7D1ED17D70003D8EE8 /* StoresListViewController.swift */; };
 		565C3B811ED17DB5003D8EE8 /* CategoriesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B801ED17DB5003D8EE8 /* CategoriesListViewController.swift */; };
@@ -51,6 +55,10 @@
 /* Begin PBXFileReference section */
 		46ED4AFFBD5958695A9B33C1 /* Pods_ShoppingManiac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShoppingManiac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
+		5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddShoppingItemViewController.swift; sourceTree = "<group>"; };
+		5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutocompleteTextField.swift; sourceTree = "<group>"; };
+		5650C1381EDBEF7B00977503 /* GroupItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupItem.swift; sourceTree = "<group>"; };
+		5650C13A1EDBEFA600977503 /* ShoppingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingGroup.swift; sourceTree = "<group>"; };
 		565C3B7A1ED17D01003D8EE8 /* GoodsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoodsListViewController.swift; sourceTree = "<group>"; };
 		565C3B7D1ED17D70003D8EE8 /* StoresListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoresListViewController.swift; sourceTree = "<group>"; };
 		565C3B801ED17DB5003D8EE8 /* CategoriesListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CategoriesListViewController.swift; sourceTree = "<group>"; };
@@ -136,6 +144,7 @@
 				560E122A1ED17B3700E2529E /* ShoppingListsListViewController */,
 				565C3B851ED18CCB003D8EE8 /* AddShoppingListViewController */,
 				565C3BC61ED1FC84003D8EE8 /* ShoppingListViewController */,
+				5650C1321EDAA3BB00977503 /* AddShoppingItemViewController */,
 				565C3B791ED17CC2003D8EE8 /* GoodsListViewController */,
 				565C3BB61ED1B8B8003D8EE8 /* AddGoodViewController */,
 				565C3B7C1ED17D5E003D8EE8 /* StoresListViewController */,
@@ -151,6 +160,7 @@
 			isa = PBXGroup;
 			children = (
 				565C3BCB1ED20FF3003D8EE8 /* RoundRectTextField.swift */,
+				5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -200,6 +210,23 @@
 				565C3B881ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift */,
 			);
 			path = ShoppingListsListViewController;
+			sourceTree = "<group>";
+		};
+		5650C1321EDAA3BB00977503 /* AddShoppingItemViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */,
+			);
+			path = AddShoppingItemViewController;
+			sourceTree = "<group>";
+		};
+		5650C1371EDBEF6700977503 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5650C1381EDBEF7B00977503 /* GroupItem.swift */,
+				5650C13A1EDBEFA600977503 /* ShoppingGroup.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		565C3B791ED17CC2003D8EE8 /* GoodsListViewController */ = {
@@ -321,6 +348,7 @@
 		566A7DE91ED17758005F9D31 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				5650C1371EDBEF6700977503 /* Models */,
 				565C3B8A1ED1995F003D8EE8 /* Extensions */,
 				B0A4C1B2B2DCA62C7AAB4488 /* AppDelegate.swift */,
 			);
@@ -493,6 +521,7 @@
 				565C3BB51ED1B662003D8EE8 /* GoodsListTableViewCell.swift in Sources */,
 				565C3B991ED19EC5003D8EE8 /* ShoppingListItem+CoreDataClass.swift in Sources */,
 				565C3B871ED18CDE003D8EE8 /* AddShoppingListViewController.swift in Sources */,
+				5650C1361EDAA7E400977503 /* AutocompleteTextField.swift in Sources */,
 				565C3B841ED17DF3003D8EE8 /* AboutViewController.swift in Sources */,
 				565C3BB11ED1A61B003D8EE8 /* Picture+CoreDataProperties.swift in Sources */,
 				565C3BC21ED1E04A003D8EE8 /* StoresListTableViewCell.swift in Sources */,
@@ -505,13 +534,16 @@
 				565C3BAD1ED1A61B003D8EE8 /* GoodRating+CoreDataProperties.swift in Sources */,
 				565C3BAE1ED1A61B003D8EE8 /* Category+CoreDataClass.swift in Sources */,
 				565C3BAF1ED1A61B003D8EE8 /* Category+CoreDataProperties.swift in Sources */,
+				5650C1391EDBEF7B00977503 /* GroupItem.swift in Sources */,
 				565C3B811ED17DB5003D8EE8 /* CategoriesListViewController.swift in Sources */,
 				565C3B981ED19EC5003D8EE8 /* Store+CoreDataProperties.swift in Sources */,
 				565C3B971ED19EC5003D8EE8 /* Store+CoreDataClass.swift in Sources */,
 				565C3BC01ED1DE56003D8EE8 /* AddCategoryViewController.swift in Sources */,
 				565C3BBA1ED1D235003D8EE8 /* CategorySelectionTableViewCell.swift in Sources */,
 				565C3BBD1ED1DE17003D8EE8 /* AddStoreViewController.swift in Sources */,
+				5650C1341EDAA3EB00977503 /* AddShoppingItemViewController.swift in Sources */,
 				565C3BCC1ED20FF3003D8EE8 /* RoundRectTextField.swift in Sources */,
+				5650C13B1EDBEFA600977503 /* ShoppingGroup.swift in Sources */,
 				565C3B7B1ED17D01003D8EE8 /* GoodsListViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

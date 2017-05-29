@@ -8,8 +8,7 @@
 
 import Foundation
 import CoreData
-
+import CoreStore
 
 public class Store: NSManagedObject {
-
 }
