@@ -164,7 +164,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.94999999999999996" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="mCb-qb-Y0h" firstAttribute="leading" secondItem="0vD-DF-hYI" secondAttribute="leadingMargin" id="86Z-4Z-1Z9"/>
                             <constraint firstItem="3Yd-aB-ucG" firstAttribute="top" secondItem="mCb-qb-Y0h" secondAttribute="bottom" constant="20" id="D3N-Ur-ajb"/>
@@ -409,7 +409,7 @@
                             </textField>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fWu-E9-CaX">
                                 <rect key="frame" x="111" y="190" width="200" height="40"/>
-                                <color key="backgroundColor" white="1" alpha="0.5" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.10000000000000001" colorSpace="calibratedWhite"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                         <integer key="value" value="5"/>
@@ -479,20 +479,18 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="items" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HA1-rt-uF9">
                                 <rect key="frame" x="106" y="144.5" width="42" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="weight" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WcT-1e-v9x">
                                 <rect key="frame" x="217" y="144.5" width="51.5" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="IIl-LO-r5s">
                                 <rect key="frame" x="158" y="139.5" width="51" height="31"/>
                             </switch>
                         </subviews>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.94999999999999996" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="66a-2C-s7A" firstAttribute="top" secondItem="1cb-yK-Aoi" secondAttribute="top" id="0NG-Bg-np8"/>
                             <constraint firstItem="fWu-E9-CaX" firstAttribute="top" secondItem="oq8-Vx-DGb" secondAttribute="top" id="1Ql-yc-4hw"/>
@@ -986,7 +984,7 @@
                             </textField>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4a3-3Q-EOM">
                                 <rect key="frame" x="16" y="180" width="200" height="40"/>
-                                <color key="backgroundColor" white="1" alpha="0.5" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.10000000000000001" colorSpace="calibratedWhite"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                         <integer key="value" value="5"/>
@@ -1054,7 +1052,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.94999999999999996" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="wYP-ec-JWL" firstAttribute="leading" secondItem="DNV-Hf-w0h" secondAttribute="leadingMargin" id="0bG-AZ-3JK"/>
                             <constraint firstItem="bGL-0r-JGo" firstAttribute="leading" secondItem="rhU-zm-Hco" secondAttribute="trailing" id="3uU-SC-bBz"/>
@@ -1242,7 +1240,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.94999999999999996" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="CnZ-9V-2Pv" firstAttribute="leading" secondItem="wHL-sq-weW" secondAttribute="leadingMargin" id="0lg-dK-Eio"/>
                             <constraint firstItem="BV5-76-iPg" firstAttribute="top" secondItem="CnZ-9V-2Pv" secondAttribute="bottom" constant="20" id="9HM-1E-q7M"/>
@@ -1322,7 +1320,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.94999999999999996" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="fon-7l-JKq" firstAttribute="top" secondItem="BpW-Qr-93d" secondAttribute="bottom" constant="20" id="0Zk-ok-6Ak"/>
                             <constraint firstItem="BpW-Qr-93d" firstAttribute="top" secondItem="Nnh-zU-wLp" secondAttribute="bottom" constant="40" id="3sz-Z3-YEd"/>

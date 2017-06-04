@@ -24,7 +24,7 @@ class AddShoppingListViewController: UIViewController {
         CoreStore.beginSynchronous { (transaction) in
             let item = transaction.create(Into<ShoppingList>())
             item.name = name
-            item.date = Date().timeIntervalSince1970
+            item.date = Date().timeIntervalSinceReferenceDate
             let _ = transaction.commit()
         }
     }

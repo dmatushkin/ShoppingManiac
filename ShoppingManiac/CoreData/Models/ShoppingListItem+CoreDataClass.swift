@@ -23,16 +23,16 @@ public class ShoppingListItem: NSManagedObject {
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = DateFormatter.Style.medium
             dateFormatter.timeStyle = DateFormatter.Style.medium
-            return dateFormatter.string(from: Date(timeIntervalSince1970: self.purchaseDate))
+            return dateFormatter.string(from: Date(timeIntervalSinceReferenceDate: self.purchaseDate))
         }
         set {
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = DateFormatter.Style.medium
             dateFormatter.timeStyle = DateFormatter.Style.medium
             if let date = dateFormatter.date(from: newValue) {
-                self.purchaseDate = date.timeIntervalSince1970
+                self.purchaseDate = date.timeIntervalSinceReferenceDate
             } else {
-                self.purchaseDate = Date().timeIntervalSince1970
+                self.purchaseDate = Date().timeIntervalSinceReferenceDate
             }
         }
     }

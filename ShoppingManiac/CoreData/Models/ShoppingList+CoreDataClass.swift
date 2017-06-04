@@ -21,7 +21,7 @@ public class ShoppingList: NSManagedObject {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = DateFormatter.Style.long
         dateFormatter.timeStyle = DateFormatter.Style.none
-        return dateFormatter.string(from: Date(timeIntervalSince1970: self.date))
+        return dateFormatter.string(from: Date(timeIntervalSinceReferenceDate: self.date))
     }
     
     var jsonDate : String {
@@ -29,16 +29,16 @@ public class ShoppingList: NSManagedObject {
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = DateFormatter.Style.medium
             dateFormatter.timeStyle = DateFormatter.Style.medium
-            return dateFormatter.string(from: Date(timeIntervalSince1970: self.date))
+            return dateFormatter.string(from: Date(timeIntervalSinceReferenceDate: self.date))
         }
         set {
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = DateFormatter.Style.medium
             dateFormatter.timeStyle = DateFormatter.Style.medium
             if let date = dateFormatter.date(from: newValue) {
-                self.date = date.timeIntervalSince1970
+                self.date = date.timeIntervalSinceReferenceDate
             } else {
-                self.date = Date().timeIntervalSince1970
+                self.date = Date().timeIntervalSinceReferenceDate
             }
         }
     }
