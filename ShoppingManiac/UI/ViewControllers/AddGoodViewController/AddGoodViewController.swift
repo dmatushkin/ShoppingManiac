@@ -19,6 +19,8 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var ratingStar4Button: UIButton!
     @IBOutlet weak var ratingStar5Button: UIButton!
     @IBOutlet weak var categoriesTable: UITableView!
+    @IBOutlet weak var cancelCategorySelectionButton: UIButton!
+    @IBOutlet var categorySelectionPanel: UIView!
     private var stars: [UIButton] = []
     
     var good: Good?
@@ -41,8 +43,8 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
         self.goodNameEditField.text = good?.name
         self.category = good?.category
         self.rating = Int(good?.personalRating ?? 0)
-        self.categoriesTable.isHidden = true
         self.goodNameEditField.becomeFirstResponder()
+        self.goodCategoryEditField.inputView = self.categorySelectionPanel
     }
     
     private func createItem(withName name: String) {
@@ -70,12 +72,16 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     @IBAction func editCategoryAction(_ sender: Any) {
-        self.categoriesTable.isHidden = false
+        self.categoriesTable.isHidden = (CoreStore.fetchCount(From<Category>(), []) ?? 0) == 0
         self.categoriesTable.reloadData()
     }
     
+    @IBAction func cancelCategorySelectionAction(_ sender: Any) {
+        self.goodCategoryEditField.endEditing(true)
+    }
+    
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return (CoreStore.fetchCount(From<Category>(), []) ?? 0) + 1
+        return CoreStore.fetchCount(From<Category>(), []) ?? 0
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -94,17 +100,12 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.category = self.getItem(forIndex: indexPath)
         self.goodCategoryEditField.endEditing(true)
-        self.categoriesTable.isHidden = true
     }
     
     private func getItem(forIndex: IndexPath) -> Category? {
-        if forIndex.row == 0 {
-            return nil
-        } else {
-            return CoreStore.fetchOne(From<Category>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
-                fetchRequest.fetchOffset = forIndex.row - 1
-            }))
-        }
+        return CoreStore.fetchOne(From<Category>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
+            fetchRequest.fetchOffset = forIndex.row
+        }))
     }
 
     // MARK: - Navigation

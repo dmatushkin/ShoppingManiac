@@ -8,10 +8,12 @@
 
 import UIKit
 import CoreStore
+import MessageUI
 
-class ShoppingListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ShoppingListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var totalLabel: UILabel!
     
     var shoppingList: ShoppingList!
     
@@ -35,23 +37,35 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     //MARK: - Data processing
     
     private func reloadData() {
-        if let items = CoreStore.fetchAll(From<ShoppingListItem>(), Where("list = %@", self.shoppingList)) {
-            var groups: [ShoppingGroup] = []
-            for item in items {
-                let storeName = item.store?.name
-                let storeObjectId = item.store?.objectID
-                if let group = groups.filter({ $0.objectId == storeObjectId }).first {
-                    group.items.append(GroupItem(shoppingListItem: item))
-                } else {
-                    let group = ShoppingGroup(name: storeName, objectId: storeObjectId, items: [GroupItem(shoppingListItem: item)])
-                    groups.append(group)
+        CoreStore.beginAsynchronous { transaction in
+            if let items = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self.shoppingList)) {
+                let totalPrice = items.reduce(0.0) { acc, curr in
+                    return acc + curr.totalPrice
+                }
+                var groups: [ShoppingGroup] = []
+                for item in items {
+                    let storeName = item.store?.name
+                    let storeObjectId = item.store?.objectID
+                    if let group = groups.filter({ $0.objectId == storeObjectId }).first {
+                        group.items.append(GroupItem(shoppingListItem: item))
+                    } else {
+                        let group = ShoppingGroup(name: storeName, objectId: storeObjectId, items: [GroupItem(shoppingListItem: item)])
+                        groups.append(group)
+                    }
+                }
+                self.shoppingGroups = self.sortGroups(groups: groups)
+                DispatchQueue.main.async {
+                    self.totalLabel.text = String(format: "Total: %.2f", totalPrice)
+                    self.tableView.reloadData()
+                }
+            } else {
+                self.shoppingGroups = []
+                DispatchQueue.main.async {
+                    self.totalLabel.text = String(format: "Total: %.2f", 0)
+                    self.tableView.reloadData()
                 }
             }
-            self.shoppingGroups = self.sortGroups(groups: groups)
-        } else {
-            self.shoppingGroups = []
         }
-        self.tableView.reloadData()
     }
     
     private func sortGroups(groups: [ShoppingGroup]) -> [ShoppingGroup] {
@@ -104,24 +118,29 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         let shoppingListItem = CoreStore.fetchExisting(item.objectId) as? ShoppingListItem
         item.purchased = !item.purchased
         shoppingListItem?.purchased = item.purchased
-        group.items = self.sortItems(items: group.items)
-        tableView.reloadData()
-        /*let sortedItems = self.sortItems(items: group.items)
-        print(sortedItems.map({ $0.itemName }))
+        /*group.items = self.sortItems(items: group.items)
+        tableView.reloadData()*/
+        let sortedItems = self.sortItems(items: group.items)
+        //print(sortedItems.map({ $0.itemName }))
         var itemFound: Bool = false
         for (idx, sortedItem) in sortedItems.enumerated() {
             if item.objectId == sortedItem.objectId {
                 let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
                 itemFound = true
                 group.items = sortedItems
-                print("switching \(indexPath.row), \(sortedIndexPath.row)")
-                tableView.reloadRows(at: [indexPath, sortedIndexPath], with: .automatic)
+                //print("switching \(indexPath.row), \(sortedIndexPath.row)")
+                UIView.animate(withDuration: 0.5, animations: { () -> Void in
+                    self.tableView.moveRow(at: indexPath, to: sortedIndexPath)
+                }, completion: { (Bool) -> Void in
+                    self.tableView.reloadRows(at: [indexPath, sortedIndexPath], with: UITableViewRowAnimation.none)
+                })
+                break
             }
         }
         if itemFound == false {
             group.items = sortedItems
             tableView.reloadData()
-        }*/
+        }
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -196,5 +215,36 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         if unwindSegue.identifier == "addShoppingItemSaveSegue" {
             self.reloadData()
         }
+    }
+    
+    @IBAction func shareAction(_ sender: Any) {
+        self.sendSms()
+    }
+    
+    func sendSms() {
+        if MFMessageComposeViewController.canSendText() {
+            let picker = MFMessageComposeViewController()
+            picker.messageComposeDelegate = self
+            picker.body = shoppingList.textData()
+            if MFMessageComposeViewController.canSendAttachments() {
+                if let data = shoppingList.jsonData() {
+                    picker.addAttachmentData(data as Data, typeIdentifier: "public.json", filename: "\(shoppingList.title).smstorage")
+                }
+            }
+            self.present(picker, animated: true, completion: nil)
+        } else {
+            let alert = UIAlertController(title: "Error", message: "Unable to send text messages from this device", preferredStyle: .alert)
+            let cancelAction = UIAlertAction(title: "Close", style: .default) { action in
+                alert.dismiss(animated: true)
+            }
+            alert.addAction(cancelAction)
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    //MARK: - MFMessageComposeViewControllerDelegate
+    
+    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+        controller.dismiss(animated: true, completion: nil)
     }
 }

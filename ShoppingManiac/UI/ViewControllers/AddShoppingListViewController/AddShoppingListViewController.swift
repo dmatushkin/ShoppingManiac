@@ -12,6 +12,8 @@ import CoreStore
 class AddShoppingListViewController: UIViewController {
 
     @IBOutlet weak var shoppingNameEditField: UITextField!
+    var shoppingList: ShoppingList?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()

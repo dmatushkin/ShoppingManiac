@@ -81,6 +81,10 @@ class ShoppingListsListViewController: UIViewController, UITableViewDataSource, 
     @IBAction func shoppingListsList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addListSaveSegue" {
             self.tableView.reloadData()
+            self.tableView.selectRow(at: IndexPath(row: 0, section: 0) , animated: true, scrollPosition: .top)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.performSegue(withIdentifier: "shoppingListSegue", sender: self)
+            }            
         }
     }
 }
