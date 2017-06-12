@@ -115,9 +115,13 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let group = self.shoppingGroups[indexPath.section]
         let item = group.items[indexPath.row]
-        let shoppingListItem = CoreStore.fetchExisting(item.objectId) as? ShoppingListItem
+        
         item.purchased = !item.purchased
-        shoppingListItem?.purchased = item.purchased
+        CoreStore.beginAsynchronous { transaction in
+            let shoppingListItem = transaction.fetchExisting(item.objectId) as? ShoppingListItem
+            shoppingListItem?.purchased = item.purchased
+            transaction.commit()
+        }
         /*group.items = self.sortItems(items: group.items)
         tableView.reloadData()*/
         let sortedItems = self.sortItems(items: group.items)

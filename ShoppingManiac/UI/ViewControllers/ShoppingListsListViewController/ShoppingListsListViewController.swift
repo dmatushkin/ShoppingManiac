@@ -18,6 +18,13 @@ class ShoppingListsListViewController: UIViewController, UITableViewDataSource, 
         self.automaticallyAdjustsScrollViewInsets = false
     }
     
+    var listToShow: ShoppingList?
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.tableView.reloadData()
+    }
+    
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return CoreStore.fetchCount(From<ShoppingList>(), []) ?? 0
     }
@@ -73,15 +80,20 @@ class ShoppingListsListViewController: UIViewController, UITableViewDataSource, 
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "shoppingListSegue", let controller = segue.destination as? ShoppingListViewController, let path = self.tableView.indexPathForSelectedRow, let item = self.getItem(forIndex: path) {
-            controller.shoppingList = item
+        if segue.identifier == "shoppingListSegue", let controller = segue.destination as? ShoppingListViewController {
+            if let item = self.listToShow {
+                controller.shoppingList = item
+            } else if let path = self.tableView.indexPathForSelectedRow, let item = self.getItem(forIndex: path) {
+                controller.shoppingList = item
+            }
+            self.listToShow = nil
         }
     }
     
     @IBAction func shoppingListsList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addListSaveSegue" {
             self.tableView.reloadData()
-            self.tableView.selectRow(at: IndexPath(row: 0, section: 0) , animated: true, scrollPosition: .top)
+            //self.tableView.selectRow(at: IndexPath(row: 0, section: 0) , animated: true, scrollPosition: .top)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.performSegue(withIdentifier: "shoppingListSegue", sender: self)
             }            
