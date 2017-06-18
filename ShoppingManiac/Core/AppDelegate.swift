@@ -42,58 +42,57 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
         let data = try? Data(contentsOf: url)
-        if let jsonObject = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions())) as? NSDictionary {
-            self.importShoppingList(fromJsonData: jsonObject) { [weak self] list in
-                guard let `self` = self else { return }
-                if let topController = self.window?.rootViewController as? UITabBarController, let navigation = topController.viewControllers?.first as? UINavigationController, let listController = navigation.viewControllers.first as? ShoppingListsListViewController {
-                    topController.selectedIndex = 0
-                    listController.dismiss(animated: false, completion: nil)
-                    listController.listToShow = list
-                    listController.performSegue(withIdentifier: "shoppingListSegue", sender: self)
-                }
+        if let jsonObject = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions())) as? NSDictionary, let list = self.importShoppingList(fromJsonData: jsonObject) {
+            if let topController = self.window?.rootViewController as? UITabBarController, let navigation = topController.viewControllers?.first as? UINavigationController, let listController = navigation.viewControllers.first as? ShoppingListsListViewController {
+                topController.selectedIndex = 0
+                listController.dismiss(animated: false, completion: nil)
+                listController.listToShow = list
+                listController.performSegue(withIdentifier: "shoppingListSegue", sender: self)
             }
         }
         return true
     }
     
-    func importShoppingList(fromJsonData jsonData: NSDictionary, onDone:@escaping ((ShoppingList)->())) {
-        CoreStore.beginAsynchronous { transaction in
-            let list = transaction.create(Into<ShoppingList>())
-            list.name = jsonData["name"] as? String
-            list.jsonDate = (jsonData["date"] as? String) ?? ""
-            if let itemsArray = jsonData["items"] as? [NSDictionary] {
-                for itemDict in itemsArray {
-                    let shoppingListItem = transaction.create(Into<ShoppingListItem>())
-                    if let goodName = itemDict["good"] as? String, goodName.characters.count > 0 {
-                        if let good = transaction.fetchOne(From<Good>(), Where("name == %@", goodName)) {
-                            shoppingListItem.good = good
-                        } else {
-                            let good = transaction.create(Into<Good>())
-                            good.name = goodName
-                            shoppingListItem.good = good
+    func importShoppingList(fromJsonData jsonData: NSDictionary) -> ShoppingList? {
+        do {
+            let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
+                let list = transaction.create(Into<ShoppingList>())
+                list.name = jsonData["name"] as? String
+                list.jsonDate = (jsonData["date"] as? String) ?? ""
+                if let itemsArray = jsonData["items"] as? [NSDictionary] {
+                    for itemDict in itemsArray {
+                        let shoppingListItem = transaction.create(Into<ShoppingListItem>())
+                        if let goodName = itemDict["good"] as? String, goodName.characters.count > 0 {
+                            if let good = transaction.fetchOne(From<Good>(), Where("name == %@", goodName)) {
+                                shoppingListItem.good = good
+                            } else {
+                                let good = transaction.create(Into<Good>())
+                                good.name = goodName
+                                shoppingListItem.good = good
+                            }
                         }
-                    }
-                    if let storeName = itemDict["store"] as? String, storeName.characters.count > 0 {
-                        if let store = transaction.fetchOne(From<Store>(), Where("name == %@", storeName)) {
-                            shoppingListItem.store = store
-                        } else {
-                            let store = transaction.create(Into<Store>())
-                            store.name = storeName
-                            shoppingListItem.store = store
+                        if let storeName = itemDict["store"] as? String, storeName.characters.count > 0 {
+                            if let store = transaction.fetchOne(From<Store>(), Where("name == %@", storeName)) {
+                                shoppingListItem.store = store
+                            } else {
+                                let store = transaction.create(Into<Store>())
+                                store.name = storeName
+                                shoppingListItem.store = store
+                            }
                         }
+                        shoppingListItem.purchased = (itemDict["purchased"] as? NSNumber)?.boolValue ?? false
+                        shoppingListItem.price = (itemDict["price"] as? NSNumber)?.floatValue ?? 0
+                        shoppingListItem.quantity = (itemDict["quantity"] as? NSNumber)?.floatValue ?? 0
+                        shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
+                        shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
+                        shoppingListItem.list = list
                     }
-                    shoppingListItem.purchased = (itemDict["purchased"] as? NSNumber)?.boolValue ?? false
-                    shoppingListItem.price = (itemDict["price"] as? NSNumber)?.floatValue ?? 0
-                    shoppingListItem.quantity = (itemDict["quantity"] as? NSNumber)?.floatValue ?? 0
-                    shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
-                    shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
-                    shoppingListItem.list = list
                 }
-            }
-            transaction.commit()
-            DispatchQueue.main.async {
-                onDone(CoreStore.fetchExisting(list.objectID) as! ShoppingList)
-            }
+                return list
+            })
+            return list
+        } catch {
+            return nil
         }
     }
 }

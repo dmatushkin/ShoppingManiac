@@ -22,19 +22,17 @@ class AddCategoryViewController: UIViewController {
     var category: Category?
     
     private func createItem(withName name: String) {
-        CoreStore.beginSynchronous { (transaction) in
+        try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.create(Into<Category>())
             item.name = name
-            let _ = transaction.commit()
-        }
+        })
     }
     
     private func updateItem(item: Category, withName name: String) {
-        CoreStore.beginSynchronous { (transaction) in
+        try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.edit(item)
             item?.name = name
-            let _ = transaction.commit()
-        }
+        })
     }
     
     // MARK: - Navigation

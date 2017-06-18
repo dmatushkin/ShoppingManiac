@@ -20,23 +20,25 @@ class AddShoppingListViewController: UIViewController {
         self.shoppingNameEditField.becomeFirstResponder()
     }
 
-    private func createItem(withName name: String) -> ShoppingList {
-        var listId: NSManagedObjectID!
-        CoreStore.beginSynchronous { (transaction) in
-            let item = transaction.create(Into<ShoppingList>())
-            item.name = name
-            item.date = Date().timeIntervalSinceReferenceDate
-            let _ = transaction.commit()
-            listId = item.objectID
+    private func createItem(withName name: String) -> ShoppingList? {
+        do {
+            let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
+                let item = transaction.create(Into<ShoppingList>())
+                item.name = name
+                item.date = Date().timeIntervalSinceReferenceDate
+                return item
+            })
+            return list
+        } catch {
+            return nil
         }
-        return CoreStore.fetchExisting(listId) as! ShoppingList
+        
     }
     
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "addListSaveSegue", let name = self.shoppingNameEditField.text {
-            let list = self.createItem(withName: name)
+        if segue.identifier == "addListSaveSegue", let name = self.shoppingNameEditField.text, let list = self.createItem(withName: name) {
             (segue.destination as? ShoppingListsListViewController)?.listToShow = list
         }
     }

@@ -40,13 +40,11 @@ class CategoriesListViewController: UIViewController, UITableViewDelegate, UITab
             tableView.isEditing = false
             if let item = self.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete category", message: "Are you sure you want to delete \(item.name ?? "category")?", confirmActionTitle: "Delete") {
-                    CoreStore.beginAsynchronous { (transaction) in
+                    CoreStore.perform(asynchronous: { transaction in
                         transaction.delete(item)
-                        transaction.commit()
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData()
-                        }
-                    }
+                    }, completion: { result in
+                        self.tableView.reloadData()
+                    })
                 }
                 self.present(alertController, animated: true, completion: nil)
             }
@@ -67,6 +65,7 @@ class CategoriesListViewController: UIViewController, UITableViewDelegate, UITab
     private func getItem(forIndex: IndexPath) -> Category? {
         return CoreStore.fetchOne(From<Category>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
+            fetchRequest.fetchLimit = 1
         }))
     }
     

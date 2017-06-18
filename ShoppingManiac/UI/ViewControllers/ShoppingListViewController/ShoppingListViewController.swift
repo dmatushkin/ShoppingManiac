@@ -24,7 +24,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     override func viewDidLoad() {
         super.viewDidLoad()
         self.automaticallyAdjustsScrollViewInsets = false
-        self.tableView.setBottomInset(inset: 60)
+        self.tableView.setBottomInset(inset: 70)
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         self.reloadData()
     }
@@ -37,7 +37,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     //MARK: - Data processing
     
     private func reloadData() {
-        CoreStore.beginAsynchronous { transaction in
+        CoreStore.perform(asynchronous: { transaction in
             if let items = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self.shoppingList)) {
                 let totalPrice = items.reduce(0.0) { acc, curr in
                     return acc + curr.totalPrice
@@ -56,16 +56,16 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
                 self.shoppingGroups = self.sortGroups(groups: groups)
                 DispatchQueue.main.async {
                     self.totalLabel.text = String(format: "Total: %.2f", totalPrice)
-                    self.tableView.reloadData()
                 }
             } else {
                 self.shoppingGroups = []
                 DispatchQueue.main.async {
                     self.totalLabel.text = String(format: "Total: %.2f", 0)
-                    self.tableView.reloadData()
                 }
             }
-        }
+        }, completion: { result in
+            self.tableView.reloadData()
+        })
     }
     
     private func sortGroups(groups: [ShoppingGroup]) -> [ShoppingGroup] {
@@ -117,11 +117,12 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         let item = group.items[indexPath.row]
         
         item.purchased = !item.purchased
-        CoreStore.beginAsynchronous { transaction in
-            let shoppingListItem = transaction.fetchExisting(item.objectId) as? ShoppingListItem
-            shoppingListItem?.purchased = item.purchased
-            transaction.commit()
-        }
+        CoreStore.perform(asynchronous: { transaction in
+            if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
+                shoppingListItem.purchased = item.purchased
+            }
+        }, completion: { result in
+        })
         /*group.items = self.sortItems(items: group.items)
         tableView.reloadData()*/
         let sortedItems = self.sortItems(items: group.items)
@@ -156,13 +157,13 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [weak self] action, indexPath in
             let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {
                 self?.tableView.isEditing = false
-                CoreStore.beginSynchronous { transaction in
+                CoreStore.perform(asynchronous: { transaction in
                     if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
                         transaction.delete(shoppingListItem)
-                        let _ = transaction.commit()
                     }
-                }
-                self?.reloadData()
+                }, completion: { [weak self] result in
+                    self?.reloadData()
+                })
             }
             self?.present(alertController, animated: true, completion: nil)
         }
@@ -188,7 +189,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath.section != destinationIndexPath.section {
             let item = self.shoppingGroups[sourceIndexPath.section].items[sourceIndexPath.row]
-            CoreStore.beginSynchronous { transaction in
+            CoreStore.perform(asynchronous: { transaction in
                 if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
                     let destinationGroup = self.shoppingGroups[destinationIndexPath.section]
                     if let storeObjectId = destinationGroup.objectId {
@@ -196,10 +197,10 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
                     } else {
                         shoppingListItem.store = nil
                     }
-                    let _ = transaction.commit()
                 }
-            }
-            self.reloadData()
+            }, completion: { [weak self] result in
+                self?.reloadData()
+            })
         }
     }
     

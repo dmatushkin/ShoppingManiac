@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="p8F-sG-Cnb">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="p8F-sG-Cnb">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -258,6 +258,33 @@
                                     <outlet property="delegate" destination="xGt-Cw-N2w" id="0A5-FT-q2D"/>
                                 </connections>
                             </tableView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2kt-zi-AVO" customClass="EXTView">
+                                <rect key="frame" x="0.0" y="548" width="375" height="70"/>
+                                <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.89803921568627454" alpha="0.80000000000000004" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="70" id="b7t-vO-Dp9"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                        <color key="value" red="0.34509803919999998" green="0.90196078430000004" blue="0.78039215689999997" alpha="1" colorSpace="calibratedRGB"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                        <real key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="bgStartColor">
+                                        <color key="value" red="0.80000000000000004" green="1" blue="0.89803921568627454" alpha="0.40000000000000002" colorSpace="calibratedRGB"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="bgEndColor">
+                                        <color key="value" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.90000000000000002" colorSpace="calibratedRGB"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="point" keyPath="bgStartPoint">
+                                        <point key="value" x="0.5" y="0.0"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="point" keyPath="bgEndPoint">
+                                        <point key="value" x="0.5" y="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gTN-Hh-Vcc">
                                 <rect key="frame" x="309" y="558" width="50" height="50"/>
                                 <color key="backgroundColor" red="0.036072744269203066" green="0.64975307642487046" blue="0.020739749750946852" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
@@ -277,14 +304,14 @@
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total: 0.00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wH0-fc-Iyl">
                                 <rect key="frame" x="147" y="577.5" width="81" height="20.5"/>
-                                <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mdm-xs-5Ne">
                                 <rect key="frame" x="16" y="562" width="42" height="42"/>
-                                <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.80000000000000004" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <state key="normal" image="share_icon"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -300,12 +327,15 @@
                         <constraints>
                             <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="gTN-Hh-Vcc" secondAttribute="bottom" constant="10" id="8Jw-L3-sqz"/>
                             <constraint firstItem="Mdm-xs-5Ne" firstAttribute="leading" secondItem="ntx-KH-wh6" secondAttribute="leadingMargin" id="9tb-TD-q18"/>
+                            <constraint firstAttribute="trailing" secondItem="2kt-zi-AVO" secondAttribute="trailing" id="AMG-bb-LZp"/>
                             <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="BXI-LZ-CeD" secondAttribute="bottom" id="Aqr-Jn-Ljk"/>
                             <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="wH0-fc-Iyl" secondAttribute="bottom" constant="20" id="F8g-7t-UHI"/>
+                            <constraint firstItem="2kt-zi-AVO" firstAttribute="leading" secondItem="ntx-KH-wh6" secondAttribute="leading" id="FyB-HN-W4J"/>
                             <constraint firstItem="BXI-LZ-CeD" firstAttribute="top" secondItem="Xil-3x-Kwo" secondAttribute="bottom" id="IwT-Zo-oP5"/>
                             <constraint firstAttribute="trailingMargin" secondItem="gTN-Hh-Vcc" secondAttribute="trailing" id="OGI-WN-Fem"/>
                             <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="Mdm-xs-5Ne" secondAttribute="bottom" constant="14" id="XZq-Kb-bVN"/>
                             <constraint firstItem="BXI-LZ-CeD" firstAttribute="leading" secondItem="ntx-KH-wh6" secondAttribute="leading" id="fxf-0b-vxz"/>
+                            <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="2kt-zi-AVO" secondAttribute="bottom" id="mFU-qg-vgz"/>
                             <constraint firstItem="wH0-fc-Iyl" firstAttribute="centerX" secondItem="ntx-KH-wh6" secondAttribute="centerX" id="upd-2h-EoR"/>
                             <constraint firstAttribute="trailing" secondItem="BXI-LZ-CeD" secondAttribute="trailing" id="yEX-r7-bcW"/>
                         </constraints>

@@ -48,23 +48,21 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     private func createItem(withName name: String) {
-        CoreStore.beginSynchronous { (transaction) in
+        try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.create(Into<Good>())
             item.name = name
             item.category = transaction.edit(self.category)
             item.personalRating = Int16(self.rating)
-            let _ = transaction.commit()
-        }
+        })
     }
     
     private func updateItem(item: Good, withName name: String) {
-        CoreStore.beginSynchronous { (transaction) in
+        try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.edit(item)
             item?.name = name
             item?.category = transaction.edit(self.category)
             item?.personalRating = Int16(self.rating)
-            let _ = transaction.commit()
-        }
+        })
     }
     
     @IBAction func starSelectedAction(button: UIButton) {
@@ -105,6 +103,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     private func getItem(forIndex: IndexPath) -> Category? {
         return CoreStore.fetchOne(From<Category>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
+            fetchRequest.fetchLimit = 1
         }))
     }
 

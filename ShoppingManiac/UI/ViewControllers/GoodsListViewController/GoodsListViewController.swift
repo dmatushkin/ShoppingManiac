@@ -40,13 +40,11 @@ class GoodsListViewController: UIViewController, UITableViewDelegate, UITableVie
             tableView.isEditing = false
             if let good = self.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete good", message: "Are you sure you want to delete \(good.name ?? "this good")?", confirmActionTitle: "Delete") {
-                    CoreStore.beginAsynchronous { (transaction) in
+                    CoreStore.perform(asynchronous: { transaction in
                         transaction.delete(good)
-                        transaction.commit()
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData()
-                        }
-                    }
+                    }, completion: { result in
+                        self.tableView.reloadData()
+                    })
                 }
                 self.present(alertController, animated: true, completion: nil)
             }
@@ -67,6 +65,7 @@ class GoodsListViewController: UIViewController, UITableViewDelegate, UITableVie
     private func getItem(forIndex: IndexPath) -> Good? {
         return CoreStore.fetchOne(From<Good>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
+            fetchRequest.fetchLimit = 1
         }))
     }
     

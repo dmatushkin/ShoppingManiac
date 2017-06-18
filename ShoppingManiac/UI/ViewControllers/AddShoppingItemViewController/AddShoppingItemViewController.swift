@@ -53,15 +53,16 @@ class AddShoppingItemViewController: UIViewController {
     }
         
     private func updateItem(withName name: String) {
-        CoreStore.beginSynchronous { (transaction) in
+        try? CoreStore.perform(synchronous: { transaction in
             let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
             if let good = transaction.fetchOne(From<Good>(), Where("name == %@", name)) {
-                 item?.good = good
+                item?.good = good
             } else {
                 let good = transaction.create(Into<Good>())
                 good.name = name
                 item?.good = good
             }
+            item?.isWeight = self.weightSwitch.isOn
             item?.good?.personalRating = Int16(self.rating)
             if let storeName = self.storeEditField.text, storeName.characters.count > 0 {
                 if let store = transaction.fetchOne(From<Store>(), Where("name == %@", storeName)) {
@@ -74,19 +75,18 @@ class AddShoppingItemViewController: UIViewController {
             } else {
                 item?.store = nil
             }
-            if let amount = self.amountEditField.text, amount.characters.count > 0, let value = Float(amount) {
+            if let amount = self.amountEditField.text?.replacingOccurrences(of: ",", with: "."), amount.characters.count > 0, let value = Float(amount) {
                 item?.quantity = value
             } else {
                 item?.quantity = 1
             }
-            if let price = self.priceEditField.text, price.characters.count > 0, let value = Float(price) {
+            if let price = self.priceEditField.text?.replacingOccurrences(of: ",", with: "."), price.characters.count > 0, let value = Float(price) {
                 item?.price = value
             } else {
                 item?.price = 0
             }
             item?.list = transaction.edit(self.shoppingList)
-            let _ = transaction.commit()
-        }
+        })
     }
 
     // MARK: - Navigation

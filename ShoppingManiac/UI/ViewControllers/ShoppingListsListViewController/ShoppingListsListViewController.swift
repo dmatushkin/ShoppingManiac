@@ -47,13 +47,11 @@ class ShoppingListsListViewController: UIViewController, UITableViewDataSource, 
             tableView.isEditing = false
             if let shoppingList = self.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete list", message: "Are you sure you want to delete list \(shoppingList.title)?", confirmActionTitle: "Delete") {
-                    CoreStore.beginAsynchronous { (transaction) in
+                    CoreStore.perform(asynchronous: { transaction in
                         transaction.delete(shoppingList)
-                        transaction.commit()
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData()
-                        }
-                    }
+                    }, completion: { result in
+                        self.tableView.reloadData()
+                    })
                 }
                 self.present(alertController, animated: true, completion: nil)
             }
@@ -74,6 +72,7 @@ class ShoppingListsListViewController: UIViewController, UITableViewDataSource, 
     private func getItem(forIndex: IndexPath) -> ShoppingList? {
         return CoreStore.fetchOne(From<ShoppingList>(), OrderBy(.descending("date")), Tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
+            fetchRequest.fetchLimit = 1
         }))
     }
     

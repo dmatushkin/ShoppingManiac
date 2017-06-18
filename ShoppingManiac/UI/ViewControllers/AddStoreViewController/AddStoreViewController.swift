@@ -22,19 +22,17 @@ class AddStoreViewController: UIViewController {
     var store: Store?
     
     private func createItem(withName name: String) {
-        CoreStore.beginSynchronous { (transaction) in
+        try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.create(Into<Store>())
             item.name = name
-            let _ = transaction.commit()
-        }
+        })
     }
     
     private func updateItem(item: Store, withName name: String) {
-        CoreStore.beginSynchronous { (transaction) in
+        try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.edit(item)
             item?.name = name
-            let _ = transaction.commit()
-        }
+        })
     }
     
     // MARK: - Navigation
