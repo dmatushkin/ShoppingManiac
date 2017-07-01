@@ -8,7 +8,7 @@
 
 import Foundation
 import CoreData
-
+import CoreStore
 
 public class ShoppingList: NSManagedObject {
 
@@ -55,43 +55,54 @@ public class ShoppingList: NSManagedObject {
     
     func textData() -> String {
         var result = self.title + "\n"
-        if let unsortedItems = self.items?.allObjects as? [ShoppingListItem] {
-            let sortedItems = unsortedItems.sorted( by: { ($0.good?.name ?? "") < ($1.good?.name ?? "") } )
-            for item in sortedItems {
-                var line = "\(item.good?.name ?? "") \(item.quantityText)"
-                if item.store != nil {
-                    line += " : \(item.store?.name ?? "")"
+        do {
+            let itemsLine = try CoreStore.perform(synchronous: { transaction -> String in
+                var result = ""
+                if let items = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self))?.sorted( by: { ($0.good?.name ?? "") < ($1.good?.name ?? "") } ) {
+                    for item in items {
+                        var line = "\(item.good?.name ?? "") \(item.quantityText)"
+                        if item.store != nil {
+                            line += " : \(item.store?.name ?? "")"
+                        }
+                        result += (line + "\n")
+                    }
                 }
-                result += (line + "\n")
-            }
+                return result
+            })
+            result += itemsLine
+        } catch {
         }
         return result
     }
     
     func jsonData() -> Data? {
-        let result = NSMutableDictionary()
+        var result = [String:Any]()
         
         result["name"] = self.name
         result["date"] = self.jsonDate
         
-        let itemsArray = NSMutableArray()
-        if let items = self.items?.allObjects as? [ShoppingListItem] {
-            for item in items {
-                let itemDict = NSMutableDictionary()
-                
-                itemDict["good"] = item.good?.name ?? ""
-                itemDict["store"] = item.store?.name ?? ""
-                itemDict["price"] = item.price
-                itemDict["purchased"] = item.purchased
-                itemDict["purchaseDate"] = item.jsonPurchaseDate
-                itemDict["quantity"] = item.quantity
-                itemDict["isWeight"] = item.isWeight
-                
-                itemsArray.add(itemDict)
-            }
+        do {
+            let itemsArray = try CoreStore.perform(synchronous: { transaction -> [[String : Any]] in
+                var resultItems = [[String:Any]]()
+                if let items = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self)) {
+                    for item in items {
+                        var itemDict = [String:Any]()
+                        itemDict["good"] = item.good?.name ?? ""
+                        itemDict["store"] = item.store?.name ?? ""
+                        itemDict["price"] = item.price
+                        itemDict["purchased"] = item.purchased
+                        itemDict["purchaseDate"] = item.jsonPurchaseDate
+                        itemDict["quantity"] = item.quantity
+                        itemDict["isWeight"] = item.isWeight
+                        resultItems.append(itemDict)
+                    }
+                }
+                return resultItems
+            })
+            result["items"] = itemsArray
+        } catch {
         }
-        result["items"] = itemsArray
         
         return try? JSONSerialization.data(withJSONObject: result, options: [])
-    }
+    }    
 }

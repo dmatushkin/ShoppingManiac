@@ -28,7 +28,7 @@ class AddShoppingListViewController: UIViewController {
                 item.date = Date().timeIntervalSinceReferenceDate
                 return item
             })
-            return list
+            return CoreStore.fetchExisting(list)
         } catch {
             return nil
         }

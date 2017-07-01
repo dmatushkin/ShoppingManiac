@@ -90,7 +90,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 return list
             })
-            return list
+            return CoreStore.fetchExisting(list)
         } catch {
             return nil
         }
