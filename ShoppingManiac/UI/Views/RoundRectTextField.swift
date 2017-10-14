@@ -74,19 +74,19 @@ class RoundRectTextField: UITextField {
         self.floatingLabel.textColor = color
     }
     
-    func editingDone() {
+    @objc func editingDone() {
         self.resignFirstResponder()
     }
     
-    func editingStarted() {
+    @objc func editingStarted() {
         changeFloatingLabelColor(self.floatingLabelActiveColor)
     }
     
-    func editingChanged() {
+    @objc func editingChanged() {
         self.hideFloatingLabel(text?.isEmpty ?? true)
     }
     
-    func editingEnded() {
+    @objc func editingEnded() {
         changeFloatingLabelColor(self.floatingLabelInactiveColor)
     }
     

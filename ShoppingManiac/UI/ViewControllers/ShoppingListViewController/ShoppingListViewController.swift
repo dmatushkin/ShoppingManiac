@@ -38,7 +38,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     
     private func reloadData() {
         CoreStore.perform(asynchronous: { transaction in
-            if let items = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self.shoppingList)) {
+            if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self.shoppingList)) {
                 let totalPrice = items.reduce(0.0) { acc, curr in
                     return acc + curr.totalPrice
                 }
@@ -72,11 +72,11 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         for group in groups {
             group.items = self.sortItems(items: group.items)
         }
-        return groups.sorted(by: { ($0.0.groupName ?? "") < ($0.1.groupName ?? "") })
+        return groups.sorted(by: {item1, item2 in (item1.groupName ?? "") < (item2.groupName ?? "")})
     }
     
     private func sortItems(items: [GroupItem]) -> [GroupItem] {
-        return items.sorted(by: { $0.0.lessThan(item: $0.1) })
+        return items.sorted(by: {item1, item2 in item1.lessThan(item: item2) })
     }
     
     //MARK: - UITableViewDataSource
