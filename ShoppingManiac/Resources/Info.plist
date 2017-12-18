@@ -10,7 +10,9 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeIconFiles</key>
-			<array/>
+			<array>
+				<string>ShoppingManiacIconsBundle</string>
+			</array>
 			<key>CFBundleTypeName</key>
 			<string>ShoppingManiac Shopping List</string>
 			<key>CFBundleTypeRole</key>
@@ -34,9 +36,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1</string>
+	<string>1.2</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>5</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -58,14 +60,16 @@
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
-				<string>public.json</string>
+				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
 			<string>ShoppingManiac File</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.mdd.shoppingmaniac.storage</string>
 			<key>UTTypeSize320IconFile</key>
-			<string></string>
+			<string>ShoppingManiacIconsBundle</string>
+			<key>UTTypeSize64IconFile</key>
+			<string>ShoppingManiacIconsBundle</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
