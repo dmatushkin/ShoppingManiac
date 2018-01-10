@@ -42,7 +42,7 @@ class AddCategoryViewController: UIViewController {
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addCategorySaveSegue" {
-            if let name = self.categoryNameEditField.text, name.characters.count > 0 {
+            if let name = self.categoryNameEditField.text, name.count > 0 {
                 if let item = self.category {
                     self.updateItem(item: item, withName: name)
                 } else {

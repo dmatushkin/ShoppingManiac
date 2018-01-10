@@ -58,7 +58,7 @@ public class ShoppingList: NSManagedObject {
         do {
             let itemsLine = try CoreStore.perform(synchronous: { transaction -> String in
                 var result = ""
-                if let items = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self))?.sorted( by: {item1, item2 in (item1.good?.name ?? "") < (item2.good?.name ?? "") } ) {
+                if let items = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self)))?.sorted( by: {item1, item2 in (item1.good?.name ?? "") < (item2.good?.name ?? "") } ) {
                     for item in items {
                         var line = "\(item.good?.name ?? "") \(item.quantityText)"
                         if item.store != nil {
@@ -84,7 +84,7 @@ public class ShoppingList: NSManagedObject {
         do {
             let itemsArray = try CoreStore.perform(synchronous: { transaction -> [[String : Any]] in
                 var resultItems = [[String:Any]]()
-                if let items = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self)) {
+                if let items = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self))) {
                     for item in items {
                         var itemDict = [String:Any]()
                         itemDict["good"] = item.good?.name ?? ""

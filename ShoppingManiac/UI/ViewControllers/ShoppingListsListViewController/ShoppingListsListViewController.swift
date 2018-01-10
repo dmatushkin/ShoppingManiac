@@ -70,7 +70,7 @@ class ShoppingListsListViewController: UIViewController, UITableViewDataSource, 
     }
     
     private func getItem(forIndex: IndexPath) -> ShoppingList? {
-        return CoreStore.fetchOne(From<ShoppingList>(), OrderBy(.descending("date")), Tweak({ fetchRequest in
+        return CoreStore.fetchOne(From<ShoppingList>().orderBy(.descending(\.date)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))

@@ -39,8 +39,8 @@ class AddShoppingItemViewController: UIViewController {
         
         self.nameEditField.becomeFirstResponder()
         self.nameEditField.text = self.shoppingListItem?.good?.name
-        self.nameEditField.autocompleteStrings = CoreStore.fetchAll(From<Good>(), OrderBy(.ascending("name")))?.map({ $0.name }).filter({ $0 != nil && $0!.characters.count > 0 }).map({ $0! }) ?? []
-        self.storeEditField.autocompleteStrings = CoreStore.fetchAll(From<Store>(), OrderBy(.ascending("name")))?.map({ $0.name }).filter({ $0 != nil && $0!.characters.count > 0 }).map({ $0! }) ?? []
+        self.nameEditField.autocompleteStrings = CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        self.storeEditField.autocompleteStrings = CoreStore.fetchAll(From<Store>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
         self.storeEditField.text = self.shoppingListItem?.store?.name
         if let price = self.shoppingListItem?.price, price > 0 {
             self.priceEditField.text = "\(price)"
@@ -55,7 +55,7 @@ class AddShoppingItemViewController: UIViewController {
     private func updateItem(withName name: String) {
         try? CoreStore.perform(synchronous: { transaction in
             let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
-            if let good = transaction.fetchOne(From<Good>(), Where("name == %@", name)) {
+            if let good = transaction.fetchOne(From<Good>().where(Where("name == %@", name))) {
                 item?.good = good
             } else {
                 let good = transaction.create(Into<Good>())
@@ -64,8 +64,8 @@ class AddShoppingItemViewController: UIViewController {
             }
             item?.isWeight = self.weightSwitch.isOn
             item?.good?.personalRating = Int16(self.rating)
-            if let storeName = self.storeEditField.text, storeName.characters.count > 0 {
-                if let store = transaction.fetchOne(From<Store>(), Where("name == %@", storeName)) {
+            if let storeName = self.storeEditField.text, storeName.count > 0 {
+                if let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
                     item?.store = store
                 } else {
                     let store = transaction.create(Into<Store>())
@@ -75,12 +75,12 @@ class AddShoppingItemViewController: UIViewController {
             } else {
                 item?.store = nil
             }
-            if let amount = self.amountEditField.text?.replacingOccurrences(of: ",", with: "."), amount.characters.count > 0, let value = Float(amount) {
+            if let amount = self.amountEditField.text?.replacingOccurrences(of: ",", with: "."), amount.count > 0, let value = Float(amount) {
                 item?.quantity = value
             } else {
                 item?.quantity = 1
             }
-            if let price = self.priceEditField.text?.replacingOccurrences(of: ",", with: "."), price.characters.count > 0, let value = Float(price) {
+            if let price = self.priceEditField.text?.replacingOccurrences(of: ",", with: "."), price.count > 0, let value = Float(price) {
                 item?.price = value
             } else {
                 item?.price = 0
@@ -96,7 +96,7 @@ class AddShoppingItemViewController: UIViewController {
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addShoppingItemSaveSegue" {
-            if let name = self.nameEditField.text, name.characters.count > 0 {
+            if let name = self.nameEditField.text, name.count > 0 {
                 self.updateItem(withName: name)
                 return true
             } else {

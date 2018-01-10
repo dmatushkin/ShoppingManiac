@@ -63,7 +63,7 @@ class CategoriesListViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     private func getItem(forIndex: IndexPath) -> Category? {
-        return CoreStore.fetchOne(From<Category>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
+        return CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))

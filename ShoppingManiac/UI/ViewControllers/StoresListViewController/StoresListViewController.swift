@@ -63,7 +63,7 @@ class StoresListViewController: UIViewController, UITableViewDataSource, UITable
     }
     
     private func getItem(forIndex: IndexPath) -> Store? {
-        return CoreStore.fetchOne(From<Store>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
+        return CoreStore.fetchOne(From<Store>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))

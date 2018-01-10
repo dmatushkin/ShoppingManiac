@@ -38,7 +38,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     
     private func reloadData() {
         CoreStore.perform(asynchronous: { transaction in
-            if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>(), Where("list = %@", self.shoppingList)) {
+            if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self.shoppingList))) {
                 let totalPrice = items.reduce(0.0) { acc, curr in
                     return acc + curr.totalPrice
                 }

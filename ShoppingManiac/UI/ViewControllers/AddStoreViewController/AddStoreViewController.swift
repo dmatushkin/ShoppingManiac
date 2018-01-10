@@ -42,7 +42,7 @@ class AddStoreViewController: UIViewController {
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addStoreSaveSegue" {
-            if let name = self.storeNameEditField.text, name.characters.count > 0 {
+            if let name = self.storeNameEditField.text, name.count > 0 {
                 if let item = self.store {
                     self.updateItem(item: item, withName: name)
                 } else {

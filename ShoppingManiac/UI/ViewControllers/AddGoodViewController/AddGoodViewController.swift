@@ -101,7 +101,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     private func getItem(forIndex: IndexPath) -> Category? {
-        return CoreStore.fetchOne(From<Category>(), OrderBy(.ascending("name")), Tweak({ fetchRequest in
+        return CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))
@@ -114,7 +114,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addGoodSaveSegue" {
-            if let name = self.goodNameEditField.text, name.characters.count > 0 {
+            if let name = self.goodNameEditField.text, name.count > 0 {
                 if let item = self.good {
                     self.updateItem(item: item, withName: name)
                 } else {

@@ -62,8 +62,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 if let itemsArray = jsonData["items"] as? [NSDictionary] {
                     for itemDict in itemsArray {
                         let shoppingListItem = transaction.create(Into<ShoppingListItem>())
-                        if let goodName = itemDict["good"] as? String, goodName.characters.count > 0 {
-                            if let good = transaction.fetchOne(From<Good>(), Where("name == %@", goodName)) {
+                        if let goodName = itemDict["good"] as? String, goodName.count > 0 {
+                            if let good = transaction.fetchOne(From<Good>().where(Where("name == %@", goodName))) {
                                 shoppingListItem.good = good
                             } else {
                                 let good = transaction.create(Into<Good>())
@@ -71,8 +71,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 shoppingListItem.good = good
                             }
                         }
-                        if let storeName = itemDict["store"] as? String, storeName.characters.count > 0 {
-                            if let store = transaction.fetchOne(From<Store>(), Where("name == %@", storeName)) {
+                        if let storeName = itemDict["store"] as? String, storeName.count > 0 {
+                            if let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
                                 shoppingListItem.store = store
                             } else {
                                 let store = transaction.create(Into<Store>())
