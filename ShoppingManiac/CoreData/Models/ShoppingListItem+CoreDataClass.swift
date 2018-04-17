@@ -11,6 +11,19 @@ import CoreData
 import CoreStore
 
 public class ShoppingListItem: NSManagedObject {
+    
+    func setRecordId(recordId: String) {
+        CoreStore.perform(asynchronous: {[weak self] (transaction)  in
+            guard let `self` = self else { return }
+            if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(self.objectID) {
+                shoppingListItem.recordid = recordId
+            }
+            }, success: {
+                
+        }) { (error) in
+            print("Core store error \(error.debugDescription)")
+        }
+    }
 
     var quantityText : String {
         get {

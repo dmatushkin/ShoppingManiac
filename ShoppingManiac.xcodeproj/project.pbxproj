@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
+		563E92802086395800933522 /* CloudShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563E927F2086395700933522 /* CloudShare.swift */; };
 		5650C1341EDAA3EB00977503 /* AddShoppingItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */; };
 		5650C1361EDAA7E400977503 /* AutocompleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */; };
 		5650C1391EDBEF7B00977503 /* GroupItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1381EDBEF7B00977503 /* GroupItem.swift */; };
@@ -46,6 +47,7 @@
 		565C3BC81ED1FCAA003D8EE8 /* ShoppingListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3BC71ED1FCAA003D8EE8 /* ShoppingListViewController.swift */; };
 		565C3BCA1ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3BC91ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift */; };
 		565C3BCC1ED20FF3003D8EE8 /* RoundRectTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3BCB1ED20FF3003D8EE8 /* RoundRectTextField.swift */; };
+		567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F7321206F915B00B67B5C /* CloudKit.framework */; };
 		56D540571F9A73180036C646 /* UIKeyboardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D540561F9A73180036C646 /* UIKeyboardInfo.swift */; };
 		56EC8F0E1FE84461009C4868 /* ShoppingManiacIconsBundle.icns in Resources */ = {isa = PBXBuildFile; fileRef = 56EC8F0D1FE84461009C4868 /* ShoppingManiacIconsBundle.icns */; };
 		B0A4C727C21324FEACC9686A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A4C1F406A445E62CBD06C0 /* Assets.xcassets */; };
@@ -59,6 +61,7 @@
 		46ED4AFFBD5958695A9B33C1 /* Pods_ShoppingManiac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShoppingManiac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
 		56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSaveSegue.swift; sourceTree = "<group>"; };
+		563E927F2086395700933522 /* CloudShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShare.swift; sourceTree = "<group>"; };
 		5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddShoppingItemViewController.swift; sourceTree = "<group>"; };
 		5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutocompleteTextField.swift; sourceTree = "<group>"; };
 		5650C1381EDBEF7B00977503 /* GroupItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupItem.swift; sourceTree = "<group>"; };
@@ -105,6 +108,8 @@
 		565C3BC91ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListTableViewCell.swift; sourceTree = "<group>"; };
 		565C3BCB1ED20FF3003D8EE8 /* RoundRectTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundRectTextField.swift; sourceTree = "<group>"; };
 		566A7DD41ED1759C005F9D31 /* ShoppingManiac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingManiac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		567F7320206F915700B67B5C /* ShoppingManiac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShoppingManiac.entitlements; sourceTree = "<group>"; };
+		567F7321206F915B00B67B5C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		56D540561F9A73180036C646 /* UIKeyboardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKeyboardInfo.swift; sourceTree = "<group>"; };
 		56EC8F0D1FE84461009C4868 /* ShoppingManiacIconsBundle.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ShoppingManiacIconsBundle.icns; sourceTree = "<group>"; };
 		5923E6ED9D42AB2CD6EFC8E0 /* Pods-ShoppingManiac.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShoppingManiac.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ShoppingManiac/Pods-ShoppingManiac.debug.xcconfig"; sourceTree = "<group>"; };
@@ -122,6 +127,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C218C61E3D35B2F25FD68A5A /* Pods_ShoppingManiac.framework in Frameworks */,
+				567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +137,7 @@
 		00FC28521D62CDE8F963675C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				567F7321206F915B00B67B5C /* CloudKit.framework */,
 				46ED4AFFBD5958695A9B33C1 /* Pods_ShoppingManiac.framework */,
 			);
 			name = Frameworks;
@@ -217,6 +224,14 @@
 				565C3B881ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift */,
 			);
 			path = ShoppingListsListViewController;
+			sourceTree = "<group>";
+		};
+		563E927E2086393C00933522 /* CloudKit */ = {
+			isa = PBXGroup;
+			children = (
+				563E927F2086395700933522 /* CloudShare.swift */,
+			);
+			path = CloudKit;
 			sourceTree = "<group>";
 		};
 		5650C1321EDAA3BB00977503 /* AddShoppingItemViewController */ = {
@@ -344,6 +359,7 @@
 		566A7DD61ED1759C005F9D31 /* ShoppingManiac */ = {
 			isa = PBXGroup;
 			children = (
+				567F7320206F915700B67B5C /* ShoppingManiac.entitlements */,
 				560E12231ED178A500E2529E /* CoreData */,
 				560E12201ED1786200E2529E /* UI */,
 				566A7DE91ED17758005F9D31 /* Core */,
@@ -356,6 +372,7 @@
 		566A7DE91ED17758005F9D31 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				563E927E2086393C00933522 /* CloudKit */,
 				5650C1371EDBEF6700977503 /* Models */,
 				565C3B8A1ED1995F003D8EE8 /* Extensions */,
 				B0A4C1B2B2DCA62C7AAB4488 /* AppDelegate.swift */,
@@ -431,6 +448,14 @@
 						DevelopmentTeam = 5LPE595N4R;
 						LastSwiftMigration = 0830;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -509,6 +534,7 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-ShoppingManiac/Pods-ShoppingManiac-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/CoreStore/CoreStore.framework",
 				"${BUILT_PRODUCTS_DIR}/EXTView/EXTView.framework",
+				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
 				"${BUILT_PRODUCTS_DIR}/NoticeObserveKit/NoticeObserveKit.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftDate/SwiftDate.framework",
 			);
@@ -516,6 +542,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CoreStore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EXTView.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NoticeObserveKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftDate.framework",
 			);
@@ -550,6 +577,7 @@
 				565C3B841ED17DF3003D8EE8 /* AboutViewController.swift in Sources */,
 				565C3BB11ED1A61B003D8EE8 /* Picture+CoreDataProperties.swift in Sources */,
 				56D540571F9A73180036C646 /* UIKeyboardInfo.swift in Sources */,
+				563E92802086395800933522 /* CloudShare.swift in Sources */,
 				565C3BC21ED1E04A003D8EE8 /* StoresListTableViewCell.swift in Sources */,
 				565C3B961ED19EC5003D8EE8 /* ShoppingList+CoreDataProperties.swift in Sources */,
 				565C3B891ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift in Sources */,
@@ -710,6 +738,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ShoppingManiac/ShoppingManiac.entitlements;
 				DEVELOPMENT_TEAM = 5LPE595N4R;
 				INFOPLIST_FILE = "$(SRCROOT)/ShoppingManiac/Resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -728,6 +757,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = ShoppingManiac/ShoppingManiac.entitlements;
 				DEVELOPMENT_TEAM = 5LPE595N4R;
 				INFOPLIST_FILE = "$(SRCROOT)/ShoppingManiac/Resources/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

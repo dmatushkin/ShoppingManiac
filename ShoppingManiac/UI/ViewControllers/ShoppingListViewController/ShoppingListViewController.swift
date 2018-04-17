@@ -218,22 +218,42 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     
     @IBAction func shoppingList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addShoppingItemSaveSegue" {
+            if self.shoppingList.recordid != nil {
+                CloudShare.updateList(list: self.shoppingList)
+            }
             self.reloadData()
         }
     }
     
     @IBAction func shareAction(_ sender: Any) {
-        self.sendSms()
+        if AppDelegate.discoverabilityStatus {
+            let controller = UIAlertController(title: "Sharing", message: "Select sharing type", preferredStyle: .actionSheet)
+            let smsAction = UIAlertAction(title: "Text message", style: .default) {[weak self] action in
+                self?.smsShare()
+            }
+            let icloudAction = UIAlertAction(title: "iCloud", style: .default) {[weak self] action in
+                self?.icloudShare()
+            }
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
+                
+            }
+            controller.addAction(smsAction)
+            controller.addAction(icloudAction)
+            controller.addAction(cancelAction)
+            self.present(controller, animated: true, completion: nil)
+        } else {
+            self.smsShare()
+        }
     }
     
-    func sendSms() {
+    private func smsShare() {
         if MFMessageComposeViewController.canSendText() {
             let picker = MFMessageComposeViewController()
             picker.messageComposeDelegate = self
-            picker.body = shoppingList.textData()
+            picker.body = self.shoppingList.textData()
             if MFMessageComposeViewController.canSendAttachments() {
-                if let data = shoppingList.jsonData() {
-                    picker.addAttachmentData(data as Data, typeIdentifier: "public.json", filename: "\(shoppingList.title).smstorage")
+                if let data = self.shoppingList.jsonData() {
+                    picker.addAttachmentData(data as Data, typeIdentifier: "public.json", filename: "\(self.shoppingList.title).smstorage")
                 }
             }
             self.present(picker, animated: true, completion: nil)
@@ -245,6 +265,10 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
             alert.addAction(cancelAction)
             self.present(alert, animated: true, completion: nil)
         }
+    }
+    
+    private func icloudShare() {
+        CloudShare.shareList(list: self.shoppingList)
     }
     
     //MARK: - MFMessageComposeViewControllerDelegate

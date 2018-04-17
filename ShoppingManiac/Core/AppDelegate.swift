@@ -8,11 +8,14 @@
 
 import UIKit
 import CoreStore
+import CloudKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+        
+    static var discoverabilityStatus: Bool = false
 
     static let documentsRootDirectory: URL = {
         return FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).first!
@@ -22,9 +25,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
         let _ = try? CoreStore.addStorageAndWait(store)
+        CloudShare.setupUserPermissions()
         return true
     }
-
+    
     func applicationWillResignActive(_ application: UIApplication) {
     }
 
@@ -38,6 +42,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
+    }
+    
+    func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShareMetadata) {
+        let operation = CKAcceptSharesOperation(shareMetadatas: [cloudKitShareMetadata])
+        operation.qualityOfService = .userInteractive
+        operation.perShareCompletionBlock = { metadata, share, error in
+            if let error = error {
+                print("sharing accept error \(error.localizedDescription)")
+            }
+        }
+        CKContainer.default().add(operation)
     }
 
     func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
@@ -93,6 +108,69 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return CoreStore.fetchExisting(list)
         } catch {
             return nil
+        }
+    }
+    
+    class func topViewController(rootViewController: UIViewController?) -> UIViewController? {
+        guard let rootViewController = rootViewController else { return nil }
+        if let controller = rootViewController as? UITabBarController {
+            return AppDelegate.topViewController(rootViewController: controller.selectedViewController)
+        } else if let controller = rootViewController as? UINavigationController {
+            return AppDelegate.topViewController(rootViewController: controller.visibleViewController)
+        } else if let controller = rootViewController.presentedViewController {
+            return AppDelegate.topViewController(rootViewController: controller)
+        } else {
+            return rootViewController
+        }
+    }
+    
+    class func topViewController() -> UIViewController? {
+        guard let rootViewController = (UIApplication.shared.delegate as? AppDelegate)?.window?.rootViewController else { return nil }
+        return AppDelegate.topViewController(rootViewController: rootViewController)
+    }
+    
+    class func showAlert(title: String, message: String) {
+        DispatchQueue.main.async {
+            if let topViewController = AppDelegate.topViewController() {
+                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] action in
+                    alert?.dismiss(animated: true, completion: nil)
+                }
+                alert.addAction(closeAction)
+                topViewController.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
+    
+    class func showConfirm(title: String, message: String, onDone: @escaping (()->())) {
+        DispatchQueue.main.async {
+            if let topViewController = AppDelegate.topViewController() {
+                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] action in
+                    alert?.dismiss(animated: false, completion: nil)
+                    onDone()
+                }
+                alert.addAction(closeAction)
+                topViewController.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
+    
+    class func showQuestion(title: String, message: String, question: String, cancelString: String = "Close", onController controller: UIViewController? = nil, onDone: @escaping (()->())) {
+        DispatchQueue.main.async {
+            if let topViewController = controller ?? AppDelegate.topViewController() {
+                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+                let questionAction = UIAlertAction(title: question, style: .default) { [weak alert] action in
+                    alert?.dismiss(animated: true, completion: nil)
+                    onDone()
+                }
+                let closeAction = UIAlertAction(title: cancelString, style: .cancel) { [weak alert] action in
+                    alert?.dismiss(animated: true, completion: nil)
+                }
+                alert.addAction(questionAction)
+                alert.addAction(closeAction)
+                topViewController.present(alert, animated: true, completion: nil)
+            }
         }
     }
 }
