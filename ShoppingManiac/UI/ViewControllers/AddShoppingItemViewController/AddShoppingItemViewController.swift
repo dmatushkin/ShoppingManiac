@@ -21,7 +21,7 @@ class AddShoppingItemViewController: UIViewController {
     @IBOutlet weak var starButton4: UIButton!
     @IBOutlet weak var starButton5: UIButton!
     @IBOutlet weak var weightSwitch: UISwitch!
-    
+
     var rating: Int = 0 {
         didSet {
             let stars = [self.starButton1, self.starButton2, self.starButton3, self.starButton4, self.starButton5]
@@ -30,13 +30,13 @@ class AddShoppingItemViewController: UIViewController {
             }
         }
     }
-    
+
     var shoppingListItem: ShoppingListItem?
     var shoppingList: ShoppingList!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         self.nameEditField.becomeFirstResponder()
         self.nameEditField.text = self.shoppingListItem?.good?.name
         self.nameEditField.autocompleteStrings = CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
@@ -51,7 +51,7 @@ class AddShoppingItemViewController: UIViewController {
         self.weightSwitch.isOn = (self.shoppingListItem?.isWeight == true)
         self.rating = Int(self.shoppingListItem?.good?.personalRating ?? 0)
     }
-        
+
     private func updateItem(withName name: String) {
         try? CoreStore.perform(synchronous: { transaction in
             let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
@@ -93,7 +93,7 @@ class AddShoppingItemViewController: UIViewController {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     }
-    
+
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addShoppingItemSaveSegue" {
             if let name = self.nameEditField.text, name.count > 0 {
@@ -106,7 +106,7 @@ class AddShoppingItemViewController: UIViewController {
             return true
         }
     }
-    
+
     @IBAction func starSelectedAction(button: UIButton) {
         self.rating = button.tag
     }

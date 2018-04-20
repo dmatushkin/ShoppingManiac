@@ -11,11 +11,11 @@ import UIKit
 class GoodsListTableViewCell: UITableViewCell {
 
     @IBOutlet weak var goodTitleLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
-    
+
     func setup(withGood good: Good) {
         self.goodTitleLabel.text = good.name
     }

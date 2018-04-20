@@ -12,34 +12,34 @@ import CoreStore
 class AddCategoryViewController: UIViewController {
 
     @IBOutlet weak var categoryNameEditField: UITextField!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.categoryNameEditField.text = self.category?.name
         self.categoryNameEditField.becomeFirstResponder()
     }
-    
+
     var category: Category?
-    
+
     private func createItem(withName name: String) {
         try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.create(Into<Category>())
             item.name = name
         })
     }
-    
+
     private func updateItem(item: Category, withName name: String) {
         try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.edit(item)
             item?.name = name
         })
     }
-    
+
     // MARK: - Navigation
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     }
-    
+
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addCategorySaveSegue" {
             if let name = self.categoryNameEditField.text, name.count > 0 {

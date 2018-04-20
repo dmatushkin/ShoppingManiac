@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 
-
 extension Picture {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Picture> {

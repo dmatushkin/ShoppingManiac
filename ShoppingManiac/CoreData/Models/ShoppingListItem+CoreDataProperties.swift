@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 
-
 extension ShoppingListItem {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<ShoppingListItem> {

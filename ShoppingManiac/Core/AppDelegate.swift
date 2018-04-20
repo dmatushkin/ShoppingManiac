@@ -9,26 +9,33 @@
 import UIKit
 import CoreStore
 import CloudKit
+import AppCenter
+import AppCenterAnalytics
+import AppCenterCrashes
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-        
+
     static var discoverabilityStatus: Bool = false
 
     static let documentsRootDirectory: URL = {
         return FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).first!
     }()
-    
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
-        let _ = try? CoreStore.addStorageAndWait(store)
+        _ = try? CoreStore.addStorageAndWait(store)
         CloudShare.setupUserPermissions()
+        MSAppCenter.start("55fd6e0b-d425-4b37-801e-9b64709efd6b", withServices: [
+            MSAnalytics.self,
+            MSCrashes.self
+            ])
         return true
     }
-    
+
     func applicationWillResignActive(_ application: UIApplication) {
     }
 
@@ -43,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
     }
-    
+
     func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShareMetadata) {
         let operation = CKAcceptSharesOperation(shareMetadatas: [cloudKitShareMetadata])
         operation.qualityOfService = .userInteractive
@@ -67,7 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
         return true
     }
-    
+
     func importShoppingList(fromJsonData jsonData: NSDictionary) -> ShoppingList? {
         do {
             let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
@@ -110,7 +117,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return nil
         }
     }
-    
+
     class func topViewController(rootViewController: UIViewController?) -> UIViewController? {
         guard let rootViewController = rootViewController else { return nil }
         if let controller = rootViewController as? UITabBarController {
@@ -123,17 +130,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return rootViewController
         }
     }
-    
+
     class func topViewController() -> UIViewController? {
         guard let rootViewController = (UIApplication.shared.delegate as? AppDelegate)?.window?.rootViewController else { return nil }
         return AppDelegate.topViewController(rootViewController: rootViewController)
     }
-    
+
     class func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             if let topViewController = AppDelegate.topViewController() {
                 let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] action in
+                let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] _ in
                     alert?.dismiss(animated: true, completion: nil)
                 }
                 alert.addAction(closeAction)
@@ -141,12 +148,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-    
-    class func showConfirm(title: String, message: String, onDone: @escaping (()->())) {
+
+    class func showConfirm(title: String, message: String, onDone: @escaping (() -> Void)) {
         DispatchQueue.main.async {
             if let topViewController = AppDelegate.topViewController() {
                 let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] action in
+                let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] _ in
                     alert?.dismiss(animated: false, completion: nil)
                     onDone()
                 }
@@ -155,16 +162,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-    
-    class func showQuestion(title: String, message: String, question: String, cancelString: String = "Close", onController controller: UIViewController? = nil, onDone: @escaping (()->())) {
+
+    class func showQuestion(title: String, message: String, question: String, cancelString: String = "Close", onController controller: UIViewController? = nil, onDone: @escaping (() -> Void)) {
         DispatchQueue.main.async {
             if let topViewController = controller ?? AppDelegate.topViewController() {
                 let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                let questionAction = UIAlertAction(title: question, style: .default) { [weak alert] action in
+                let questionAction = UIAlertAction(title: question, style: .default) { [weak alert] _ in
                     alert?.dismiss(animated: true, completion: nil)
                     onDone()
                 }
-                let closeAction = UIAlertAction(title: cancelString, style: .cancel) { [weak alert] action in
+                let closeAction = UIAlertAction(title: cancelString, style: .cancel) { [weak alert] _ in
                     alert?.dismiss(animated: true, completion: nil)
                 }
                 alert.addAction(questionAction)
@@ -174,4 +181,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
 }
-

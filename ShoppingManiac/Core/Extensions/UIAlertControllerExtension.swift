@@ -9,11 +9,11 @@
 import UIKit
 
 extension UIAlertController {
-    
-    convenience init(title : String, message : String, confirmActionTitle : String, confirmAction : @escaping (() -> ())) {
+
+    convenience init(title: String, message: String, confirmActionTitle: String, confirmAction : @escaping (() -> Void)) {
         self.init(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
-        self.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel) { action in })
-        self.addAction(UIAlertAction(title: confirmActionTitle, style: UIAlertActionStyle.destructive) { action in
+        self.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.cancel) { _ in })
+        self.addAction(UIAlertAction(title: confirmActionTitle, style: UIAlertActionStyle.destructive) { _ in
             confirmAction()
             }
         )

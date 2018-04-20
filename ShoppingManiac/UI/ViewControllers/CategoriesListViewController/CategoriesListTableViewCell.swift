@@ -11,11 +11,11 @@ import UIKit
 class CategoriesListTableViewCell: UITableViewCell {
 
     @IBOutlet weak var categoryTitleLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
-    
+
     func setup(withCategory category: Category) {
         self.categoryTitleLabel.text = category.name
     }

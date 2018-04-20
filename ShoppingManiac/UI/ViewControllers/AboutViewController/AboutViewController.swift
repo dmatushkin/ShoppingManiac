@@ -11,12 +11,12 @@ import UIKit
 class AboutViewController: UIViewController {
 
     @IBOutlet weak var versionLabel: UILabel!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
-        let longVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
+
+        let shortVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+        let longVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
         versionLabel.text = "\(shortVersion) build \(longVersion)"
     }
 

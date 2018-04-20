@@ -22,7 +22,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
     @IBOutlet weak var cancelCategorySelectionButton: UIButton!
     @IBOutlet var categorySelectionPanel: UIView!
     private var stars: [UIButton] = []
-    
+
     var good: Good?
     private var rating: Int = 0 {
         didSet {
@@ -36,7 +36,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
             self.goodCategoryEditField.text = category?.name
         }
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.stars = [self.ratingStar1Button, self.ratingStar2Button, self.ratingStar3Button, self.ratingStar4Button, self.ratingStar5Button]
@@ -46,7 +46,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
         self.goodNameEditField.becomeFirstResponder()
         self.goodCategoryEditField.inputView = self.categorySelectionPanel
     }
-    
+
     private func createItem(withName name: String) {
         try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.create(Into<Good>())
@@ -55,7 +55,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
             item.personalRating = Int16(self.rating)
         })
     }
-    
+
     private func updateItem(item: Good, withName name: String) {
         try? CoreStore.perform(synchronous: { transaction in
             let item = transaction.edit(item)
@@ -64,24 +64,24 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
             item?.personalRating = Int16(self.rating)
         })
     }
-    
+
     @IBAction func starSelectedAction(button: UIButton) {
         self.rating = button.tag
     }
-    
+
     @IBAction func editCategoryAction(_ sender: Any) {
         self.categoriesTable.isHidden = (CoreStore.fetchCount(From<Category>(), []) ?? 0) == 0
         self.categoriesTable.reloadData()
     }
-    
+
     @IBAction func cancelCategorySelectionAction(_ sender: Any) {
         self.goodCategoryEditField.endEditing(true)
     }
-    
+
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return CoreStore.fetchCount(From<Category>(), []) ?? 0
     }
-    
+
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell: CategorySelectionTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
             cell.setup(withCategory: self.getItem(forIndex: indexPath))
@@ -90,16 +90,16 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
             return UITableViewCell()
         }
     }
-    
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.category = self.getItem(forIndex: indexPath)
         self.goodCategoryEditField.endEditing(true)
     }
-    
+
     private func getItem(forIndex: IndexPath) -> Category? {
         return CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
@@ -111,7 +111,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     }
-    
+
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addGoodSaveSegue" {
             if let name = self.goodNameEditField.text, name.count > 0 {

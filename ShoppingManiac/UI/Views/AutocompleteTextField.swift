@@ -12,22 +12,22 @@ import NoticeObserveKit
 class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableViewDataSource {
 
     private let autocompleteTable = UITableView()
-    
-    var autocompleteStrings:[String] = []
-    
+
+    var autocompleteStrings: [String] = []
+
     private var keyboardHeight: CGFloat = 0
     private var pool = NoticeObserverPool()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.setup()
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         self.setup()
     }
-    
+
     private func setup() {
         self.clipsToBounds = false
         self.autocompleteTable.rowHeight = 44
@@ -49,31 +49,31 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
             self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
             }.addObserverTo(pool)
     }
-    
+
     private func item(forIndexPath indexPath: IndexPath) -> String {
         return self.autocompleteStrings.filter({ $0.contains(self.text ?? "") })[indexPath.row]
     }
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.autocompleteStrings.filter({ $0.contains(self.text ?? "") }).count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "autocompleteCell", for: indexPath) 
+        let cell = tableView.dequeueReusableCell(withIdentifier: "autocompleteCell", for: indexPath)
         cell.selectionStyle = .none
         cell.textLabel?.text = self.item(forIndexPath: indexPath)
         return cell
     }
-    
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.text = self.item(forIndexPath: indexPath)
         self.autocompleteTable.removeFromSuperview()
     }
-    
+
     override func editingChanged() {
         super.editingChanged()
         if self.autocompleteTable.superview == nil {
@@ -83,7 +83,7 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         self.layoutAutocompleteTable()
         self.autocompleteTable.reloadData()
     }
-    
+
     private func layoutAutocompleteTable() {
         let frame = self.frame
         let screenHeight = UIScreen.main.bounds.height
@@ -96,15 +96,15 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
             self.autocompleteTable.frame = CGRect(x: self.frame.origin.x + 1, y: self.frame.origin.y + self.bounds.size.height, width: self.bounds.size.width - 2, height: height)
         }
     }
-    
+
     override func editingDone() {
         self.autocompleteTable.removeFromSuperview()
         super.editingDone()
     }
-    
+
     private func setBottomOffset(keyboardInfo: UIKeyboardInfo) {
         let offset = keyboardInfo.frame.size.height
-        
+
         if self.keyboardHeight != offset {
             self.keyboardHeight = offset
             self.layoutAutocompleteTable()

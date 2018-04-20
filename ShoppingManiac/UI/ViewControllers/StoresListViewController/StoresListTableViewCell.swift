@@ -11,11 +11,11 @@ import UIKit
 class StoresListTableViewCell: UITableViewCell {
 
     @IBOutlet weak var storeTitleLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
-    
+
     func setup(withStore store: Store) {
         self.storeTitleLabel.text = store.name
     }

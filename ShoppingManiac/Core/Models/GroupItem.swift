@@ -15,7 +15,7 @@ class GroupItem {
     let itemCategoryName: String?
     let itemQuantityString: String
     var purchased: Bool = false
-    
+
     init(shoppingListItem: ShoppingListItem) {
         self.objectId = shoppingListItem.objectID
         self.itemName = shoppingListItem.good?.name ?? "No name"
@@ -23,13 +23,13 @@ class GroupItem {
         self.itemQuantityString = shoppingListItem.quantityText
         self.purchased = shoppingListItem.purchased
     }
-    
+
     func lessThan(item: GroupItem) -> Bool {
         if self.purchased == item.purchased {
             return self.itemName < item.itemName
         } else {
             return (self.purchased ? 0 : 1) > (item.purchased ? 0 : 1)
         }
-        
+
     }
 }

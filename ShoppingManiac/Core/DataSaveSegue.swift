@@ -12,8 +12,8 @@ import CoreStore
 class DataSaveSegue: UIStoryboardSegue {
 
     var errorMessage: String?
-    var processBlock: (AsynchronousDataTransaction)->Bool = {transaction in return true}
-    
+    var processBlock: (AsynchronousDataTransaction) -> Bool = {transaction in return true}
+
     override func perform() {
         CoreStore.perform(asynchronous: {transaction->Bool in
             return self.processBlock(transaction)
@@ -25,14 +25,14 @@ class DataSaveSegue: UIStoryboardSegue {
             }
         })
     }
-    
+
     private func realPerform() {
         super.perform()
     }
-    
+
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] action in
+        let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] _ in
             alert?.dismiss(animated: true, completion: nil)
         }
         alert.addAction(closeAction)

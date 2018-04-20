@@ -14,11 +14,11 @@ class ShoppingListTableViewCell: UITableViewCell {
     @IBOutlet weak var productTitleLabel: UILabel!
     @IBOutlet weak var storeTitleLabel: UILabel!
     @IBOutlet weak var productQuantityLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
-    
+
     func setup(withItem item: GroupItem) {
         self.statusImageView.image = item.purchased ? #imageLiteral(resourceName: "checkbox_marked") : #imageLiteral(resourceName: "checkbox_unmarked")
         self.productTitleLabel.text = item.itemName

@@ -11,11 +11,11 @@ import UIKit
 class CategorySelectionTableViewCell: UITableViewCell {
 
     @IBOutlet weak var categoryNameLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
-    
+
     func setup(withCategory category: Category?) {
         self.categoryNameLabel.text = category?.name ?? "No category"
     }

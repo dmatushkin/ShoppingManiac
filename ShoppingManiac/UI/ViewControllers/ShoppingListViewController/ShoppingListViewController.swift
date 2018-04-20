@@ -14,13 +14,13 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var totalLabel: UILabel!
-    
+
     var shoppingList: ShoppingList!
-    
-    var shoppingGroups:[ShoppingGroup] = []
-    
+
+    var shoppingGroups: [ShoppingGroup] = []
+
     private var indexPathToEdit: IndexPath?
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.automaticallyAdjustsScrollViewInsets = false
@@ -28,14 +28,14 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         self.reloadData()
     }
-    
+
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: true)
         self.tableView.setEditing(editing, animated: animated)
     }
-    
-    //MARK: - Data processing
-    
+
+    // MARK: - Data processing
+
     private func reloadData() {
         CoreStore.perform(asynchronous: { transaction in
             if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self.shoppingList))) {
@@ -63,32 +63,32 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
                     self.totalLabel.text = String(format: "Total: %.2f", 0)
                 }
             }
-        }, completion: { result in
+        }, completion: { _ in
             self.tableView.reloadData()
         })
     }
-    
+
     private func sortGroups(groups: [ShoppingGroup]) -> [ShoppingGroup] {
         for group in groups {
             group.items = self.sortItems(items: group.items)
         }
         return groups.sorted(by: {item1, item2 in (item1.groupName ?? "") < (item2.groupName ?? "")})
     }
-    
+
     private func sortItems(items: [GroupItem]) -> [GroupItem] {
         return items.sorted(by: {item1, item2 in item1.lessThan(item: item2) })
     }
-    
-    //MARK: - UITableViewDataSource
-    
+
+    // MARK: - UITableViewDataSource
+
     func numberOfSections(in tableView: UITableView) -> Int {
         return self.shoppingGroups.count
     }
-    
+
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.shoppingGroups[section].items.count
     }
-    
+
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell: ShoppingListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
             cell.setup(withItem: self.shoppingGroups[indexPath.section].items[indexPath.row])
@@ -97,95 +97,93 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
             return UITableViewCell()
         }
     }
-    
-    //MARK: - UITableViewDelegate
-    
+
+    // MARK: - UITableViewDelegate
+
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return self.shoppingGroups[section].groupName
     }
-    
+
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return self.shoppingGroups[section].groupName == nil ? 0.01 : 44
     }
-    
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let group = self.shoppingGroups[indexPath.section]
         let item = group.items[indexPath.row]
-        
+
         item.purchased = !item.purchased
         CoreStore.perform(asynchronous: { transaction in
             if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
                 shoppingListItem.purchased = item.purchased
             }
-        }, completion: { result in
+        }, completion: { _ in
         })
         /*group.items = self.sortItems(items: group.items)
         tableView.reloadData()*/
         let sortedItems = self.sortItems(items: group.items)
         //print(sortedItems.map({ $0.itemName }))
         var itemFound: Bool = false
-        for (idx, sortedItem) in sortedItems.enumerated() {
-            if item.objectId == sortedItem.objectId {
-                let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
-                itemFound = true
-                group.items = sortedItems
-                //print("switching \(indexPath.row), \(sortedIndexPath.row)")
-                UIView.animate(withDuration: 0.5, animations: { () -> Void in
-                    self.tableView.moveRow(at: indexPath, to: sortedIndexPath)
-                }, completion: { (Bool) -> Void in
-                    self.tableView.reloadRows(at: [indexPath, sortedIndexPath], with: UITableViewRowAnimation.none)
-                })
-                break
-            }
+        for (idx, sortedItem) in sortedItems.enumerated() where item.objectId == sortedItem.objectId {
+            let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
+            itemFound = true
+            group.items = sortedItems
+            //print("switching \(indexPath.row), \(sortedIndexPath.row)")
+            UIView.animate(withDuration: 0.5, animations: { () -> Void in
+                self.tableView.moveRow(at: indexPath, to: sortedIndexPath)
+            }, completion: { (_) -> Void in
+                self.tableView.reloadRows(at: [indexPath, sortedIndexPath], with: UITableViewRowAnimation.none)
+            })
+            break
         }
         if itemFound == false {
             group.items = sortedItems
             tableView.reloadData()
         }
     }
-    
+
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         return true
     }
-    
+
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let item = self.shoppingGroups[indexPath.section].items[indexPath.row]
-        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [weak self] action, indexPath in
+        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [weak self] _, _ in
             let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {
                 self?.tableView.isEditing = false
                 CoreStore.perform(asynchronous: { transaction in
                     if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
                         transaction.delete(shoppingListItem)
                     }
-                }, completion: { [weak self] result in
+                }, completion: { [weak self] _ in
                     self?.reloadData()
                 })
             }
             self?.present(alertController, animated: true, completion: nil)
         }
         deleteAction.backgroundColor = UIColor.red
-        let editAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Edit") { [weak self] action, indexPath in
+        let editAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Edit") { [weak self] _, indexPath in
             tableView.isEditing = false
             self?.indexPathToEdit = indexPath
             self?.performSegue(withIdentifier: "editShoppingListItemSegue", sender: self)
         }
         editAction.backgroundColor = UIColor.gray
-        
+
         return [deleteAction, editAction]
     }
-    
+
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        
+
     }
-    
+
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         return true
     }
-    
+
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath.section != destinationIndexPath.section {
             let item = self.shoppingGroups[sourceIndexPath.section].items[sourceIndexPath.row]
@@ -198,14 +196,14 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
                         shoppingListItem.store = nil
                     }
                 }
-            }, completion: { [weak self] result in
+            }, completion: { [weak self] _ in
                 self?.reloadData()
             })
         }
     }
-    
+
     // MARK: - Navigation
-    
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "addShoppingListItemSegue", let destination = segue.destination as? AddShoppingItemViewController {
             destination.shoppingList = self.shoppingList
@@ -215,7 +213,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
             destination.shoppingList = self.shoppingList
         }
     }
-    
+
     @IBAction func shoppingList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addShoppingItemSaveSegue" {
             if self.shoppingList.recordid != nil {
@@ -224,18 +222,18 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
             self.reloadData()
         }
     }
-    
+
     @IBAction func shareAction(_ sender: Any) {
         if AppDelegate.discoverabilityStatus {
             let controller = UIAlertController(title: "Sharing", message: "Select sharing type", preferredStyle: .actionSheet)
-            let smsAction = UIAlertAction(title: "Text message", style: .default) {[weak self] action in
+            let smsAction = UIAlertAction(title: "Text message", style: .default) {[weak self] _ in
                 self?.smsShare()
             }
-            let icloudAction = UIAlertAction(title: "iCloud", style: .default) {[weak self] action in
+            let icloudAction = UIAlertAction(title: "iCloud", style: .default) {[weak self] _ in
                 self?.icloudShare()
             }
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
-                
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+
             }
             controller.addAction(smsAction)
             controller.addAction(icloudAction)
@@ -245,7 +243,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
             self.smsShare()
         }
     }
-    
+
     private func smsShare() {
         if MFMessageComposeViewController.canSendText() {
             let picker = MFMessageComposeViewController()
@@ -259,20 +257,20 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
             self.present(picker, animated: true, completion: nil)
         } else {
             let alert = UIAlertController(title: "Error", message: "Unable to send text messages from this device", preferredStyle: .alert)
-            let cancelAction = UIAlertAction(title: "Close", style: .default) { action in
+            let cancelAction = UIAlertAction(title: "Close", style: .default) { _ in
                 alert.dismiss(animated: true)
             }
             alert.addAction(cancelAction)
             self.present(alert, animated: true, completion: nil)
         }
     }
-    
+
     private func icloudShare() {
         CloudShare.shareList(list: self.shoppingList)
     }
-    
-    //MARK: - MFMessageComposeViewControllerDelegate
-    
+
+    // MARK: - MFMessageComposeViewControllerDelegate
+
     func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
         controller.dismiss(animated: true, completion: nil)
     }

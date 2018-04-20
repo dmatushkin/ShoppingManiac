@@ -11,27 +11,24 @@ import CoreData
 import CoreStore
 
 public class ShoppingListItem: NSManagedObject {
-    
+
     func setRecordId(recordId: String) {
         CoreStore.perform(asynchronous: {[weak self] (transaction)  in
             guard let `self` = self else { return }
             if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(self.objectID) {
                 shoppingListItem.recordid = recordId
             }
-            }, success: {
-                
-        }) { (error) in
+        }, success: {
+        }, failure: { (error) in
             print("Core store error \(error.debugDescription)")
-        }
+        })
     }
 
-    var quantityText : String {
-        get {
-            return self.isWeight ? "\(self.quantity)" : "\(Int(self.quantity))"
-        }
+    var quantityText: String {
+        return self.isWeight ? "\(self.quantity)" : "\(Int(self.quantity))"
     }
-    
-    var jsonPurchaseDate : String {
+
+    var jsonPurchaseDate: String {
         get {
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = DateFormatter.Style.medium
@@ -49,12 +46,12 @@ public class ShoppingListItem: NSManagedObject {
             }
         }
     }
-    
-    var totalPrice : Double {
+
+    var totalPrice: Double {
         return Double(price * quantity)
     }
-    
-    func isInStore(_ inStore : Store?) -> Bool {
+
+    func isInStore(_ inStore: Store?) -> Bool {
         return self.price != 0 && self.store != nil && (inStore == nil || inStore?.name == self.store?.name)
-    }    
+    }
 }

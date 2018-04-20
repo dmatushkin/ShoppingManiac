@@ -10,7 +10,7 @@ import UIKit
 import CloudKit
 
 extension CKUserIdentity {
-    
+
     var fullName: String {
         if let components = self.nameComponents {
             return "\(components.givenName ?? "") \(components.familyName ?? "")"
@@ -24,16 +24,16 @@ class CloudShare {
     private static let zoneName = "ShareZone"
     private static let listRecordType = "ShoppingList"
     private static let itemRecordType = "ShoppingListItem"
-    
+
     private class func createZone() {
         let recordZone = CKRecordZone(zoneName: zoneName)
-        CKContainer.default().privateCloudDatabase.save(recordZone) { (zone, error) in
+        CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
             if let error = error {
                 print("Error saving zone \(error.localizedDescription)")
             }
         }
     }
-    
+
     class func setupUserPermissions() {
         CKContainer.default().accountStatus { (status, error) in
             if let error = error {
@@ -66,22 +66,22 @@ class CloudShare {
             }
         }
     }
-    
+
     class func shareList(list: ShoppingList) {
         let listRecord = getListRecord(list: list)
         shareRecord(record: listRecord)
     }
-    
+
     class func updateList(list: ShoppingList) {
         let listRecord = getListRecord(list: list)
         updateRecord(record: listRecord)
     }
-    
+
     private class func updateListRecord(record: CKRecord, list: ShoppingList) {
         record["name"] = (list.name ?? "") as CKRecordValue
         record["items"] = list.listItems.map({ CKReference(record: getItemRecord(item: $0), action: .deleteSelf) }) as CKRecordValue
     }
-    
+
     private class func updateItemRecord(record: CKRecord, item: ShoppingListItem) {
         record["comment"] = (item.comment ?? "") as CKRecordValue
         record["goodName"] = (item.good?.name ?? "") as CKRecordValue
@@ -91,7 +91,7 @@ class CloudShare {
         record["quantity"] = item.quantity as CKRecordValue
         record["storeName"] = (item.store?.name ?? "") as CKRecordValue
     }
-    
+
     private class func getListRecord(list: ShoppingList) -> CKRecord {
         let recordZone = CKRecordZone(zoneName: zoneName)
         if let recordName = list.recordid {
@@ -106,7 +106,7 @@ class CloudShare {
             return record
         }
     }
-    
+
     private class func getItemRecord(item: ShoppingListItem) -> CKRecord {
         let recordZone = CKRecordZone(zoneName: zoneName)
         if let recordName = item.recordid {
@@ -121,14 +121,14 @@ class CloudShare {
             return record
         }
     }
-    
+
     private class func shareRecord(record: CKRecord) {
         let share = CKShare(rootRecord: record)
         share[CKShareTitleKey] = "Shopping list" as CKRecordValue
         share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
-        
+
         selectUserToShare { identity in
-            
+
             if let recordId = identity.userRecordID {
                 CKContainer.default().discoverUserIdentity(withUserRecordID: recordId, completionHandler: { (identity, error) in
                     if let lookupInfo = identity?.lookupInfo {
@@ -169,20 +169,20 @@ class CloudShare {
             }
         }
     }
-    
-    private class func selectUserToShare(onDone:@escaping (CKUserIdentity)->()) {
+
+    private class func selectUserToShare(onDone:@escaping (CKUserIdentity) -> Void) {
         CKContainer.default().discoverAllIdentities { (identities, error) in
             DispatchQueue.main.async {
                 if let identities = identities {
                     let controller = UIAlertController(title: "Sharing", message: "Select user to share with", preferredStyle: .actionSheet)
                     for identity in identities {
-                        let action = UIAlertAction(title: identity.fullName, style: .default) { action in
+                        let action = UIAlertAction(title: identity.fullName, style: .default) { _ in
                             onDone(identity)
                         }
                         controller.addAction(action)
                     }
-                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
-                        
+                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
+
                     }
                     controller.addAction(cancelAction)
                     AppDelegate.topViewController()?.present(controller, animated: true, completion: nil)
@@ -194,7 +194,7 @@ class CloudShare {
             }
         }
     }
-    
+
     private class func updateRecord(record: CKRecord) {
         let modifyOperation = CKModifyRecordsOperation(recordsToSave: [record], recordIDsToDelete: nil)
         modifyOperation.savePolicy = .ifServerRecordUnchanged

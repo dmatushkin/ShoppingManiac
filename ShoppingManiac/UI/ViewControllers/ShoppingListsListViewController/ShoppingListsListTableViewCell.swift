@@ -11,11 +11,11 @@ import UIKit
 class ShoppingListsListTableViewCell: UITableViewCell {
 
     @IBOutlet weak var listTitleLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
     }
-    
+
     func setup(withList shoppingList: ShoppingList) {
         self.listTitleLabel.text = shoppingList.title
         self.listTitleLabel.textColor = shoppingList.isPurchased ? UIColor.gray : UIColor.black

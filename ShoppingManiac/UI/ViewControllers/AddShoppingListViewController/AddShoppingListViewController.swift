@@ -13,8 +13,7 @@ class AddShoppingListViewController: UIViewController {
 
     @IBOutlet weak var shoppingNameEditField: UITextField!
     var shoppingList: ShoppingList?
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.shoppingNameEditField.becomeFirstResponder()
@@ -32,9 +31,9 @@ class AddShoppingListViewController: UIViewController {
         } catch {
             return nil
         }
-        
+
     }
-    
+
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

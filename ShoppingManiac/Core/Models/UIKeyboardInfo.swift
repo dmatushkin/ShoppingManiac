@@ -14,8 +14,8 @@ struct UIKeyboardInfo: NoticeUserInfoDecodable {
     let animationDuration: TimeInterval
     let animationCurve: UIViewAnimationOptions
     let keyboardIsHidden: Bool
-    
-    init(info: [AnyHashable : Any]) {
+
+    init(info: [AnyHashable: Any]) {
         let frame = (info[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue ?? CGRect.zero
         let duration = info[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval ?? 0
         let curve = (info[UIKeyboardAnimationCurveUserInfoKey] as? UInt) ?? 0

@@ -8,5 +8,7 @@ target 'ShoppingManiac' do
   pod 'NoticeObserveKit'
   pod 'EXTView'
   pod 'Hero'
+  pod 'AppCenter'
+  pod 'SwiftLint'
 
 end
