@@ -44,10 +44,10 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
         UIKeyboardWillChangeFrame.observe { keyboardInfo in
             self.setBottomOffset(keyboardInfo: keyboardInfo)
-            }.addObserverTo(pool)
+            }.disposed(by: self.pool)
         UIKeyboardWillHide.observe { keyboardInfo in
             self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
-            }.addObserverTo(pool)
+            }.disposed(by: self.pool)
     }
 
     private func item(forIndexPath indexPath: IndexPath) -> String {
