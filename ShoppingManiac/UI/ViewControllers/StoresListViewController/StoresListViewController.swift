@@ -8,14 +8,25 @@
 
 import UIKit
 import CoreStore
+import NoticeObserveKit
 
 class StoresListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    
+    private let pool = NoticeObserverPool()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.automaticallyAdjustsScrollViewInsets = false
+        NewDataAvailable.observe {[weak self] _ in
+            self?.tableView.reloadData()
+        }.disposed(by: self.pool)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.tableView.reloadData()
     }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -27,7 +38,7 @@ class StoresListViewController: UIViewController, UITableViewDataSource, UITable
             cell.setup(withStore: item)
             return cell
         } else {
-            return UITableViewCell()
+            fatalError()
         }
     }
 

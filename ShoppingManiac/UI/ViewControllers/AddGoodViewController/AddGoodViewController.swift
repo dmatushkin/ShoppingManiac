@@ -87,7 +87,7 @@ class AddGoodViewController: UIViewController, UITableViewDataSource, UITableVie
             cell.setup(withCategory: self.getItem(forIndex: indexPath))
             return cell
         } else {
-            return UITableViewCell()
+            fatalError()
         }
     }
 

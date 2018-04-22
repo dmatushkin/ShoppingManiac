@@ -8,6 +8,7 @@
 
 import UIKit
 import CloudKit
+import CoreStore
 
 extension CKUserIdentity {
 
@@ -21,9 +22,11 @@ extension CKUserIdentity {
 }
 
 class CloudShare {
-    private static let zoneName = "ShareZone"
-    private static let listRecordType = "ShoppingList"
-    private static let itemRecordType = "ShoppingListItem"
+
+    static let lowPriorityQueye = DispatchQueue(label: "dataSharingQueue", qos: .background, attributes: [], autoreleaseFrequency: .inherit, target: nil)
+    static let zoneName = "ShareZone"
+    static let listRecordType = "ShoppingList"
+    static let itemRecordType = "ShoppingListItem"
 
     private class func createZone() {
         let recordZone = CKRecordZone(zoneName: zoneName)
@@ -68,18 +71,21 @@ class CloudShare {
     }
 
     class func shareList(list: ShoppingList) {
-        let listRecord = getListRecord(list: list)
-        shareRecord(record: listRecord)
+        let listRecord = getListRecord(list: list, database: CKContainer.default().privateCloudDatabase)
+        shareRecord(list: listRecord)
     }
 
     class func updateList(list: ShoppingList) {
-        let listRecord = getListRecord(list: list)
+        let listRecord = getListRecord(list: list, database: CKContainer.default().privateCloudDatabase)
         updateRecord(record: listRecord)
     }
 
-    private class func updateListRecord(record: CKRecord, list: ShoppingList) {
+    private class func updateListRecord(record: CKRecord, list: ShoppingList, database: CKDatabase) -> ShoppingListItemsWrapper {
+        let items = list.listItems.map({getItemRecord(item: $0)})
         record["name"] = (list.name ?? "") as CKRecordValue
-        record["items"] = list.listItems.map({ CKReference(record: getItemRecord(item: $0), action: .deleteSelf) }) as CKRecordValue
+        record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
+        record["items"] = items.map({ CKReference(record: $0, action: .deleteSelf) }) as CKRecordValue
+        return ShoppingListItemsWrapper(database: database, shoppingList: list, record: record, items: items)
     }
 
     private class func updateItemRecord(record: CKRecord, item: ShoppingListItem) {
@@ -90,20 +96,21 @@ class CloudShare {
         record["purchased"] = item.purchased as CKRecordValue
         record["quantity"] = item.quantity as CKRecordValue
         record["storeName"] = (item.store?.name ?? "") as CKRecordValue
+        /*if let listRecordId = item.list?.recordid {
+            record["list"] = CKReference(recordID: CKRecordID(recordName: listRecordId, zoneID: record.recordID.zoneID), action: .deleteSelf)
+        }*/
     }
 
-    private class func getListRecord(list: ShoppingList) -> CKRecord {
+    private class func getListRecord(list: ShoppingList, database: CKDatabase) -> ShoppingListItemsWrapper {
         let recordZone = CKRecordZone(zoneName: zoneName)
         if let recordName = list.recordid {
             let recordId = CKRecordID(recordName: recordName, zoneID: recordZone.zoneID)
             let record = CKRecord(recordType: listRecordType, recordID: recordId)
-            updateListRecord(record: record, list: list)
-            return record
+            return updateListRecord(record: record, list: list, database: database)
         } else {
             let record = CKRecord(recordType: listRecordType, zoneID: recordZone.zoneID)
             list.setRecordId(recordId: record.recordID.recordName)
-            updateListRecord(record: record, list: list)
-            return record
+            return updateListRecord(record: record, list: list, database: database)
         }
     }
 
@@ -122,44 +129,12 @@ class CloudShare {
         }
     }
 
-    private class func shareRecord(record: CKRecord) {
-        let share = CKShare(rootRecord: record)
-        share[CKShareTitleKey] = "Shopping list" as CKRecordValue
-        share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
-
+    private class func shareRecord(list: ShoppingListItemsWrapper) {
         selectUserToShare { identity in
-
             if let recordId = identity.userRecordID {
                 CKContainer.default().discoverUserIdentity(withUserRecordID: recordId, completionHandler: { (identity, error) in
-                    if let lookupInfo = identity?.lookupInfo {
-                        let fetchParticipantOperation = CKFetchShareParticipantsOperation(userIdentityLookupInfos: [lookupInfo])
-                        fetchParticipantOperation.fetchShareParticipantsCompletionBlock = { error in
-                            if let error = error {
-                                AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
-                            } else {
-                                print("Sharing done successfully")
-                            }
-                        }
-                        fetchParticipantOperation.shareParticipantFetchedBlock = { participant in
-                            participant.permission = .readWrite
-                            share.addParticipant(participant)
-                            let modifyOperation = CKModifyRecordsOperation(recordsToSave: [record, share], recordIDsToDelete: nil)
-                            modifyOperation.savePolicy = .ifServerRecordUnchanged
-                            modifyOperation.perRecordCompletionBlock = {record, error in
-                                if let error = error {
-                                    print("Error while saving records \(error.localizedDescription)")
-                                }
-                            }
-                            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-                                if let error = error {
-                                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
-                                } else {
-                                    print("Records modification done successfully")
-                                }
-                            }
-                            CKContainer.default().privateCloudDatabase.add(modifyOperation)
-                        }
-                        CKContainer.default().add(fetchParticipantOperation)
+                    if let lookupInfo = identity?.lookupInfo, error == nil {
+                        shareRecord(list: list, toUser: lookupInfo)
                     } else {
                         AppDelegate.showAlert(title: "Sharing error", message: "Can't lookup for this user")
                     }
@@ -168,6 +143,49 @@ class CloudShare {
                 AppDelegate.showAlert(title: "Sharing error", message: "Can't lookup for this user")
             }
         }
+    }
+    
+    private class func shareRecord(list: ShoppingListItemsWrapper, toUser lookupInfo: CKUserIdentityLookupInfo) {
+        let share = CKShare(rootRecord: list.record)
+        share[CKShareTitleKey] = "Shopping list" as CKRecordValue
+        share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
+        let fetchParticipantOperation = CKFetchShareParticipantsOperation(userIdentityLookupInfos: [lookupInfo])
+        fetchParticipantOperation.fetchShareParticipantsCompletionBlock = { error in
+            if let error = error {
+                AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
+            } else {
+                print("Sharing done successfully")
+            }
+        }
+        fetchParticipantOperation.shareParticipantFetchedBlock = { participant in
+            participant.permission = .readWrite
+            share.addParticipant(participant)
+            var recordsToUpdate = [list.record, share]
+            recordsToUpdate.append(contentsOf: list.items)
+            let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: nil)
+            modifyOperation.savePolicy = .ifServerRecordUnchanged
+            modifyOperation.perRecordCompletionBlock = {record, error in
+                if let error = error {
+                    print("Error while saving records \(error.localizedDescription)")
+                } else {
+                    print("Successfully saved record \(record.recordID.recordName)")
+                }
+            }
+            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
+                if let error = error {
+                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
+                } else {
+                    print("Records modification done successfully")
+                    if let items = list.record["items"] as? [CKReference] {
+                        for item in items {
+                            print("list has reference to \(item.recordID.recordName)")
+                        }
+                    }
+                }
+            }
+            CKContainer.default().privateCloudDatabase.add(modifyOperation)
+        }
+        CKContainer.default().add(fetchParticipantOperation)
     }
 
     private class func selectUserToShare(onDone:@escaping (CKUserIdentity) -> Void) {
@@ -195,12 +213,16 @@ class CloudShare {
         }
     }
 
-    private class func updateRecord(record: CKRecord) {
-        let modifyOperation = CKModifyRecordsOperation(recordsToSave: [record], recordIDsToDelete: nil)
+    private class func updateRecord(record: ShoppingListItemsWrapper) {
+        var recordsToSave = [record.record]
+        recordsToSave.append(contentsOf: record.items)
+        let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToSave, recordIDsToDelete: nil)
         modifyOperation.savePolicy = .ifServerRecordUnchanged
         modifyOperation.perRecordCompletionBlock = {record, error in
             if let error = error {
                 print("Error while saving records \(error.localizedDescription)")
+            } else {
+                print("Successfully saved record \(record.recordID.recordName)")
             }
         }
         modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
@@ -209,5 +231,5 @@ class CloudShare {
             }
         }
         CKContainer.default().privateCloudDatabase.add(modifyOperation)
-    }
+    }        
 }

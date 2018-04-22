@@ -25,17 +25,41 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        application.registerForRemoteNotifications()
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
         _ = try? CoreStore.addStorageAndWait(store)
         CloudShare.setupUserPermissions()
+        /*CloudLoader.clearRecords().then(in: .main) {
+            CloudLoader.loadLists().then(in: .main) {
+                print("loading lists done")
+            }
+        }*/
+        CloudLoader.loadLists().then(in: .main) {
+            print("loading lists done")
+            NewDataAvailable.post(info: true)
+        }
+        CloudLoader.setupSubscriptions()
+        
         MSAppCenter.start("55fd6e0b-d425-4b37-801e-9b64709efd6b", withServices: [
             MSAnalytics.self,
             MSCrashes.self
             ])
         return true
     }
-
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
+            CloudLoader.loadLists().then {
+                print("loading lists done")
+                NewDataAvailable.post(info: true)
+                completionHandler(.newData)
+            }
+        } else {
+            completionHandler(.noData)
+        }
+    }
+    
     func applicationWillResignActive(_ application: UIApplication) {
     }
 
@@ -57,6 +81,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         operation.perShareCompletionBlock = { metadata, share, error in
             if let error = error {
                 print("sharing accept error \(error.localizedDescription)")
+            } else {
+                CloudLoader.loadLists().then(in: .main) {
+                    print("loading lists done")
+                    NewDataAvailable.post(info: true)
+                }
             }
         }
         CKContainer.default().add(operation)

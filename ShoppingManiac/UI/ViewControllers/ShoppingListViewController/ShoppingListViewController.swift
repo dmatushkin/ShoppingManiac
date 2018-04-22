@@ -9,6 +9,7 @@
 import UIKit
 import CoreStore
 import MessageUI
+import NoticeObserveKit
 
 class ShoppingListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate {
 
@@ -20,6 +21,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
     var shoppingGroups: [ShoppingGroup] = []
 
     private var indexPathToEdit: IndexPath?
+    private let pool = NoticeObserverPool()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,6 +29,9 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         self.tableView.setBottomInset(inset: 70)
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         self.reloadData()
+        NewDataAvailable.observe {[weak self] _ in
+            self?.reloadData()
+        }.disposed(by: self.pool)
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -94,7 +99,7 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
             cell.setup(withItem: self.shoppingGroups[indexPath.section].items[indexPath.row])
             return cell
         } else {
-            return UITableViewCell()
+            fatalError()
         }
     }
 

@@ -8,14 +8,20 @@
 
 import UIKit
 import CoreStore
+import NoticeObserveKit
 
 class ShoppingListsListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    
+    private let pool = NoticeObserverPool()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.automaticallyAdjustsScrollViewInsets = false
+        NewDataAvailable.observe {[weak self] _ in
+            self?.tableView.reloadData()
+        }.disposed(by: self.pool)
     }
 
     var listToShow: ShoppingList?
@@ -34,7 +40,7 @@ class ShoppingListsListViewController: UIViewController, UITableViewDataSource, 
             cell.setup(withList: item)
             return cell
         } else {
-            return UITableViewCell()
+            fatalError()
         }
     }
 

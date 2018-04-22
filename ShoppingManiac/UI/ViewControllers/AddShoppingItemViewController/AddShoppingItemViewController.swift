@@ -38,6 +38,10 @@ class AddShoppingItemViewController: UIViewController {
         super.viewDidLoad()
 
         self.nameEditField.becomeFirstResponder()
+        self.loadData()
+    }
+    
+    private func loadData() {
         self.nameEditField.text = self.shoppingListItem?.good?.name
         self.nameEditField.autocompleteStrings = CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
         self.storeEditField.autocompleteStrings = CoreStore.fetchAll(From<Store>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
@@ -55,23 +59,15 @@ class AddShoppingItemViewController: UIViewController {
     private func updateItem(withName name: String) {
         try? CoreStore.perform(synchronous: { transaction in
             let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
-            if let good = transaction.fetchOne(From<Good>().where(Where("name == %@", name))) {
-                item?.good = good
-            } else {
-                let good = transaction.create(Into<Good>())
-                good.name = name
-                item?.good = good
-            }
+            let good = transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
+            good.name = name
+            item?.good = good
             item?.isWeight = self.weightSwitch.isOn
             item?.good?.personalRating = Int16(self.rating)
             if let storeName = self.storeEditField.text, storeName.count > 0 {
-                if let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
-                    item?.store = store
-                } else {
-                    let store = transaction.create(Into<Store>())
-                    store.name = storeName
-                    item?.store = store
-                }
+                let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
+                store.name = storeName
+                item?.store = store
             } else {
                 item?.store = nil
             }

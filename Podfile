@@ -10,5 +10,6 @@ target 'ShoppingManiac' do
   pod 'Hero'
   pod 'AppCenter'
   pod 'SwiftLint'
+  pod 'HydraAsync'
 
 end
