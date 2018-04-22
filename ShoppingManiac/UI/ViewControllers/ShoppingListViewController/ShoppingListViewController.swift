@@ -11,8 +11,9 @@ import CoreStore
 import MessageUI
 import NoticeObserveKit
 import SwiftyBeaver
+import CloudKit
 
-class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate {
+class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var totalLabel: UILabel!
@@ -272,7 +273,51 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     }
 
     private func icloudShare() {
-        CloudShare.shareList(list: self.shoppingList)
+        let wrapper = CloudShare.shareList(list: self.shoppingList)
+        let controller = UICloudSharingController { (controller, onDone) in
+            let share = CKShare(rootRecord: wrapper.record)
+            share[CKShareTitleKey] = "Shopping list" as CKRecordValue
+            share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
+            
+            var recordsToUpdate = [wrapper.record, share]
+            recordsToUpdate.append(contentsOf: wrapper.items)
+            let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: nil)
+            modifyOperation.savePolicy = .changedKeys
+            modifyOperation.perRecordCompletionBlock = {record, error in
+                if let error = error {
+                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
+                } else {
+                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
+                }
+            }
+            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
+                if let error = error {
+                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
+                } else {
+                    SwiftyBeaver.debug("Records modification done successfully")
+                    if let items = wrapper.record["items"] as? [CKReference] {
+                        for item in items {
+                            SwiftyBeaver.debug("list has reference to \(item.recordID.recordName)")
+                        }
+                    }
+                }
+                onDone(share, CKContainer.default(), error)
+            }
+            CKContainer.default().privateCloudDatabase.add(modifyOperation)
+        }
+        controller.delegate = self
+        controller.availablePermissions = [.allowReadWrite, .allowPublic]
+        self.present(controller, animated: true, completion: nil)
+    }
+    
+    // MARK: - Cloud sharing controller delegate
+    
+    func cloudSharingController(_ csc: UICloudSharingController, failedToSaveShareWithError error: Error) {
+        AppDelegate.showAlert(title: "Cloud sharing", message: error.localizedDescription)
+    }
+    
+    func itemTitle(for csc: UICloudSharingController) -> String? {
+        return "Shopping list"
     }
 
     // MARK: - MFMessageComposeViewControllerDelegate

@@ -56,6 +56,7 @@ class CloudShare {
                                 SwiftyBeaver.debug("CloudKit discoverability status error \(error)")
                             } else if status == .granted {
                                 AppDelegate.discoverabilityStatus = true
+                                createZone()
                                 SwiftyBeaver.debug("CloudKit discoverability status ok")
                             } else {
                                 SwiftyBeaver.debug("CloudKit discoverability status incorrect")
@@ -71,9 +72,9 @@ class CloudShare {
         }
     }
 
-    class func shareList(list: ShoppingList) {
-        let listRecord = getListRecord(list: list, database: CKContainer.default().privateCloudDatabase)
-        shareRecord(list: listRecord)
+    class func shareList(list: ShoppingList) -> ShoppingListItemsWrapper {
+        return getListRecord(list: list, database: CKContainer.default().privateCloudDatabase)
+        //shareRecord(list: listRecord)
     }
 
     class func updateList(list: ShoppingList) {
