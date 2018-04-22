@@ -9,7 +9,7 @@
 import UIKit
 import CoreStore
 
-class AddCategoryViewController: UIViewController {
+class AddCategoryViewController: ShoppingManiacViewController {
 
     @IBOutlet weak var categoryNameEditField: UITextField!
 

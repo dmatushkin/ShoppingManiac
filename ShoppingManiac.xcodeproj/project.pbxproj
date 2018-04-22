@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
+		562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
 		563E92802086395800933522 /* CloudShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563E927F2086395700933522 /* CloudShare.swift */; };
 		56451714208BB46C00295393 /* CloudLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56451713208BB46C00295393 /* CloudLoader.swift */; };
@@ -67,6 +68,7 @@
 /* Begin PBXFileReference section */
 		46ED4AFFBD5958695A9B33C1 /* Pods_ShoppingManiac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShoppingManiac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
+		562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingManiacViewController.swift; sourceTree = "<group>"; };
 		56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSaveSegue.swift; sourceTree = "<group>"; };
 		563E927F2086395700933522 /* CloudShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShare.swift; sourceTree = "<group>"; };
 		56451713208BB46C00295393 /* CloudLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLoader.swift; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 		560E12211ED1787400E2529E /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				562BABAF208C9E860063013A /* ShoppingManiacViewController */,
 				560E122A1ED17B3700E2529E /* ShoppingListsListViewController */,
 				565C3B851ED18CCB003D8EE8 /* AddShoppingListViewController */,
 				565C3BC61ED1FC84003D8EE8 /* ShoppingListViewController */,
@@ -238,6 +241,14 @@
 				565C3B881ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift */,
 			);
 			path = ShoppingListsListViewController;
+			sourceTree = "<group>";
+		};
+		562BABAF208C9E860063013A /* ShoppingManiacViewController */ = {
+			isa = PBXGroup;
+			children = (
+				562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */,
+			);
+			path = ShoppingManiacViewController;
 			sourceTree = "<group>";
 		};
 		563E927E2086393C00933522 /* CloudKit */ = {
@@ -549,21 +560,27 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-ShoppingManiac/Pods-ShoppingManiac-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BitByteData/BitByteData.framework",
 				"${BUILT_PRODUCTS_DIR}/CoreStore/CoreStore.framework",
 				"${BUILT_PRODUCTS_DIR}/EXTView/EXTView.framework",
 				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
 				"${BUILT_PRODUCTS_DIR}/HydraAsync/Hydra.framework",
 				"${BUILT_PRODUCTS_DIR}/NoticeObserveKit/NoticeObserveKit.framework",
+				"${BUILT_PRODUCTS_DIR}/SWCompression/SWCompression.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftDate/SwiftDate.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyBeaver/SwiftyBeaver.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BitByteData.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CoreStore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EXTView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hydra.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NoticeObserveKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SWCompression.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftDate.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyBeaver.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -636,6 +653,7 @@
 				565C3BBA1ED1D235003D8EE8 /* CategorySelectionTableViewCell.swift in Sources */,
 				565C3BBD1ED1DE17003D8EE8 /* AddStoreViewController.swift in Sources */,
 				565DA76B208C70C3005CF8C2 /* ShoppingListWrapper.swift in Sources */,
+				562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */,
 				5650C1341EDAA3EB00977503 /* AddShoppingItemViewController.swift in Sources */,
 				565C3BCC1ED20FF3003D8EE8 /* RoundRectTextField.swift in Sources */,
 				5650C13B1EDBEFA600977503 /* ShoppingGroup.swift in Sources */,

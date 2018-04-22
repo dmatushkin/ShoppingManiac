@@ -9,7 +9,7 @@
 import UIKit
 import CoreStore
 
-class AddStoreViewController: UIViewController {
+class AddStoreViewController: ShoppingManiacViewController {
 
     @IBOutlet weak var storeNameEditField: UITextField!
 

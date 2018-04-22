@@ -11,5 +11,6 @@ target 'ShoppingManiac' do
   pod 'AppCenter'
   pod 'SwiftLint'
   pod 'HydraAsync'
-
+  pod 'SwiftyBeaver'
+  pod 'SWCompression/BZip2'
 end

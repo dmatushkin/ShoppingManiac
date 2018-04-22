@@ -9,7 +9,7 @@
 import UIKit
 import CoreStore
 
-class AddGoodViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var goodNameEditField: UITextField!
     @IBOutlet weak var goodCategoryEditField: UITextField!

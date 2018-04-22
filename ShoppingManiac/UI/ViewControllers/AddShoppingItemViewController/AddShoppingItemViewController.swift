@@ -9,7 +9,7 @@
 import UIKit
 import CoreStore
 
-class AddShoppingItemViewController: UIViewController {
+class AddShoppingItemViewController: ShoppingManiacViewController {
 
     @IBOutlet weak var nameEditField: AutocompleteTextField!
     @IBOutlet weak var storeEditField: AutocompleteTextField!

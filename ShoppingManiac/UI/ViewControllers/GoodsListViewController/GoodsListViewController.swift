@@ -10,7 +10,7 @@ import UIKit
 import CoreStore
 import NoticeObserveKit
 
-class GoodsListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
     

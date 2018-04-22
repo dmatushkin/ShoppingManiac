@@ -9,6 +9,7 @@
 import Foundation
 import CoreData
 import CoreStore
+import SwiftyBeaver
 
 public class ShoppingListItem: NSManagedObject {
 
@@ -20,7 +21,7 @@ public class ShoppingListItem: NSManagedObject {
             }
         }, success: {
         }, failure: { (error) in
-            print("Core store error \(error.debugDescription)")
+            SwiftyBeaver.debug("Core store error \(error.debugDescription)")
         })
     }
 

@@ -9,6 +9,7 @@
 import UIKit
 import CloudKit
 import CoreStore
+import SwiftyBeaver
 
 extension CKUserIdentity {
 
@@ -32,7 +33,7 @@ class CloudShare {
         let recordZone = CKRecordZone(zoneName: zoneName)
         CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
             if let error = error {
-                print("Error saving zone \(error.localizedDescription)")
+                SwiftyBeaver.debug("Error saving zone \(error.localizedDescription)")
             }
         }
     }
@@ -40,32 +41,32 @@ class CloudShare {
     class func setupUserPermissions() {
         CKContainer.default().accountStatus { (status, error) in
             if let error = error {
-                print("CloudKit account error \(error)")
+                SwiftyBeaver.debug("CloudKit account error \(error)")
             } else if status == .available {
                 CKContainer.default().status(forApplicationPermission: .userDiscoverability, completionHandler: { (status, error) in
                     if let error = error {
-                        print("CloudKit discoverability status error \(error)")
+                        SwiftyBeaver.debug("CloudKit discoverability status error \(error)")
                     } else if status == .granted {
                         AppDelegate.discoverabilityStatus = true
                         createZone()
-                        print("CloudKit discoverability status ok")
+                        SwiftyBeaver.debug("CloudKit discoverability status ok")
                     } else if status == .initialState {
                         CKContainer.default().requestApplicationPermission(.userDiscoverability, completionHandler: { (status, error) in
                             if let error = error {
-                                print("CloudKit discoverability status error \(error)")
+                                SwiftyBeaver.debug("CloudKit discoverability status error \(error)")
                             } else if status == .granted {
                                 AppDelegate.discoverabilityStatus = true
-                                print("CloudKit discoverability status ok")
+                                SwiftyBeaver.debug("CloudKit discoverability status ok")
                             } else {
-                                print("CloudKit discoverability status incorrect")
+                                SwiftyBeaver.debug("CloudKit discoverability status incorrect")
                             }
                         })
                     } else {
-                        print("CloudKit discoverability status incorrect")
+                        SwiftyBeaver.debug("CloudKit discoverability status incorrect")
                     }
                 })
             } else {
-                print("CloudKit account status incorrect")
+                SwiftyBeaver.debug("CloudKit account status incorrect")
             }
         }
     }
@@ -154,7 +155,7 @@ class CloudShare {
             if let error = error {
                 AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
             } else {
-                print("Sharing done successfully")
+                SwiftyBeaver.debug("Sharing done successfully")
             }
         }
         fetchParticipantOperation.shareParticipantFetchedBlock = { participant in
@@ -166,19 +167,19 @@ class CloudShare {
             modifyOperation.savePolicy = .ifServerRecordUnchanged
             modifyOperation.perRecordCompletionBlock = {record, error in
                 if let error = error {
-                    print("Error while saving records \(error.localizedDescription)")
+                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
                 } else {
-                    print("Successfully saved record \(record.recordID.recordName)")
+                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
                 }
             }
             modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
                 if let error = error {
                     AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
                 } else {
-                    print("Records modification done successfully")
+                    SwiftyBeaver.debug("Records modification done successfully")
                     if let items = list.record["items"] as? [CKReference] {
                         for item in items {
-                            print("list has reference to \(item.recordID.recordName)")
+                            SwiftyBeaver.debug("list has reference to \(item.recordID.recordName)")
                         }
                     }
                 }
@@ -220,14 +221,14 @@ class CloudShare {
         modifyOperation.savePolicy = .ifServerRecordUnchanged
         modifyOperation.perRecordCompletionBlock = {record, error in
             if let error = error {
-                print("Error while saving records \(error.localizedDescription)")
+                SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
             } else {
-                print("Successfully saved record \(record.recordID.recordName)")
+                SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
             }
         }
         modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
             if let error = error {
-                print("Error when saving records \(error.localizedDescription)")
+                SwiftyBeaver.debug("Error when saving records \(error.localizedDescription)")
             }
         }
         CKContainer.default().privateCloudDatabase.add(modifyOperation)

@@ -12,7 +12,7 @@ import CloudKit
 class RecordsWrapper {
     
     let database: CKDatabase
-    let records:[CKRecord]
+    let records: [CKRecord]
     
     init(database: CKDatabase, records: [CKRecord]) {
         self.database = database

@@ -10,6 +10,7 @@ import Foundation
 import CloudKit
 import CoreStore
 import Hydra
+import SwiftyBeaver
 
 class CloudLoader {
     
@@ -30,9 +31,7 @@ class CloudLoader {
             }
             operation.qualityOfService = .utility
             
-            let container = CKContainer.default()
-            let db = container.privateCloudDatabase
-            db.add(operation)
+            CKContainer.default().privateCloudDatabase.add(operation)
         }
     }
     
@@ -55,13 +54,13 @@ class CloudLoader {
         return Promise<RecordsWrapper>(in: .background, { (resolve, _, _) in
             let query = CKQuery(recordType: CloudShare.listRecordType, predicate: NSPredicate(format: "TRUEPREDICATE", argumentArray: nil))
             let recordZone = CKRecordZone(zoneName: CloudShare.zoneName)
-            print("loading lists from database \(String(describing: database))")
+            SwiftyBeaver.debug("loading lists from database \(String(describing: database))")
             database.perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
                 if let records = records, error == nil {
-                    print("\(records.count) list records found")
+                    SwiftyBeaver.debug("\(records.count) list records found")
                     resolve(RecordsWrapper(database: database, records: records))
                 } else {
-                    print("no list records found")
+                    SwiftyBeaver.debug("no list records found")
                     resolve(RecordsWrapper(database: database, records: []))
                 }
             })
@@ -80,7 +79,7 @@ class CloudLoader {
                 shoppingList.name = wrapper.record["name"] as? String
                 let date = wrapper.record["date"] as? Date ?? Date()
                 shoppingList.date = date.timeIntervalSinceReferenceDate
-                print("got a list with name \(shoppingList.name ?? "no name")")
+                SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name")")
                 return shoppingList
             }, completion: {result in
                 switch result {
@@ -88,7 +87,7 @@ class CloudLoader {
                     let items = wrapper.record["items"] as? [CKReference] ?? []
                     resolve(ShoppingListWrapper(database: wrapper.database, record: wrapper.record, shoppingList: list, items: items))
                 case .failure(let error):
-                    print(error.debugDescription)
+                    SwiftyBeaver.debug(error.debugDescription)
                     reject(error)
                 }
             })
@@ -107,9 +106,9 @@ class CloudLoader {
             }
             operation.perRecordCompletionBlock = { record, recordid, error in
                 if let error = error {
-                    print(error.localizedDescription)
+                    SwiftyBeaver.debug(error.localizedDescription)
                 } else {
-                    print("Successfully loaded record \(recordid?.recordName ?? "no record name")")
+                    SwiftyBeaver.debug("Successfully loaded record \(recordid?.recordName ?? "no record name")")
                 }
             }
             operation.qualityOfService = .utility
@@ -122,7 +121,7 @@ class CloudLoader {
             CoreStore.perform(asynchronous: { (transaction)  in
                 for record in wrapper.items {
                     let item: ShoppingListItem = transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
-                    print("loading item \(record["goodName"] as? String ?? "no name")")
+                    SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
                     item.recordid = record.recordID.recordName
                     item.list = transaction.fetchExisting(wrapper.shoppingList)
                     item.comment = record["comment"] as? String
@@ -163,13 +162,13 @@ class CloudLoader {
         return Promise<RecordsWrapper>(in: .background, { (resolve, reject, _) in
             let query = CKQuery(recordType: recordType, predicate: NSPredicate(format: "TRUEPREDICATE", argumentArray: nil))
             let recordZone = CKRecordZone(zoneName: CloudShare.zoneName)
-            print("clearing records of type \(recordType) from database \(String(describing: database))")
+            SwiftyBeaver.debug("clearing records of type \(recordType) from database \(String(describing: database))")
             database.perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
                 if let records = records, error == nil {
-                    print("\(records.count) records found")
+                    SwiftyBeaver.debug("\(records.count) records found")
                     resolve(RecordsWrapper(database: database, records: records))
                 } else {
-                    print("no list records found")
+                    SwiftyBeaver.debug("no list records found")
                     reject(CommonError(description: "No list records found"))
                 }
             })
@@ -182,14 +181,14 @@ class CloudLoader {
             modifyOperation.savePolicy = .ifServerRecordUnchanged
             modifyOperation.perRecordCompletionBlock = {record, error in
                 if let error = error {
-                    print("Error while deleting records \(error.localizedDescription)")
+                    SwiftyBeaver.debug("Error while deleting records \(error.localizedDescription)")
                 } else {
-                    print("Successfully deleted record \(record.recordID.recordName)")
+                    SwiftyBeaver.debug("Successfully deleted record \(record.recordID.recordName)")
                 }
             }
             modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
                 if let error = error {
-                    print("Error when deleting records \(error.localizedDescription)")
+                    SwiftyBeaver.debug("Error when deleting records \(error.localizedDescription)")
                 }
                 resolve(0)
             }

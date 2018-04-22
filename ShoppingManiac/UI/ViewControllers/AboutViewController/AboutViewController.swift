@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AboutViewController: UIViewController {
+class AboutViewController: ShoppingManiacViewController {
 
     @IBOutlet weak var versionLabel: UILabel!
 

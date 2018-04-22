@@ -10,8 +10,9 @@ import UIKit
 import CoreStore
 import MessageUI
 import NoticeObserveKit
+import SwiftyBeaver
 
-class ShoppingListViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate {
+class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var totalLabel: UILabel!
@@ -131,13 +132,13 @@ class ShoppingListViewController: UIViewController, UITableViewDataSource, UITab
         /*group.items = self.sortItems(items: group.items)
         tableView.reloadData()*/
         let sortedItems = self.sortItems(items: group.items)
-        //print(sortedItems.map({ $0.itemName }))
+        //SwiftyBeaver.debug(sortedItems.map({ $0.itemName }))
         var itemFound: Bool = false
         for (idx, sortedItem) in sortedItems.enumerated() where item.objectId == sortedItem.objectId {
             let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
             itemFound = true
             group.items = sortedItems
-            //print("switching \(indexPath.row), \(sortedIndexPath.row)")
+            //SwiftyBeaver.debug("switching \(indexPath.row), \(sortedIndexPath.row)")
             UIView.animate(withDuration: 0.5, animations: { () -> Void in
                 self.tableView.moveRow(at: indexPath, to: sortedIndexPath)
             }, completion: { (_) -> Void in
