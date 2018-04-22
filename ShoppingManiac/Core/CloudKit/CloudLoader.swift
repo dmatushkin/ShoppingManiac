@@ -150,6 +150,35 @@ class CloudLoader {
         })
     }
     
+    class func deleteList(list: ShoppingList) {
+        if let listRecordId = list.recordid {
+            let recordZone = CKRecordZone(zoneName: CloudShare.zoneName)
+            let itemRecordIds = list.listItems.map({$0.recordid}).filter({$0 != nil}).map({$0!})
+            var recordIdsToDelete = [CKRecordID(recordName: listRecordId, zoneID: recordZone.zoneID)]
+            recordIdsToDelete.append(contentsOf: itemRecordIds.map({CKRecordID(recordName: $0, zoneID: recordZone.zoneID)}))
+            deleteRecords(recordIds: recordIdsToDelete, database: CKContainer.default().privateCloudDatabase)
+            deleteRecords(recordIds: recordIdsToDelete, database: CKContainer.default().sharedCloudDatabase)
+        }
+    }
+    
+    private class func deleteRecords(recordIds: [CKRecordID], database: CKDatabase) {
+        let modifyOperation = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: recordIds)
+        modifyOperation.savePolicy = .allKeys
+        modifyOperation.perRecordCompletionBlock = {record, error in
+            if let error = error {
+                SwiftyBeaver.debug("Error while deleting record \(error.localizedDescription)")
+            } else {
+                SwiftyBeaver.debug("Successfully deleted record \(record.recordID.recordName)")
+            }
+        }
+        modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
+            if let error = error {
+                SwiftyBeaver.debug("Error when deleting records \(error.localizedDescription)")
+            }
+        }
+        database.add(modifyOperation)
+    }
+    
     class func clearRecords() -> Promise<Void> {
         let privateLists = clearRecordsFromDatabase(database: CKContainer.default().privateCloudDatabase, recordType: CloudShare.listRecordType).then(deleteRecords).void
         let privateItems = clearRecordsFromDatabase(database: CKContainer.default().privateCloudDatabase, recordType: CloudShare.itemRecordType).then(deleteRecords).void
@@ -178,7 +207,7 @@ class CloudLoader {
     private class func deleteRecords(wrapper: RecordsWrapper) -> Promise<Int> {
         return Promise<Int>(in: .background, { (resolve, _, _) in
             let modifyOperation = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: wrapper.records.map({$0.recordID}))
-            modifyOperation.savePolicy = .ifServerRecordUnchanged
+            modifyOperation.savePolicy = .allKeys
             modifyOperation.perRecordCompletionBlock = {record, error in
                 if let error = error {
                     SwiftyBeaver.debug("Error while deleting records \(error.localizedDescription)")

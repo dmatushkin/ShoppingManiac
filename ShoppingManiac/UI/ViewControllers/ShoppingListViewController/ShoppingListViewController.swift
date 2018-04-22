@@ -44,6 +44,9 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     // MARK: - Data processing
 
     private func reloadData() {
+        if self.shoppingList.recordid != nil {
+            CloudShare.updateList(list: self.shoppingList)
+        }
         CoreStore.perform(asynchronous: { transaction in
             if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self.shoppingList))) {
                 let totalPrice = items.reduce(0.0) { acc, curr in
@@ -128,7 +131,11 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
             if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
                 shoppingListItem.purchased = item.purchased
             }
-        }, completion: { _ in
+        }, completion: {[weak self] _ in
+            guard let `self` = self else { return }
+            if self.shoppingList.recordid != nil {
+                CloudShare.updateList(list: self.shoppingList)
+            }
         })
         /*group.items = self.sortItems(items: group.items)
         tableView.reloadData()*/
@@ -223,9 +230,6 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     @IBAction func shoppingList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addShoppingItemSaveSegue" {
-            if self.shoppingList.recordid != nil {
-                CloudShare.updateList(list: self.shoppingList)
-            }
             self.reloadData()
         }
     }
@@ -274,7 +278,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     private func icloudShare() {
         let wrapper = CloudShare.shareList(list: self.shoppingList)
-        let controller = UICloudSharingController { (controller, onDone) in
+        let controller = UICloudSharingController { (_, onDone) in
             let share = CKShare(rootRecord: wrapper.record)
             share[CKShareTitleKey] = "Shopping list" as CKRecordValue
             share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue

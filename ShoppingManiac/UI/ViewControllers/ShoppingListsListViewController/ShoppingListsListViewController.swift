@@ -53,6 +53,7 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
             tableView.isEditing = false
             if let shoppingList = self.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete list", message: "Are you sure you want to delete list \(shoppingList.title)?", confirmActionTitle: "Delete") {
+                    CloudLoader.deleteList(list: shoppingList)
                     CoreStore.perform(asynchronous: { transaction in
                         transaction.delete(shoppingList)
                     }, completion: { _ in

@@ -165,7 +165,7 @@ class CloudShare {
             var recordsToUpdate = [list.record, share]
             recordsToUpdate.append(contentsOf: list.items)
             let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: nil)
-            modifyOperation.savePolicy = .ifServerRecordUnchanged
+            modifyOperation.savePolicy = .changedKeys
             modifyOperation.perRecordCompletionBlock = {record, error in
                 if let error = error {
                     SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
@@ -219,7 +219,7 @@ class CloudShare {
         var recordsToSave = [record.record]
         recordsToSave.append(contentsOf: record.items)
         let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToSave, recordIDsToDelete: nil)
-        modifyOperation.savePolicy = .ifServerRecordUnchanged
+        modifyOperation.savePolicy = .changedKeys
         modifyOperation.perRecordCompletionBlock = {record, error in
             if let error = error {
                 SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
