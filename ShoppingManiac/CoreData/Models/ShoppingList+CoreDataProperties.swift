@@ -2,8 +2,9 @@
 //  ShoppingList+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 21/05/2017.
-//  Copyright © 2017 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 24/04/2018.
+//  Copyright © 2018 Dmitry Matyushkin. All rights reserved.
+//
 //
 
 import Foundation
@@ -18,6 +19,7 @@ extension ShoppingList {
     @NSManaged public var date: TimeInterval
     @NSManaged public var name: String?
     @NSManaged public var recordid: String?
+    @NSManaged public var isRemote: Bool
     @NSManaged public var items: NSSet?
 
 }

@@ -11,10 +11,10 @@ import CloudKit
 
 class RecordWrapper {
     let record: CKRecord
-    let database: CKDatabase
+    let localDb: Bool
 
-    init(record: CKRecord, database: CKDatabase) {
+    init(record: CKRecord, localDb: Bool) {
         self.record = record
-        self.database = database
+        self.localDb = localDb
     }
 }

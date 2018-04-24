@@ -10,6 +10,7 @@ import UIKit
 import CloudKit
 import CoreStore
 import SwiftyBeaver
+import Hydra
 
 extension CKUserIdentity {
 
@@ -73,21 +74,23 @@ class CloudShare {
     }
 
     class func shareList(list: ShoppingList) -> ShoppingListItemsWrapper {
-        return getListRecord(list: list, database: CKContainer.default().privateCloudDatabase)
-        //shareRecord(list: listRecord)
+        return getListRecord(list: list)
     }
 
     class func updateList(list: ShoppingList) {
-        let listRecord = getListRecord(list: list, database: CKContainer.default().privateCloudDatabase)
+        let listRecord = getListRecord(list: list)
         updateRecord(record: listRecord)
     }
 
-    private class func updateListRecord(record: CKRecord, list: ShoppingList, database: CKDatabase) -> ShoppingListItemsWrapper {
+    private class func updateListRecord(record: CKRecord, list: ShoppingList) -> ShoppingListItemsWrapper {
         let items = list.listItems.map({getItemRecord(item: $0)})
+        for item in items {
+            item.setParent(record)
+        }
         record["name"] = (list.name ?? "") as CKRecordValue
         record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
         record["items"] = items.map({ CKReference(record: $0, action: .deleteSelf) }) as CKRecordValue
-        return ShoppingListItemsWrapper(database: database, shoppingList: list, record: record, items: items)
+        return ShoppingListItemsWrapper(localDb: !list.isRemote, shoppingList: list, record: record, items: items)
     }
 
     private class func updateItemRecord(record: CKRecord, item: ShoppingListItem) {
@@ -98,21 +101,18 @@ class CloudShare {
         record["purchased"] = item.purchased as CKRecordValue
         record["quantity"] = item.quantity as CKRecordValue
         record["storeName"] = (item.store?.name ?? "") as CKRecordValue
-        /*if let listRecordId = item.list?.recordid {
-            record["list"] = CKReference(recordID: CKRecordID(recordName: listRecordId, zoneID: record.recordID.zoneID), action: .deleteSelf)
-        }*/
     }
 
-    private class func getListRecord(list: ShoppingList, database: CKDatabase) -> ShoppingListItemsWrapper {
+    private class func getListRecord(list: ShoppingList) -> ShoppingListItemsWrapper {
         let recordZone = CKRecordZone(zoneName: zoneName)
         if let recordName = list.recordid {
             let recordId = CKRecordID(recordName: recordName, zoneID: recordZone.zoneID)
             let record = CKRecord(recordType: listRecordType, recordID: recordId)
-            return updateListRecord(record: record, list: list, database: database)
+            return updateListRecord(record: record, list: list)
         } else {
             let record = CKRecord(recordType: listRecordType, zoneID: recordZone.zoneID)
             list.setRecordId(recordId: record.recordID.recordName)
-            return updateListRecord(record: record, list: list, database: database)
+            return updateListRecord(record: record, list: list)
         }
     }
 
@@ -130,94 +130,10 @@ class CloudShare {
             return record
         }
     }
-
-    private class func shareRecord(list: ShoppingListItemsWrapper) {
-        selectUserToShare { identity in
-            if let recordId = identity.userRecordID {
-                CKContainer.default().discoverUserIdentity(withUserRecordID: recordId, completionHandler: { (identity, error) in
-                    if let lookupInfo = identity?.lookupInfo, error == nil {
-                        shareRecord(list: list, toUser: lookupInfo)
-                    } else {
-                        AppDelegate.showAlert(title: "Sharing error", message: "Can't lookup for this user")
-                    }
-                })
-            } else {
-                AppDelegate.showAlert(title: "Sharing error", message: "Can't lookup for this user")
-            }
-        }
-    }
     
-    private class func shareRecord(list: ShoppingListItemsWrapper, toUser lookupInfo: CKUserIdentityLookupInfo) {
-        let share = CKShare(rootRecord: list.record)
-        share[CKShareTitleKey] = "Shopping list" as CKRecordValue
-        share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
-        let fetchParticipantOperation = CKFetchShareParticipantsOperation(userIdentityLookupInfos: [lookupInfo])
-        fetchParticipantOperation.fetchShareParticipantsCompletionBlock = { error in
-            if let error = error {
-                AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
-            } else {
-                SwiftyBeaver.debug("Sharing done successfully")
-            }
-        }
-        fetchParticipantOperation.shareParticipantFetchedBlock = { participant in
-            participant.permission = .readWrite
-            share.addParticipant(participant)
-            var recordsToUpdate = [list.record, share]
-            recordsToUpdate.append(contentsOf: list.items)
-            let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: nil)
-            modifyOperation.savePolicy = .changedKeys
-            modifyOperation.perRecordCompletionBlock = {record, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
-                } else {
-                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
-                }
-            }
-            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-                if let error = error {
-                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
-                } else {
-                    SwiftyBeaver.debug("Records modification done successfully")
-                    if let items = list.record["items"] as? [CKReference] {
-                        for item in items {
-                            SwiftyBeaver.debug("list has reference to \(item.recordID.recordName)")
-                        }
-                    }
-                }
-            }
-            CKContainer.default().privateCloudDatabase.add(modifyOperation)
-        }
-        CKContainer.default().add(fetchParticipantOperation)
-    }
-
-    private class func selectUserToShare(onDone:@escaping (CKUserIdentity) -> Void) {
-        CKContainer.default().discoverAllIdentities { (identities, error) in
-            DispatchQueue.main.async {
-                if let identities = identities {
-                    let controller = UIAlertController(title: "Sharing", message: "Select user to share with", preferredStyle: .actionSheet)
-                    for identity in identities {
-                        let action = UIAlertAction(title: identity.fullName, style: .default) { _ in
-                            onDone(identity)
-                        }
-                        controller.addAction(action)
-                    }
-                    let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { _ in
-
-                    }
-                    controller.addAction(cancelAction)
-                    AppDelegate.topViewController()?.present(controller, animated: true, completion: nil)
-                } else if let error = error {
-                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
-                } else {
-                    AppDelegate.showAlert(title: "Sharing error", message: "Error getting users to share with")
-                }
-            }
-        }
-    }
-
     private class func updateRecord(record: ShoppingListItemsWrapper) {
-        var recordsToSave = [record.record]
-        recordsToSave.append(contentsOf: record.items)
+        let recordsToSave = [record.record]
+        //recordsToSave.append(contentsOf: record.items)
         let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToSave, recordIDsToDelete: nil)
         modifyOperation.savePolicy = .changedKeys
         modifyOperation.perRecordCompletionBlock = {record, error in
@@ -230,8 +146,63 @@ class CloudShare {
         modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
             if let error = error {
                 SwiftyBeaver.debug("Error when saving records \(error.localizedDescription)")
+            } else {
+                updateRecords(wrapper: RecordsWrapper(localDb: !record.shoppingList.isRemote, records: record.items)).then { _ in
+                    
+                }
             }
         }
-        CKContainer.default().privateCloudDatabase.add(modifyOperation)
-    }        
+        CKContainer.default().database(localDb: record.localDb).add(modifyOperation)
+    }
+    
+    class func updateRecords(wrapper: RecordsWrapper) -> Promise<Error?> {
+        return Promise<Error?>(in: .background, { (resolve, _, _) in
+            let modifyOperation = CKModifyRecordsOperation(recordsToSave: wrapper.records, recordIDsToDelete: nil)
+            modifyOperation.savePolicy = .changedKeys
+            modifyOperation.perRecordCompletionBlock = {record, error in
+                if let error = error {
+                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
+                } else {
+                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
+                }
+            }
+            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
+                if let error = error {
+                    SwiftyBeaver.debug("Error when saving records \(error.localizedDescription)")
+                }
+                resolve(error)
+            }
+            CKContainer.default().database(localDb: wrapper.localDb).add(modifyOperation)
+        })
+    }
+    
+    class func createShare(wrapper: ShoppingListItemsWrapper) -> Promise<CKShare> {
+        return Promise<CKShare>(in: .background, { (resolve, reject, _) in
+            let share = CKShare(rootRecord: wrapper.record)
+            share[CKShareTitleKey] = "Shopping list" as CKRecordValue
+            share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
+            share.publicPermission = .readWrite
+            
+            let recordsToUpdate = [wrapper.record, share]
+            let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: nil)
+            modifyOperation.savePolicy = .changedKeys
+            modifyOperation.perRecordCompletionBlock = {record, error in
+                if let error = error {
+                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
+                } else {
+                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
+                }
+            }
+            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
+                if let error = error {
+                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
+                    reject(error)
+                } else {
+                    SwiftyBeaver.debug("Records modification done successfully")
+                    resolve(share)
+                }
+            }
+            CKContainer.default().privateCloudDatabase.add(modifyOperation)
+        })
+    }
 }

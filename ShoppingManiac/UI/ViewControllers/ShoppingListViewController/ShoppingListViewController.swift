@@ -279,35 +279,17 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     private func icloudShare() {
         let wrapper = CloudShare.shareList(list: self.shoppingList)
         let controller = UICloudSharingController { (_, onDone) in
-            let share = CKShare(rootRecord: wrapper.record)
-            share[CKShareTitleKey] = "Shopping list" as CKRecordValue
-            share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
-            
-            var recordsToUpdate = [wrapper.record, share]
-            recordsToUpdate.append(contentsOf: wrapper.items)
-            let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: nil)
-            modifyOperation.savePolicy = .changedKeys
-            modifyOperation.perRecordCompletionBlock = {record, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
-                } else {
-                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
-                }
-            }
-            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-                if let error = error {
-                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
-                } else {
-                    SwiftyBeaver.debug("Records modification done successfully")
-                    if let items = wrapper.record["items"] as? [CKReference] {
-                        for item in items {
-                            SwiftyBeaver.debug("list has reference to \(item.recordID.recordName)")
-                        }
+            CloudShare.createShare(wrapper: wrapper).then({ share in
+                CloudShare.updateRecords(wrapper: RecordsWrapper(localDb: true, records: wrapper.items)).then({ error in
+                    if let error = error {
+                        onDone(nil, CKContainer.default(), error)
+                    } else {
+                        onDone(share, CKContainer.default(), nil)
                     }
-                }
-                onDone(share, CKContainer.default(), error)
-            }
-            CKContainer.default().privateCloudDatabase.add(modifyOperation)
+                })
+            }).catch({ error in
+                onDone(nil, CKContainer.default(), error)
+            })
         }
         controller.delegate = self
         controller.availablePermissions = [.allowReadWrite, .allowPublic]

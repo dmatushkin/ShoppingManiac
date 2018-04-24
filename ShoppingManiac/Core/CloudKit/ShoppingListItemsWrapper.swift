@@ -11,13 +11,13 @@ import CloudKit
 
 class ShoppingListItemsWrapper {
     
-    let database: CKDatabase
+    let localDb: Bool
     let shoppingList: ShoppingList
     let record: CKRecord
     let items: [CKRecord]
 
-    init(database: CKDatabase, shoppingList: ShoppingList, record: CKRecord, items: [CKRecord]) {
-        self.database = database
+    init(localDb: Bool, shoppingList: ShoppingList, record: CKRecord, items: [CKRecord]) {
+        self.localDb = localDb
         self.shoppingList = shoppingList
         self.record = record
         self.items = items

@@ -10,13 +10,13 @@ import Foundation
 import CloudKit
 
 class ShoppingListWrapper {
-    let database: CKDatabase
+    let localDb: Bool
     let record: CKRecord
     let shoppingList: ShoppingList
     let items: [CKReference]
     
-    init(database: CKDatabase, record: CKRecord, shoppingList: ShoppingList, items: [CKReference]) {
-        self.database = database
+    init(localDb: Bool, record: CKRecord, shoppingList: ShoppingList, items: [CKReference]) {
+        self.localDb = localDb
         self.record = record
         self.shoppingList = shoppingList
         self.items = items

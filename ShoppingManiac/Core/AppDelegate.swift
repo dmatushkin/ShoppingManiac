@@ -89,7 +89,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let error = error {
                 SwiftyBeaver.debug("sharing accept error \(error.localizedDescription)")
             } else {
-                CloudLoader.loadLists().then(in: .main) {
+                SwiftyBeaver.debug("sharing accepted successfully")
+                CloudLoader.loadShare(metadata: metadata).then {
                     SwiftyBeaver.debug("loading lists done")
                     NewDataAvailable.post(info: true)
                 }
