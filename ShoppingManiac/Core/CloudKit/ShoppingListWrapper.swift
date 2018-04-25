@@ -14,11 +14,13 @@ class ShoppingListWrapper {
     let record: CKRecord
     let shoppingList: ShoppingList
     let items: [CKReference]
+    let ownerName: String?
     
-    init(localDb: Bool, record: CKRecord, shoppingList: ShoppingList, items: [CKReference]) {
+    init(localDb: Bool, record: CKRecord, shoppingList: ShoppingList, items: [CKReference], ownerName: String?) {
         self.localDb = localDb
         self.record = record
         self.shoppingList = shoppingList
         self.items = items
+        self.ownerName = ownerName
     }
 }

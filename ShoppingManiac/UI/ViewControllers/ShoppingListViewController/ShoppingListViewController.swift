@@ -280,7 +280,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         let wrapper = CloudShare.shareList(list: self.shoppingList)
         let controller = UICloudSharingController { (_, onDone) in
             CloudShare.createShare(wrapper: wrapper).then({ share in
-                CloudShare.updateRecords(wrapper: RecordsWrapper(localDb: true, records: wrapper.items)).then({ error in
+                CloudShare.updateRecords(wrapper: RecordsWrapper(localDb: true, records: wrapper.items, ownerName: wrapper.ownerName)).then({ error in
                     if let error = error {
                         onDone(nil, CKContainer.default(), error)
                     } else {

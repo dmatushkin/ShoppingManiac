@@ -90,7 +90,7 @@ class CloudShare {
         record["name"] = (list.name ?? "") as CKRecordValue
         record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
         record["items"] = items.map({ CKReference(record: $0, action: .deleteSelf) }) as CKRecordValue
-        return ShoppingListItemsWrapper(localDb: !list.isRemote, shoppingList: list, record: record, items: items)
+        return ShoppingListItemsWrapper(localDb: !list.isRemote, shoppingList: list, record: record, items: items, ownerName: list.ownerName)
     }
 
     private class func updateItemRecord(record: CKRecord, item: ShoppingListItem) {
@@ -102,22 +102,29 @@ class CloudShare {
         record["quantity"] = item.quantity as CKRecordValue
         record["storeName"] = (item.store?.name ?? "") as CKRecordValue
     }
+    
+    class func zone(ownerName: String?) -> CKRecordZone {
+        if let ownerName = ownerName {
+            return CKRecordZone(zoneID: CKRecordZoneID(zoneName: zoneName, ownerName: ownerName))
+        } else {
+            return CKRecordZone(zoneName: zoneName)
+        }
+    }
 
     private class func getListRecord(list: ShoppingList) -> ShoppingListItemsWrapper {
-        let recordZone = CKRecordZone(zoneName: zoneName)
         if let recordName = list.recordid {
-            let recordId = CKRecordID(recordName: recordName, zoneID: recordZone.zoneID)
+            let recordId = CKRecordID(recordName: recordName, zoneID: zone(ownerName: list.ownerName).zoneID)
             let record = CKRecord(recordType: listRecordType, recordID: recordId)
             return updateListRecord(record: record, list: list)
         } else {
-            let record = CKRecord(recordType: listRecordType, zoneID: recordZone.zoneID)
+            let record = CKRecord(recordType: listRecordType, zoneID: zone(ownerName: list.ownerName).zoneID)
             list.setRecordId(recordId: record.recordID.recordName)
             return updateListRecord(record: record, list: list)
         }
     }
 
     private class func getItemRecord(item: ShoppingListItem) -> CKRecord {
-        let recordZone = CKRecordZone(zoneName: zoneName)
+        let recordZone = zone(ownerName: item.list?.ownerName)
         if let recordName = item.recordid {
             let recordId = CKRecordID(recordName: recordName, zoneID: recordZone.zoneID)
             let record = CKRecord(recordType: itemRecordType, recordID: recordId)
@@ -147,7 +154,7 @@ class CloudShare {
             if let error = error {
                 SwiftyBeaver.debug("Error when saving records \(error.localizedDescription)")
             } else {
-                updateRecords(wrapper: RecordsWrapper(localDb: !record.shoppingList.isRemote, records: record.items)).then { _ in
+                updateRecords(wrapper: RecordsWrapper(localDb: !record.shoppingList.isRemote, records: record.items, ownerName: record.ownerName)).then { _ in
                     
                 }
             }

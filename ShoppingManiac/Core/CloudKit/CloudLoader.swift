@@ -22,8 +22,9 @@ class CloudLoader {
             let operation = CKFetchRecordsOperation(recordIDs: [metadata.rootRecordID])
             operation.fetchRecordsCompletionBlock = { records, error in
                 if let records = records, error == nil {
+                    
                     SwiftyBeaver.debug("\(records.count) shared list records found")
-                    resolve(RecordsWrapper(localDb: false, records: records.map({$0.value})))
+                    resolve(RecordsWrapper(localDb: false, records: records.map({$0.value}), ownerName: metadata.rootRecordID.zoneID.ownerName))
                 } else {
                     SwiftyBeaver.debug("No shared list records found")
                     reject(CommonError(description: "No shared list records found"))
@@ -35,20 +36,30 @@ class CloudLoader {
     
     class func setupSubscriptions() {
         if UserDefaults.standard.bool(forKey: subscriptionsKey) == false {
+            all(setupSubscriptions(database: CKContainer.default().sharedCloudDatabase),
+                setupSubscriptions(database: CKContainer.default().privateCloudDatabase)
+                ).then({_ in
+                    UserDefaults.standard.set(true, forKey: subscriptionsKey)
+                })
+        }
+    }
+    
+    private class func setupSubscriptions(database: CKDatabase) -> Promise<Int> {
+        return Promise<Int>(in: .background, { (resolve, reject, _) in
             let listsSubscription = createSubscription(forType: CloudShare.listRecordType)
             let itemsSubscription = createSubscription(forType: CloudShare.itemRecordType)
             
             let operation = CKModifySubscriptionsOperation(subscriptionsToSave: [listsSubscription, itemsSubscription], subscriptionIDsToDelete: [])
             operation.modifySubscriptionsCompletionBlock = { (_, _, error) in
-                guard error == nil else {
-                    return
-                }                
-                UserDefaults.standard.set(true, forKey: subscriptionsKey)
+                if let error = error {
+                    reject(error)
+                } else {
+                    resolve(0)
+                }
             }
             operation.qualityOfService = .utility
-            
-            CKContainer.default().privateCloudDatabase.add(operation)
-        }
+            database.add(operation)
+        })
     }
     
     private class func createSubscription(forType type: String) -> CKQuerySubscription {
@@ -61,8 +72,31 @@ class CloudLoader {
     }
 
     class func loadLists() -> Promise<Void> {
-        return loadListsFromDatabase(localDb: true).then(loadListRecords).then({_ in
-            loadListsFromDatabase(localDb: false).then(loadListRecords)
+        let lists = CoreStore.fetchAll(From<ShoppingList>().where(Where("isRemote == true")))?.filter({($0.ownerName?.count ?? 0) > 0}) ?? []
+        return Promise<Void>.zip(all(lists.map({loadLocalLists(list: $0).then(loadListRecord).then(fetchListItems).then(loadListItems).void})).void,
+            loadListsFromDatabase(localDb: true).then(loadListRecords).void).void
+    }
+    
+    private class func loadLocalLists(list: ShoppingList) -> Promise<RecordWrapper> {
+        return Promise<RecordWrapper>(in: .background, { (resolve, reject, _) in
+            let recordId = CKRecordID(recordName: list.recordid ?? "", zoneID: CloudShare.zone(ownerName: list.ownerName).zoneID)
+            let operation = CKFetchRecordsOperation(recordIDs: [recordId])
+            operation.fetchRecordsCompletionBlock = { records, error in
+                if let records = records, records.count == 1, error == nil {
+                    resolve(RecordWrapper(record: records.map({$0.value})[0], localDb: false, ownerName: list.ownerName))
+                } else {
+                    reject(CommonError(description: "No items found"))
+                }
+            }
+            operation.perRecordCompletionBlock = { record, recordid, error in
+                if let error = error {
+                    SwiftyBeaver.debug(error.localizedDescription)
+                } else {
+                    SwiftyBeaver.debug("Successfully loaded record \(recordid?.recordName ?? "no record name")")
+                }
+            }
+            operation.qualityOfService = .utility
+            CKContainer.default().database(localDb: false).add(operation)
         })
     }
 
@@ -73,17 +107,17 @@ class CloudLoader {
             CKContainer.default().database(localDb: localDb).perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
                 if let records = records, error == nil {
                     SwiftyBeaver.debug("\(records.count) list records found")
-                    resolve(RecordsWrapper(localDb: localDb, records: records))
+                    resolve(RecordsWrapper(localDb: localDb, records: records, ownerName: nil))
                 } else {
                     SwiftyBeaver.debug("no list records found")
-                    resolve(RecordsWrapper(localDb: localDb, records: []))
+                    resolve(RecordsWrapper(localDb: localDb, records: [], ownerName: nil))
                 }
             })
         })
     }
 
     private class func loadListRecords(wrapper: RecordsWrapper) -> Promise<[Void]> {
-        return all(wrapper.records.map({loadListRecord(wrapper: RecordWrapper(record: $0, localDb: wrapper.localDb)).then(fetchListItems).then(loadListItems).void}))
+        return all(wrapper.records.map({loadListRecord(wrapper: RecordWrapper(record: $0, localDb: wrapper.localDb, ownerName: wrapper.ownerName)).then(fetchListItems).then(loadListItems).void}))
     }
 
     private class func loadListRecord(wrapper: RecordWrapper) -> Promise<ShoppingListWrapper> {
@@ -91,6 +125,7 @@ class CloudLoader {
             CoreStore.perform(asynchronous: { (transaction) -> ShoppingList in
                 let shoppingList: ShoppingList = transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", wrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
                 shoppingList.recordid = wrapper.record.recordID.recordName
+                shoppingList.ownerName = wrapper.ownerName
                 shoppingList.name = wrapper.record["name"] as? String
                 shoppingList.isRemote = !wrapper.localDb
                 let date = wrapper.record["date"] as? Date ?? Date()
@@ -101,7 +136,7 @@ class CloudLoader {
                 switch result {
                 case .success(let list):
                     let items = wrapper.record["items"] as? [CKReference] ?? []
-                    resolve(ShoppingListWrapper(localDb: wrapper.localDb, record: wrapper.record, shoppingList: list, items: items))
+                    resolve(ShoppingListWrapper(localDb: wrapper.localDb, record: wrapper.record, shoppingList: list, items: items, ownerName: wrapper.ownerName))
                 case .failure(let error):
                     SwiftyBeaver.debug(error.debugDescription)
                     reject(error)
@@ -115,7 +150,7 @@ class CloudLoader {
             let operation = CKFetchRecordsOperation(recordIDs: wrapper.items.map({$0.recordID}))
             operation.fetchRecordsCompletionBlock = { records, error in
                 if let records = records, error == nil {
-                    resolve(ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: records.map({$0.value})))
+                    resolve(ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: records.map({$0.value}), ownerName: wrapper.ownerName))
                 } else {
                     reject(CommonError(description: "No items found"))
                 }
@@ -168,7 +203,7 @@ class CloudLoader {
     
     class func deleteList(list: ShoppingList) {
         if let listRecordId = list.recordid {
-            let recordZone = CKRecordZone(zoneName: CloudShare.zoneName)
+            let recordZone = CloudShare.zone(ownerName: list.ownerName)
             let itemRecordIds = list.listItems.map({$0.recordid}).filter({$0 != nil}).map({$0!})
             var recordIdsToDelete = [CKRecordID(recordName: listRecordId, zoneID: recordZone.zoneID)]
             recordIdsToDelete.append(contentsOf: itemRecordIds.map({CKRecordID(recordName: $0, zoneID: recordZone.zoneID)}))
@@ -197,9 +232,7 @@ class CloudLoader {
     class func clearRecords() -> Promise<Void> {
         let privateLists = clearRecordsFromDatabase(localDb: true, recordType: CloudShare.listRecordType).then(deleteRecords).void
         let privateItems = clearRecordsFromDatabase(localDb: true, recordType: CloudShare.itemRecordType).then(deleteRecords).void
-        let sharedLists = clearRecordsFromDatabase(localDb: false, recordType: CloudShare.listRecordType).then(deleteRecords).void
-        let sharedItems = clearRecordsFromDatabase(localDb: false, recordType: CloudShare.itemRecordType).then(deleteRecords).void
-        return all(privateLists, privateItems, sharedLists, sharedItems).void
+        return all(privateLists, privateItems).void
     }
     
     private class func clearRecordsFromDatabase(localDb: Bool, recordType: String) -> Promise<RecordsWrapper> {
@@ -209,7 +242,7 @@ class CloudLoader {
             CKContainer.default().database(localDb: localDb).perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
                 if let records = records, error == nil {
                     SwiftyBeaver.debug("\(records.count) records found")
-                    resolve(RecordsWrapper(localDb: localDb, records: records))
+                    resolve(RecordsWrapper(localDb: localDb, records: records, ownerName: nil))
                 } else {
                     SwiftyBeaver.debug("no list records found")
                     reject(CommonError(description: "No list records found"))

@@ -10,6 +10,7 @@
 import Foundation
 import CoreData
 
+
 extension ShoppingList {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<ShoppingList> {
@@ -17,9 +18,10 @@ extension ShoppingList {
     }
 
     @NSManaged public var date: TimeInterval
+    @NSManaged public var isRemote: Bool
     @NSManaged public var name: String?
     @NSManaged public var recordid: String?
-    @NSManaged public var isRemote: Bool
+    @NSManaged public var ownerName: String?
     @NSManaged public var items: NSSet?
 
 }
