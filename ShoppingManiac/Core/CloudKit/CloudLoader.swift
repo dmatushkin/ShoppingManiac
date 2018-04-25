@@ -16,6 +16,7 @@ class CloudLoader {
     
     private static let subscriptionsKey = "cloudKitSubscriptionsDone"
     private static let subscriptionID = "cloudKitSharedDataSubscription"
+    private static let sharedSubscriptionID = "cloudKitRemoteSharedDataSubscription"
     
     class func loadShare(metadata: CKShareMetadata) -> Promise<Void> {
         return Promise<RecordsWrapper>(in: .background, { (resolve, reject, _) in
@@ -34,17 +35,36 @@ class CloudLoader {
         }).then(loadListRecords).void
     }
     
+    class func setupSharedSubscription() -> Promise<Int> {
+        return Promise<Int>(in: .background, { (resolve, reject, _) in
+            let subscription = CKDatabaseSubscription(subscriptionID: sharedSubscriptionID)
+            let notificationInfo = CKNotificationInfo()
+            notificationInfo.shouldSendContentAvailable = true
+            subscription.notificationInfo = notificationInfo
+            
+            let operation = CKModifySubscriptionsOperation(subscriptionsToSave: [subscription], subscriptionIDsToDelete: [])
+            operation.modifySubscriptionsCompletionBlock = { (_, _, error) in
+                if let error = error {
+                    reject(error)
+                } else {
+                    resolve(0)
+                }
+            }
+            operation.qualityOfService = .utility
+            CKContainer.default().sharedCloudDatabase.add(operation)
+        })
+    }
+    
     class func setupSubscriptions() {
         if UserDefaults.standard.bool(forKey: subscriptionsKey) == false {
-            all(setupSubscriptions(database: CKContainer.default().sharedCloudDatabase),
-                setupSubscriptions(database: CKContainer.default().privateCloudDatabase)
+            all(setupSharedSubscription(), setupLocalSubscriptions()
                 ).then({_ in
                     UserDefaults.standard.set(true, forKey: subscriptionsKey)
                 })
         }
     }
     
-    private class func setupSubscriptions(database: CKDatabase) -> Promise<Int> {
+    private class func setupLocalSubscriptions() -> Promise<Int> {
         return Promise<Int>(in: .background, { (resolve, reject, _) in
             let listsSubscription = createSubscription(forType: CloudShare.listRecordType)
             let itemsSubscription = createSubscription(forType: CloudShare.itemRecordType)
@@ -58,7 +78,7 @@ class CloudLoader {
                 }
             }
             operation.qualityOfService = .utility
-            database.add(operation)
+            CKContainer.default().privateCloudDatabase.add(operation)
         })
     }
     
