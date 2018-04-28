@@ -42,11 +42,15 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     }
 
     // MARK: - Data processing
-
-    private func reloadData() {
+    
+    private func resyncData() {
         if self.shoppingList.recordid != nil {
             CloudShare.updateList(list: self.shoppingList)
         }
+        self.reloadData()
+    }
+
+    private func reloadData() {
         CoreStore.perform(asynchronous: { transaction in
             if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self.shoppingList))) {
                 let totalPrice = items.reduce(0.0) { acc, curr in
@@ -174,7 +178,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
                         transaction.delete(shoppingListItem)
                     }
                 }, completion: { [weak self] _ in
-                    self?.reloadData()
+                    self?.resyncData()
                 })
             }
             self?.present(alertController, animated: true, completion: nil)
@@ -211,7 +215,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
                     }
                 }
             }, completion: { [weak self] _ in
-                self?.reloadData()
+                self?.resyncData()
             })
         }
     }
@@ -230,7 +234,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     @IBAction func shoppingList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addShoppingItemSaveSegue" {
-            self.reloadData()
+            self.resyncData()
         }
     }
 
