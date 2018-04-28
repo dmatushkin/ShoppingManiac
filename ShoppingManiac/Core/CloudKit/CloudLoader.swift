@@ -14,10 +14,6 @@ import SwiftyBeaver
 
 class CloudLoader {
     
-    private static let subscriptionsKey = "cloudKitSubscriptionsDone"
-    private static let subscriptionID = "cloudKitSharedDataSubscription"
-    private static let sharedSubscriptionID = "cloudKitRemoteSharedDataSubscription"
-    
     class func loadShare(metadata: CKShareMetadata) -> Promise<Void> {
         return Promise<RecordsWrapper>(in: .background, { (resolve, _, _) in
             CloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false).then({ records in
@@ -26,39 +22,7 @@ class CloudLoader {
             })
         }).then(loadListRecords).void
     }
-    
-    class func setupSharedSubscription() -> Promise<Int> {
-        let subscription = CKDatabaseSubscription(subscriptionID: sharedSubscriptionID)
-        let notificationInfo = CKNotificationInfo()
-        notificationInfo.shouldSendContentAvailable = true
-        subscription.notificationInfo = notificationInfo
-        return CloudKitUtils.updateSubscriptions(subscriptions: [subscription], localDb: false)
-    }
-    
-    class func setupSubscriptions() {
-        if UserDefaults.standard.bool(forKey: subscriptionsKey) == false {
-            all(setupSharedSubscription(), setupLocalSubscriptions()
-                ).then({_ in
-                    UserDefaults.standard.set(true, forKey: subscriptionsKey)
-                })
-        }
-    }
-    
-    private class func setupLocalSubscriptions() -> Promise<Int> {
-        let listsSubscription = createSubscription(forType: CloudShare.listRecordType)
-        let itemsSubscription = createSubscription(forType: CloudShare.itemRecordType)
-        return CloudKitUtils.updateSubscriptions(subscriptions: [listsSubscription, itemsSubscription], localDb: true)
-    }
-    
-    private class func createSubscription(forType type: String) -> CKQuerySubscription {
-        let predicate = NSPredicate(value: true)
-        let subscription = CKQuerySubscription(recordType: type, predicate: predicate, subscriptionID: subscriptionID, options: [.firesOnRecordCreation, .firesOnRecordDeletion, .firesOnRecordUpdate])
-        let notificationInfo = CKNotificationInfo()
-        notificationInfo.shouldSendContentAvailable = true
-        subscription.notificationInfo = notificationInfo
-        return subscription
-    }
-
+        
     class func loadLists() -> Promise<Void> {
         let lists = CoreStore.fetchAll(From<ShoppingList>().where(Where("isRemote == true")))?.filter({($0.ownerName?.count ?? 0) > 0}) ?? []
         return Promise<Void>.zip(all(lists.map({loadListRecord(list: $0, localDb: false).then(storeListRecord).then(fetchListItems).then(storeListItems).void})).void,
@@ -80,7 +44,7 @@ class CloudLoader {
 
     private class func loadListsFromDatabase(localDb: Bool) -> Promise<RecordsWrapper> {
         return Promise<RecordsWrapper>(in: .background, { (resolve, _, _) in
-            CloudKitUtils.fetchRecordsQuery(recordType: CloudShare.listRecordType, localDb: localDb).then({ records in
+            CloudKitUtils.fetchRecordsQuery(recordType: CloudKitUtils.listRecordType, localDb: localDb).then({ records in
                 resolve(RecordsWrapper(localDb: localDb, records: records, ownerName: nil))
             })
         })
@@ -180,8 +144,8 @@ class CloudLoader {
     }
     
     class func clearRecords() -> Promise<Void> {
-        let privateLists = clearRecordsFromDatabase(localDb: true, recordType: CloudShare.listRecordType).then(deleteRecords).void
-        let privateItems = clearRecordsFromDatabase(localDb: true, recordType: CloudShare.itemRecordType).then(deleteRecords).void
+        let privateLists = clearRecordsFromDatabase(localDb: true, recordType: CloudKitUtils.listRecordType).then(deleteRecords).void
+        let privateItems = clearRecordsFromDatabase(localDb: true, recordType: CloudKitUtils.itemRecordType).then(deleteRecords).void
         return all(privateLists, privateItems).void
     }
     

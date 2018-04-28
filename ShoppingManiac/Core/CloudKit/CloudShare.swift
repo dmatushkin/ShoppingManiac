@@ -12,26 +12,10 @@ import CoreStore
 import SwiftyBeaver
 import Hydra
 
-extension CKUserIdentity {
-
-    var fullName: String {
-        if let components = self.nameComponents {
-            return "\(components.givenName ?? "") \(components.familyName ?? "")"
-        } else {
-            return "Unknown"
-        }
-    }
-}
-
 class CloudShare {
 
-    static let lowPriorityQueye = DispatchQueue(label: "dataSharingQueue", qos: .background, attributes: [], autoreleaseFrequency: .inherit, target: nil)
-    static let zoneName = "ShareZone"
-    static let listRecordType = "ShoppingList"
-    static let itemRecordType = "ShoppingListItem"
-
     private class func createZone() {
-        let recordZone = CKRecordZone(zoneName: zoneName)
+        let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
         CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
             if let error = error {
                 SwiftyBeaver.debug("Error saving zone \(error.localizedDescription)")
@@ -105,19 +89,19 @@ class CloudShare {
     
     class func zone(ownerName: String?) -> CKRecordZone {
         if let ownerName = ownerName {
-            return CKRecordZone(zoneID: CKRecordZoneID(zoneName: zoneName, ownerName: ownerName))
+            return CKRecordZone(zoneID: CKRecordZoneID(zoneName: CloudKitUtils.zoneName, ownerName: ownerName))
         } else {
-            return CKRecordZone(zoneName: zoneName)
+            return CKRecordZone(zoneName: CloudKitUtils.zoneName)
         }
     }
 
     class func getListRecord(list: ShoppingList) -> ShoppingListItemsWrapper {
         if let recordName = list.recordid {
             let recordId = CKRecordID(recordName: recordName, zoneID: zone(ownerName: list.ownerName).zoneID)
-            let record = CKRecord(recordType: listRecordType, recordID: recordId)
+            let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
             return updateListRecord(record: record, list: list)
         } else {
-            let record = CKRecord(recordType: listRecordType, zoneID: zone(ownerName: list.ownerName).zoneID)
+            let record = CKRecord(recordType: CloudKitUtils.listRecordType, zoneID: zone(ownerName: list.ownerName).zoneID)
             list.setRecordId(recordId: record.recordID.recordName)
             return updateListRecord(record: record, list: list)
         }
@@ -127,11 +111,11 @@ class CloudShare {
         let recordZone = zone(ownerName: item.list?.ownerName)
         if let recordName = item.recordid {
             let recordId = CKRecordID(recordName: recordName, zoneID: recordZone.zoneID)
-            let record = CKRecord(recordType: itemRecordType, recordID: recordId)
+            let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
             updateItemRecord(record: record, item: item)
             return record
         } else {
-            let record =  CKRecord(recordType: itemRecordType, zoneID: recordZone.zoneID)
+            let record =  CKRecord(recordType: CloudKitUtils.itemRecordType, zoneID: recordZone.zoneID)
             item.setRecordId(recordId: record.recordID.recordName)
             updateItemRecord(record: record, item: item)
             return record
@@ -139,77 +123,33 @@ class CloudShare {
     }
     
     private class func updateRecord(record: ShoppingListItemsWrapper) {
-        let recordsToSave = [record.record]
-        //recordsToSave.append(contentsOf: record.items)
-        let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToSave, recordIDsToDelete: nil)
-        modifyOperation.savePolicy = .changedKeys
-        modifyOperation.perRecordCompletionBlock = {record, error in
-            if let error = error {
-                SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
-            } else {
-                SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
+        CloudKitUtils.updateRecords(records: [record.record], localDb: record.localDb).then({_ in
+            updateRecords(wrapper: RecordsWrapper(localDb: !record.shoppingList.isRemote, records: record.items, ownerName: record.ownerName)).then { _ in
             }
-        }
-        modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-            if let error = error {
-                SwiftyBeaver.debug("Error when saving records \(error.localizedDescription)")
-            } else {
-                updateRecords(wrapper: RecordsWrapper(localDb: !record.shoppingList.isRemote, records: record.items, ownerName: record.ownerName)).then { _ in
-                    
-                }
-            }
-        }
-        CKContainer.default().database(localDb: record.localDb).add(modifyOperation)
+        })
     }
     
     class func updateRecords(wrapper: RecordsWrapper) -> Promise<Error?> {
         return Promise<Error?>(in: .background, { (resolve, _, _) in
-            let modifyOperation = CKModifyRecordsOperation(recordsToSave: wrapper.records, recordIDsToDelete: nil)
-            modifyOperation.savePolicy = .changedKeys
-            modifyOperation.perRecordCompletionBlock = {record, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
-                } else {
-                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
-                }
-            }
-            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error when saving records \(error.localizedDescription)")
-                }
+            CloudKitUtils.updateRecords(records: wrapper.records, localDb: wrapper.localDb).then({_ in
+                resolve(nil)
+            }).catch({error in
                 resolve(error)
-            }
-            CKContainer.default().database(localDb: wrapper.localDb).add(modifyOperation)
+            })
         })
     }
     
     class func createShare(wrapper: ShoppingListItemsWrapper) -> Promise<CKShare> {
-        return Promise<CKShare>(in: .background, { (resolve, reject, _) in
+        return Promise<CKShare>(in: .background, { (resolve, _, _) in
             let share = CKShare(rootRecord: wrapper.record)
             share[CKShareTitleKey] = "Shopping list" as CKRecordValue
             share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
             share.publicPermission = .readWrite
             
             let recordsToUpdate = [wrapper.record, share]
-            let modifyOperation = CKModifyRecordsOperation(recordsToSave: recordsToUpdate, recordIDsToDelete: nil)
-            modifyOperation.savePolicy = .changedKeys
-            modifyOperation.perRecordCompletionBlock = {record, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
-                } else {
-                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
-                }
-            }
-            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-                if let error = error {
-                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
-                    reject(error)
-                } else {
-                    SwiftyBeaver.debug("Records modification done successfully")
-                    resolve(share)
-                }
-            }
-            CKContainer.default().privateCloudDatabase.add(modifyOperation)
+            CloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true).then({_ in
+                resolve(share)
+            })
         })
     }
 }

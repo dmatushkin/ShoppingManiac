@@ -45,7 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             SwiftyBeaver.debug("loading lists done")
             NewDataAvailable.post(info: true)
         }
-        CloudLoader.setupSubscriptions()
+        CloudSubscriptions.setupSubscriptions()
         
         MSAppCenter.start("55fd6e0b-d425-4b37-801e-9b64709efd6b", withServices: [
             MSAnalytics.self,

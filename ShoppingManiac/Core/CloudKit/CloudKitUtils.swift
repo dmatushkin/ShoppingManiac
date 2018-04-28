@@ -13,6 +13,10 @@ import SwiftyBeaver
 
 class CloudKitUtils {
     
+    static let zoneName = "ShareZone"
+    static let listRecordType = "ShoppingList"
+    static let itemRecordType = "ShoppingListItem"
+    
     class func fetchRecords(recordIds: [CKRecordID], localDb: Bool) -> Promise<[CKRecord]> {
         return Promise<[CKRecord]>(in: .background, { (resolve, reject, _) in
             let operation = CKFetchRecordsOperation(recordIDs: recordIds)
@@ -74,7 +78,7 @@ class CloudKitUtils {
     class func fetchRecordsQuery(recordType: String, localDb: Bool) -> Promise<[CKRecord]> {
         return Promise<[CKRecord]>(in: .background, { (resolve, _, _) in
             let query = CKQuery(recordType: recordType, predicate: NSPredicate(format: "TRUEPREDICATE", argumentArray: nil))
-            let recordZone = CKRecordZone(zoneName: CloudShare.zoneName)
+            let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
             CKContainer.default().database(localDb: localDb).perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
                 if let records = records, error == nil {
                     SwiftyBeaver.debug("\(records.count) list records found")
@@ -84,6 +88,30 @@ class CloudKitUtils {
                     resolve([])
                 }
             })
+        })
+    }
+    
+    class func updateRecords(records: [CKRecord], localDb: Bool) -> Promise<Int> {
+        return Promise<Int>(in: .background, { (resolve, reject, _) in
+            let modifyOperation = CKModifyRecordsOperation(recordsToSave: records, recordIDsToDelete: nil)
+            modifyOperation.savePolicy = .allKeys
+            modifyOperation.perRecordCompletionBlock = {record, error in
+                if let error = error {
+                    SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
+                } else {
+                    SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
+                }
+            }
+            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
+                if let error = error {
+                    AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
+                    reject(error)
+                } else {
+                    SwiftyBeaver.debug("Records modification done successfully")
+                    resolve(0)
+                }
+            }
+            CKContainer.default().database(localDb: localDb).add(modifyOperation)
         })
     }
 }
