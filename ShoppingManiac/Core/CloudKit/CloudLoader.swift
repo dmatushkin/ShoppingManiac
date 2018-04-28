@@ -194,7 +194,7 @@ class CloudLoader {
                     let item: ShoppingListItem = transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
                     SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
                     item.recordid = record.recordID.recordName
-                    item.list = transaction.fetchExisting(wrapper.shoppingList)
+                    item.list = transaction.edit(wrapper.shoppingList)
                     item.comment = record["comment"] as? String
                     if let name = record["goodName"] as? String {
                         let good = transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())

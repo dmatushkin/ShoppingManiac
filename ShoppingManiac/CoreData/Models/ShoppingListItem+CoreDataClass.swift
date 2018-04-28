@@ -14,14 +14,12 @@ import SwiftyBeaver
 public class ShoppingListItem: NSManagedObject {
 
     func setRecordId(recordId: String) {
-        CoreStore.perform(asynchronous: {[weak self] (transaction)  in
-            guard let `self` = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(self.objectID) {
+        _ = try? CoreStore.perform(synchronous: {[weak self] transaction -> String in
+            guard let `self` = self else { return recordId }
+            if let shoppingListItem: ShoppingListItem = transaction.edit(self) {
                 shoppingListItem.recordid = recordId
             }
-        }, success: {
-        }, failure: { (error) in
-            SwiftyBeaver.debug("Core store error \(error.debugDescription)")
+            return recordId
         })
     }
 

@@ -18,14 +18,12 @@ public class ShoppingList: NSManagedObject {
     }
 
     func setRecordId(recordId: String) {
-        CoreStore.perform(asynchronous: {[weak self] (transaction)  in
-            guard let `self` = self else { return }
-            if let shoppingList: ShoppingList = transaction.fetchExisting(self.objectID) {
+        _ = try? CoreStore.perform(synchronous: {[weak self] transaction -> String in
+            guard let `self` = self else { return recordId }
+            if let shoppingList: ShoppingList = transaction.edit(self) {
                 shoppingList.recordid = recordId
             }
-        }, success: {
-        }, failure: { (error) in
-            SwiftyBeaver.debug("Core store error \(error.debugDescription)")
+            return recordId
         })
     }
 

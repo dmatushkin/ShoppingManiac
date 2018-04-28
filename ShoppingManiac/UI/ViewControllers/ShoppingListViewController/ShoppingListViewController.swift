@@ -128,7 +128,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
         item.purchased = !item.purchased
         CoreStore.perform(asynchronous: { transaction in
-            if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
+            if let shoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
                 shoppingListItem.purchased = item.purchased
             }
         }, completion: {[weak self] _ in
@@ -170,7 +170,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
             let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {
                 self?.tableView.isEditing = false
                 CoreStore.perform(asynchronous: { transaction in
-                    if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
+                    if let shoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
                         transaction.delete(shoppingListItem)
                     }
                 }, completion: { [weak self] _ in
@@ -202,10 +202,10 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         if sourceIndexPath.section != destinationIndexPath.section {
             let item = self.shoppingGroups[sourceIndexPath.section].items[sourceIndexPath.row]
             CoreStore.perform(asynchronous: { transaction in
-                if let shoppingListItem: ShoppingListItem = transaction.fetchExisting(item.objectId) {
+                if let shoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
                     let destinationGroup = self.shoppingGroups[destinationIndexPath.section]
-                    if let storeObjectId = destinationGroup.objectId {
-                        shoppingListItem.store = transaction.fetchExisting(storeObjectId)
+                    if let storeObjectId = destinationGroup.objectId {                        
+                        shoppingListItem.store = transaction.edit(Into<Store>(), storeObjectId)
                     } else {
                         shoppingListItem.store = nil
                     }
