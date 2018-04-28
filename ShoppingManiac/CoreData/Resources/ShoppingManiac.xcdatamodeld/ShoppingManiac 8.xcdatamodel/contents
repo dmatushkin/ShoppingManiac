@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E199" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E202" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Category" representedClassName="Category" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="recordid" optional="YES" attributeType="String" syncable="YES"/>
@@ -31,6 +31,7 @@
     <entity name="ShoppingList" representedClassName=".ShoppingList" syncable="YES">
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="isRemote" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="isRemoved" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="ownerName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="recordid" optional="YES" attributeType="String" syncable="YES"/>
@@ -38,6 +39,7 @@
     </entity>
     <entity name="ShoppingListItem" representedClassName=".ShoppingListItem" syncable="YES">
         <attribute name="comment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isRemoved" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="isWeight" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="price" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="purchased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES" syncable="YES"/>
@@ -58,8 +60,8 @@
         <element name="Good" positionX="288" positionY="-70" width="128" height="150"/>
         <element name="GoodRating" positionX="369" positionY="99" width="128" height="105"/>
         <element name="Picture" positionX="351" positionY="81" width="128" height="105"/>
-        <element name="ShoppingList" positionX="198" positionY="92" width="128" height="135"/>
-        <element name="ShoppingListItem" positionX="511" positionY="20" width="128" height="195"/>
+        <element name="ShoppingList" positionX="198" positionY="92" width="128" height="150"/>
+        <element name="ShoppingListItem" positionX="511" positionY="20" width="128" height="210"/>
         <element name="Store" positionX="223" positionY="252" width="128" height="90"/>
     </elements>
 </model>

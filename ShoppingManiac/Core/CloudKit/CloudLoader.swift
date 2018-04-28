@@ -62,6 +62,7 @@ class CloudLoader {
                 shoppingList.ownerName = wrapper.ownerName
                 shoppingList.name = wrapper.record["name"] as? String
                 shoppingList.isRemote = !wrapper.localDb
+                shoppingList.isRemoved = wrapper.record["isRemoved"] as? Bool ?? false
                 let date = wrapper.record["date"] as? Date ?? Date()
                 shoppingList.date = date.timeIntervalSinceReferenceDate
                 SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name") record \(String(describing: wrapper.record))")
@@ -107,6 +108,7 @@ class CloudLoader {
                     item.price = record["price"] as? Float ?? 0
                     item.purchased = record["purchased"] as? Bool ?? false
                     item.quantity = record["quantity"] as? Float ?? 1
+                    item.isRemoved = record["isRemoved"] as? Bool ?? false
                     if let storeName = record["storeName"] as? String, storeName.count > 0 {
                         let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
                         store.name = storeName

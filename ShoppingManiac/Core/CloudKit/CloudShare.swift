@@ -73,6 +73,7 @@ class CloudShare {
         }
         record["name"] = (list.name ?? "") as CKRecordValue
         record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
+        record["isRemoved"] = list.isRemoved as CKRecordValue
         record["items"] = items.map({ CKReference(record: $0, action: .deleteSelf) }) as CKRecordValue
         return ShoppingListItemsWrapper(localDb: !list.isRemote, shoppingList: list, record: record, items: items, ownerName: list.ownerName)
     }
@@ -85,6 +86,7 @@ class CloudShare {
         record["purchased"] = item.purchased as CKRecordValue
         record["quantity"] = item.quantity as CKRecordValue
         record["storeName"] = (item.store?.name ?? "") as CKRecordValue
+        record["isRemoved"] = item.isRemoved as CKRecordValue
     }
     
     class func zone(ownerName: String?) -> CKRecordZone {

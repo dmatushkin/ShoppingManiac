@@ -32,7 +32,7 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return CoreStore.fetchCount(From<ShoppingList>(), []) ?? 0
+        return CoreStore.fetchCount(From<ShoppingList>().where(Where("isRemoved == false"))) ?? 0
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -53,10 +53,11 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
             tableView.isEditing = false
             if let shoppingList = self.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete list", message: "Are you sure you want to delete list \(shoppingList.title)?", confirmActionTitle: "Delete") {
-                    CloudLoader.deleteList(list: shoppingList)
                     CoreStore.perform(asynchronous: { transaction in
-                        transaction.delete(shoppingList)
+                        let list = transaction.edit(shoppingList)
+                        list?.isRemoved = true
                     }, completion: { _ in
+                        CloudShare.updateList(list: shoppingList)
                         self.tableView.reloadData()
                     })
                 }
@@ -77,7 +78,7 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     }
 
     private func getItem(forIndex: IndexPath) -> ShoppingList? {
-        return CoreStore.fetchOne(From<ShoppingList>().orderBy(.descending(\.date)).tweak({ fetchRequest in
+        return CoreStore.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))

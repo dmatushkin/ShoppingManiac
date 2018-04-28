@@ -52,7 +52,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     private func reloadData() {
         CoreStore.perform(asynchronous: { transaction in
-            if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self.shoppingList))) {
+            if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@ AND isRemoved == false", self.shoppingList))) {
                 let totalPrice = items.reduce(0.0) { acc, curr in
                     return acc + curr.totalPrice
                 }
@@ -175,7 +175,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
                 self?.tableView.isEditing = false
                 CoreStore.perform(asynchronous: { transaction in
                     if let shoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
-                        transaction.delete(shoppingListItem)
+                        let list = transaction.edit(shoppingListItem)
+                        list?.isRemoved = true
                     }
                 }, completion: { [weak self] _ in
                     self?.resyncData()
