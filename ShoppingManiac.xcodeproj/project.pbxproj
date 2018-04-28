@@ -55,6 +55,7 @@
 		565DA771208C72F2005CF8C2 /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA770208C72F2005CF8C2 /* CommonError.swift */; };
 		565DA773208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA772208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift */; };
 		565DA775208C8F91005CF8C2 /* LocalNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA774208C8F91005CF8C2 /* LocalNotifications.swift */; };
+		5666997B20948B700053F39E /* CloudKitUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5666997A20948B700053F39E /* CloudKitUtils.swift */; };
 		567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F7321206F915B00B67B5C /* CloudKit.framework */; };
 		56C7334C208EF05800E085FF /* CKContainerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C7334B208EF05800E085FF /* CKContainerExtension.swift */; };
 		56D540571F9A73180036C646 /* UIKeyboardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D540561F9A73180036C646 /* UIKeyboardInfo.swift */; };
@@ -124,6 +125,7 @@
 		565DA770208C72F2005CF8C2 /* CommonError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
 		565DA772208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListItemsWrapper.swift; sourceTree = "<group>"; };
 		565DA774208C8F91005CF8C2 /* LocalNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNotifications.swift; sourceTree = "<group>"; };
+		5666997A20948B700053F39E /* CloudKitUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUtils.swift; sourceTree = "<group>"; };
 		566A7DD41ED1759C005F9D31 /* ShoppingManiac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingManiac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		567F7320206F915700B67B5C /* ShoppingManiac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShoppingManiac.entitlements; sourceTree = "<group>"; };
 		567F7321206F915B00B67B5C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
@@ -262,6 +264,7 @@
 				565DA76A208C70C3005CF8C2 /* ShoppingListWrapper.swift */,
 				565DA76C208C71A9005CF8C2 /* RecordWrapper.swift */,
 				565DA772208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift */,
+				5666997A20948B700053F39E /* CloudKitUtils.swift */,
 			);
 			path = CloudKit;
 			sourceTree = "<group>";
@@ -641,6 +644,7 @@
 				565C3B891ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift in Sources */,
 				565C3B9B1ED19EC5003D8EE8 /* Good+CoreDataClass.swift in Sources */,
 				565C3BCA1ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift in Sources */,
+				5666997B20948B700053F39E /* CloudKitUtils.swift in Sources */,
 				560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */,
 				565C3BB81ED1B8CE003D8EE8 /* AddGoodViewController.swift in Sources */,
 				565C3BAD1ED1A61B003D8EE8 /* GoodRating+CoreDataProperties.swift in Sources */,

@@ -111,7 +111,7 @@ class CloudShare {
         }
     }
 
-    private class func getListRecord(list: ShoppingList) -> ShoppingListItemsWrapper {
+    class func getListRecord(list: ShoppingList) -> ShoppingListItemsWrapper {
         if let recordName = list.recordid {
             let recordId = CKRecordID(recordName: recordName, zoneID: zone(ownerName: list.ownerName).zoneID)
             let record = CKRecord(recordType: listRecordType, recordID: recordId)
@@ -123,7 +123,7 @@ class CloudShare {
         }
     }
 
-    private class func getItemRecord(item: ShoppingListItem) -> CKRecord {
+    class func getItemRecord(item: ShoppingListItem) -> CKRecord {
         let recordZone = zone(ownerName: item.list?.ownerName)
         if let recordName = item.recordid {
             let recordId = CKRecordID(recordName: recordName, zoneID: recordZone.zoneID)
