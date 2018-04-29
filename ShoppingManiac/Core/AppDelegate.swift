@@ -41,10 +41,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 SwiftyBeaver.debug("loading lists done")
             }
         }*/
-        CloudLoader.loadLists().then(in: .main) {
+        /*CloudLoader.loadLists().then(in: .main) {
             SwiftyBeaver.debug("loading lists done")
             NewDataAvailable.post(info: true)
-        }
+        }*/
+        CloudLoader.fetchChanges(localDb: false).then({_ in
+            CloudLoader.fetchChanges(localDb: true).then({_ in
+                SwiftyBeaver.debug("loading updates done")
+                NewDataAvailable.post(info: true)
+            })
+        })
         CloudSubscriptions.setupSubscriptions()
         
         MSAppCenter.start("55fd6e0b-d425-4b37-801e-9b64709efd6b", withServices: [
@@ -57,11 +63,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-            CloudLoader.loadLists().then {
+            CloudLoader.fetchChanges(localDb: false).then({_ in
+                CloudLoader.fetchChanges(localDb: true).then({_ in
+                    SwiftyBeaver.debug("loading updates done")
+                    NewDataAvailable.post(info: true)
+                    completionHandler(.newData)
+                })
+            })
+            /*CloudLoader.loadLists().then {
                 SwiftyBeaver.debug("loading lists done")
                 NewDataAvailable.post(info: true)
                 completionHandler(.newData)
-            }
+            }*/
         } else {
             completionHandler(.noData)
         }

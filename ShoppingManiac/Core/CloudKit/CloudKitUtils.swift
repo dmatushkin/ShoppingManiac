@@ -114,4 +114,68 @@ class CloudKitUtils {
             CKContainer.default().database(localDb: localDb).add(modifyOperation)
         })
     }
+    
+    class func fetchDatabaseChanges(localDb: Bool, changeToken: CKServerChangeToken?) -> Promise<[CKRecordZoneID]> {
+        return Promise<[CKRecordZoneID]>(in: .background, { (resolve, reject, _) in
+            var zoneIds: [CKRecordZoneID] = []
+            let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: changeToken)
+            operation.recordZoneWithIDChangedBlock = { zoneId in
+                zoneIds.append(zoneId)
+            }
+            operation.changeTokenUpdatedBlock = { token in
+                if localDb {
+                    UserDefaults.standard.localServerChangeToken = token
+                } else {
+                    UserDefaults.standard.sharedServerChangeToken = token
+                }
+            }
+            operation.qualityOfService = .utility
+            operation.fetchAllChanges = true
+            operation.fetchDatabaseChangesCompletionBlock = { token, moreComing, error in
+                if let error = error {
+                    SwiftyBeaver.debug(error.localizedDescription)
+                    reject(error)
+                } else {
+                    SwiftyBeaver.debug("\(zoneIds.count) updated zones found")
+                    resolve(zoneIds)
+                }
+            }
+            CKContainer.default().database(localDb: localDb).add(operation)
+        })
+    }
+    
+    class func fetchZoneChanges(localDb: Bool, zoneIds: [CKRecordZoneID], changeToken: CKServerChangeToken?) -> Promise<[CKRecord]> {
+        return Promise<[CKRecord]>(in: .background, { (resolve, reject, _) in
+            if zoneIds.count > 0 {
+                var records: [CKRecord] = []
+                var optionsByRecordZoneID = [CKRecordZoneID: CKFetchRecordZoneChangesOptions]()
+                for zoneId in zoneIds {
+                    let options = CKFetchRecordZoneChangesOptions()
+                    options.previousServerChangeToken = changeToken
+                    optionsByRecordZoneID[zoneId] = options
+                }
+                let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: zoneIds, optionsByRecordZoneID: optionsByRecordZoneID)
+                operation.recordChangedBlock = { record in
+                    records.append(record)
+                }
+                operation.recordZoneFetchCompletionBlock = { zoneId, changeToken, data, moreComing, error in
+                    if let error = error {
+                        SwiftyBeaver.debug(error.localizedDescription)
+                    }
+                }
+                operation.fetchRecordZoneChangesCompletionBlock = { error in
+                    if let error = error {
+                        SwiftyBeaver.debug(error.localizedDescription)
+                        reject(error)
+                    } else {
+                        SwiftyBeaver.debug("\(records.count) updated records found")
+                        resolve(records)
+                    }
+                }
+                CKContainer.default().database(localDb: localDb).add(operation)
+            } else {
+                resolve([])
+            }
+        })
+    }
 }

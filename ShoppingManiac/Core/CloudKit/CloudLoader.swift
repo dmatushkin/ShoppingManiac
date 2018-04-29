@@ -56,22 +56,32 @@ class CloudLoader {
 
     private class func storeListRecord(wrapper: RecordWrapper) -> Promise<ShoppingListWrapper> {
         return Promise<ShoppingListWrapper>(in: .background, { (resolve, reject, _) in
+            storeListRecord(record: wrapper.record, ownerName: wrapper.ownerName, localDb: wrapper.localDb).then({list in
+                let items = wrapper.record["items"] as? [CKReference] ?? []
+                resolve(ShoppingListWrapper(localDb: wrapper.localDb, record: wrapper.record, shoppingList: list, items: items, ownerName: wrapper.ownerName))
+            }).catch({error in
+                reject(error)
+            })
+        })
+    }
+    
+    private class func storeListRecord(record: CKRecord, ownerName: String?, localDb: Bool) -> Promise<ShoppingList> {
+        return Promise<ShoppingList>(in: .background, { (resolve, reject, _) in
             CoreStore.perform(asynchronous: { (transaction) -> ShoppingList in
-                let shoppingList: ShoppingList = transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", wrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
-                shoppingList.recordid = wrapper.record.recordID.recordName
-                shoppingList.ownerName = wrapper.ownerName
-                shoppingList.name = wrapper.record["name"] as? String
-                shoppingList.isRemote = !wrapper.localDb
-                shoppingList.isRemoved = wrapper.record["isRemoved"] as? Bool ?? false
-                let date = wrapper.record["date"] as? Date ?? Date()
+                let shoppingList: ShoppingList = transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
+                shoppingList.recordid = record.recordID.recordName
+                shoppingList.ownerName = ownerName
+                shoppingList.name = record["name"] as? String
+                shoppingList.isRemote = !localDb
+                shoppingList.isRemoved = record["isRemoved"] as? Bool ?? false
+                let date = record["date"] as? Date ?? Date()
                 shoppingList.date = date.timeIntervalSinceReferenceDate
-                SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name") record \(String(describing: wrapper.record))")
+                SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name") record \(String(describing: record))")
                 return shoppingList
             }, completion: {result in
                 switch result {
                 case .success(let list):
-                    let items = wrapper.record["items"] as? [CKReference] ?? []
-                    resolve(ShoppingListWrapper(localDb: wrapper.localDb, record: wrapper.record, shoppingList: list, items: items, ownerName: wrapper.ownerName))
+                    resolve(list)
                 case .failure(let error):
                     SwiftyBeaver.debug(error.debugDescription)
                     reject(error)
@@ -167,5 +177,37 @@ class CloudLoader {
     
     private class func deleteRecords(wrapper: RecordsWrapper) -> Promise<Int> {
         return CloudKitUtils.deleteRecords(recordIds: wrapper.records.map({$0.recordID}), localDb: wrapper.localDb)
+    }
+    
+    class func fetchChanges(localDb: Bool) -> Promise<Int> {
+        return Promise<Int>(in: .background, { (resolve, _, _) in
+            let changesToken = localDb ? UserDefaults.standard.localServerChangeToken : UserDefaults.standard.sharedServerChangeToken
+            CloudKitUtils.fetchDatabaseChanges(localDb: localDb, changeToken: changesToken).then({zoneIds in
+                CloudKitUtils.fetchZoneChanges(localDb: localDb, zoneIds: zoneIds, changeToken: changesToken).then(in: .background, { records in
+                    if records.count > 0 {
+                        var promises: [Promise<Int>] = []
+                        let lists = records.filter({$0.recordType == CloudKitUtils.listRecordType})
+                        for list in lists {
+                            let items = records.filter({$0.recordType == CloudKitUtils.itemRecordType && $0.parent?.recordID.recordName == list.recordID.recordName})
+                            let ownerName = list.recordID.zoneID.ownerName
+                            let storePromise = Promise<Int>(in: .background, { (resolve, _, _) in
+                                storeListRecord(record: list, ownerName: ownerName, localDb: localDb).then({shoppingList in
+                                    let wrapper = ShoppingListItemsWrapper(localDb: localDb, shoppingList: shoppingList, record: list, items: items, ownerName: ownerName)
+                                    storeListItems(wrapper: wrapper).then({_ in
+                                        resolve(0)
+                                    })
+                                }).catch({_ in
+                                    resolve(0)
+                                })
+                            })
+                            promises.append(storePromise)
+                        }
+                        all(promises).then({_ in resolve(0)})
+                    } else {
+                        resolve(0)
+                    }
+            }).catch({_ in resolve(0)})
+            }).catch({_ in resolve(0)})
+        })
     }
 }
