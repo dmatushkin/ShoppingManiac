@@ -16,7 +16,7 @@ class ShoppingManiacViewController: UIViewController, MFMailComposeViewControlle
         super.viewDidLoad()
     }
     
-    override var canBecomeFirstResponder: Bool {
+    /*override var canBecomeFirstResponder: Bool {
         return true
     }
     
@@ -34,7 +34,7 @@ class ShoppingManiacViewController: UIViewController, MFMailComposeViewControlle
                 }
             }
         }
-    }
+    }*/
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true, completion: nil)
