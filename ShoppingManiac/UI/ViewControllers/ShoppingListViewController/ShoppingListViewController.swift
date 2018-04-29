@@ -44,7 +44,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     // MARK: - Data processing
     
     private func resyncData() {
-        if self.shoppingList.recordid != nil {
+        if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
             CloudShare.updateList(list: self.shoppingList)
         }
         self.reloadData()
@@ -130,27 +130,16 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         let group = self.shoppingGroups[indexPath.section]
         let item = group.items[indexPath.row]
 
-        item.purchased = !item.purchased
-        CoreStore.perform(asynchronous: { transaction in
-            if let shoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
-                shoppingListItem.purchased = item.purchased
-            }
-        }, completion: {[weak self] _ in
-            guard let `self` = self else { return }
-            if self.shoppingList.recordid != nil {
-                CloudShare.updateList(list: self.shoppingList)
-            }
-        })
-        /*group.items = self.sortItems(items: group.items)
-        tableView.reloadData()*/
+        item.togglePurchased()
+        if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
+            CloudShare.updateList(list: self.shoppingList)
+        }
         let sortedItems = self.sortItems(items: group.items)
-        //SwiftyBeaver.debug(sortedItems.map({ $0.itemName }))
         var itemFound: Bool = false
         for (idx, sortedItem) in sortedItems.enumerated() where item.objectId == sortedItem.objectId {
             let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
             itemFound = true
             group.items = sortedItems
-            //SwiftyBeaver.debug("switching \(indexPath.row), \(sortedIndexPath.row)")
             UIView.animate(withDuration: 0.5, animations: { () -> Void in
                 self.tableView.moveRow(at: indexPath, to: sortedIndexPath)
             }, completion: { (_) -> Void in
@@ -171,16 +160,10 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let item = self.shoppingGroups[indexPath.section].items[indexPath.row]
         let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [weak self] _, _ in
-            let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {
+            let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {[weak self] in
                 self?.tableView.isEditing = false
-                CoreStore.perform(asynchronous: { transaction in
-                    if let shoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
-                        let list = transaction.edit(shoppingListItem)
-                        list?.isRemoved = true
-                    }
-                }, completion: { [weak self] _ in
-                    self?.resyncData()
-                })
+                item.markRemoved()
+                self?.resyncData()
             }
             self?.present(alertController, animated: true, completion: nil)
         }
@@ -206,18 +189,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         if sourceIndexPath.section != destinationIndexPath.section {
             let item = self.shoppingGroups[sourceIndexPath.section].items[sourceIndexPath.row]
-            CoreStore.perform(asynchronous: { transaction in
-                if let shoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
-                    let destinationGroup = self.shoppingGroups[destinationIndexPath.section]
-                    if let storeObjectId = destinationGroup.objectId {                        
-                        shoppingListItem.store = transaction.edit(Into<Store>(), storeObjectId)
-                    } else {
-                        shoppingListItem.store = nil
-                    }
-                }
-            }, completion: { [weak self] _ in
-                self?.resyncData()
-            })
+            item.moveTo(group: self.shoppingGroups[destinationIndexPath.section])
+            self.resyncData()
         }
     }
 

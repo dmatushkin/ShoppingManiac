@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import CoreStore
 
 class GroupItem {
     let objectId: NSManagedObjectID
@@ -30,6 +31,37 @@ class GroupItem {
         } else {
             return (self.purchased ? 0 : 1) > (item.purchased ? 0 : 1)
         }
-
+    }
+    
+    func togglePurchased() {
+        self.purchased = !self.purchased
+        try? CoreStore.perform(synchronous: {[weak self] transaction in
+            guard let `self` = self else { return }
+            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
+                shoppingListItem.purchased = self.purchased
+            }
+        })
+    }
+    
+    func markRemoved() {
+        try? CoreStore.perform(synchronous: {[weak self] transaction in
+            guard let `self` = self else { return }
+            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
+                shoppingListItem.isRemoved = true
+            }
+        })
+    }
+    
+    func moveTo(group: ShoppingGroup) {
+        try? CoreStore.perform(synchronous: {[weak self] transaction in
+            guard let `self` = self else { return }
+            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
+                if let storeObjectId = group.objectId {
+                    shoppingListItem.store = transaction.edit(Into<Store>(), storeObjectId)
+                } else {
+                    shoppingListItem.store = nil
+                }
+            }
+        })
     }
 }

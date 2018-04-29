@@ -22,7 +22,7 @@ public class ShoppingListItem: NSManagedObject {
             return recordId
         })
     }
-
+    
     var quantityText: String {
         return self.isWeight ? "\(self.quantity)" : "\(Int(self.quantity))"
     }
