@@ -31,7 +31,6 @@ class AddShoppingListViewController: ShoppingManiacViewController {
         } catch {
             return nil
         }
-
     }
 
     // MARK: - Navigation

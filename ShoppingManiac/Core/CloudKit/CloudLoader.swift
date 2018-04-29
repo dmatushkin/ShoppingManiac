@@ -133,28 +133,6 @@ class CloudLoader {
         })
     }
     
-    class func deleteList(list: ShoppingList) {
-        if let listRecordId = list.recordid {
-            let recordZone = CloudShare.zone(ownerName: list.ownerName)
-            let itemRecordIds = list.listItems.map({$0.recordid}).filter({$0 != nil}).map({$0!})
-            var recordIdsToDelete = [CKRecordID(recordName: listRecordId, zoneID: recordZone.zoneID)]
-            recordIdsToDelete.append(contentsOf: itemRecordIds.map({CKRecordID(recordName: $0, zoneID: recordZone.zoneID)}))
-            loadListRecord(list: list, localDb: !list.isRemote).then(unshareRecord).then({_ in CloudKitUtils.deleteRecords(recordIds: recordIdsToDelete, localDb: !list.isRemote)})
-        }
-    }
-    
-    private class func unshareRecord(record: RecordWrapper) -> Promise<Int> {
-        return Promise<Int>(in: .background, { (resolve, _, _) in
-            if let shareRecordId = record.record.share?.recordID {
-                CloudKitUtils.deleteRecords(recordIds: [shareRecordId], localDb: record.localDb).then({_ in
-                    resolve(0)
-                })
-            } else {
-                resolve(0)
-            }
-        })
-    }
-    
     class func clearRecords() -> Promise<Void> {
         let privateLists = clearRecordsFromDatabase(localDb: true, recordType: CloudKitUtils.listRecordType).then(deleteRecords).void
         let privateItems = clearRecordsFromDatabase(localDb: true, recordType: CloudKitUtils.itemRecordType).then(deleteRecords).void
@@ -181,9 +159,8 @@ class CloudLoader {
     
     class func fetchChanges(localDb: Bool) -> Promise<Int> {
         return Promise<Int>(in: .background, { (resolve, _, _) in
-            let changesToken = localDb ? UserDefaults.standard.localServerChangeToken : UserDefaults.standard.sharedServerChangeToken
-            CloudKitUtils.fetchDatabaseChanges(localDb: localDb, changeToken: changesToken).then({zoneIds in
-                CloudKitUtils.fetchZoneChanges(localDb: localDb, zoneIds: zoneIds, changeToken: changesToken).then(in: .background, { records in
+            CloudKitUtils.fetchDatabaseChanges(localDb: localDb).then({zoneIds in
+                CloudKitUtils.fetchZoneChanges(localDb: localDb, zoneIds: zoneIds).then(in: .background, { records in
                     if records.count > 0 {
                         var promises: [Promise<Int>] = []
                         let lists = records.filter({$0.recordType == CloudKitUtils.listRecordType})

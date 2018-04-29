@@ -48,4 +48,24 @@ extension UserDefaults {
             }
         }
     }
+    
+    func setZoneChangeToken(zoneName: String, token: CKServerChangeToken?) {
+        let key = "zoneChangeToken\(zoneName)"
+        if let token = token {
+            let data = NSKeyedArchiver.archivedData(withRootObject: token)
+            self.set(data, forKey: key)
+            self.synchronize()
+        } else {
+            self.removeObject(forKey: key)
+        }
+    }
+    
+    func getZoneChangedToken(zoneName: String) -> CKServerChangeToken? {
+        let key = "zoneChangeToken\(zoneName)"
+        if let data = self.value(forKey: key) as? Data, let token = NSKeyedUnarchiver.unarchiveObject(with: data) as? CKServerChangeToken {
+            return token
+        } else {
+            return nil
+        }
+    }
 }

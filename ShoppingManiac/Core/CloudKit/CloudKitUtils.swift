@@ -115,10 +115,10 @@ class CloudKitUtils {
         })
     }
     
-    class func fetchDatabaseChanges(localDb: Bool, changeToken: CKServerChangeToken?) -> Promise<[CKRecordZoneID]> {
+    class func fetchDatabaseChanges(localDb: Bool) -> Promise<[CKRecordZoneID]> {
         return Promise<[CKRecordZoneID]>(in: .background, { (resolve, reject, _) in
             var zoneIds: [CKRecordZoneID] = []
-            let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: changeToken)
+            let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: localDb ? UserDefaults.standard.localServerChangeToken : UserDefaults.standard.sharedServerChangeToken)
             operation.recordZoneWithIDChangedBlock = { zoneId in
                 zoneIds.append(zoneId)
             }
@@ -144,19 +144,22 @@ class CloudKitUtils {
         })
     }
     
-    class func fetchZoneChanges(localDb: Bool, zoneIds: [CKRecordZoneID], changeToken: CKServerChangeToken?) -> Promise<[CKRecord]> {
+    class func fetchZoneChanges(localDb: Bool, zoneIds: [CKRecordZoneID]) -> Promise<[CKRecord]> {
         return Promise<[CKRecord]>(in: .background, { (resolve, reject, _) in
             if zoneIds.count > 0 {
                 var records: [CKRecord] = []
                 var optionsByRecordZoneID = [CKRecordZoneID: CKFetchRecordZoneChangesOptions]()
                 for zoneId in zoneIds {
                     let options = CKFetchRecordZoneChangesOptions()
-                    options.previousServerChangeToken = changeToken
+                    options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName)
                     optionsByRecordZoneID[zoneId] = options
                 }
                 let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: zoneIds, optionsByRecordZoneID: optionsByRecordZoneID)
                 operation.recordChangedBlock = { record in
                     records.append(record)
+                }
+                operation.recordZoneChangeTokensUpdatedBlock = {zoneId, token, data in
+                    UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName, token: token)
                 }
                 operation.recordZoneFetchCompletionBlock = { zoneId, changeToken, data, moreComing, error in
                     if let error = error {
