@@ -8,7 +8,7 @@
 
 import Foundation
 import CloudKit
-import Hydra
+import RxSwift
 
 class CloudSubscriptions {
     
@@ -16,7 +16,15 @@ class CloudSubscriptions {
     private static let subscriptionID = "cloudKitSharedDataSubscription"
     private static let sharedSubscriptionID = "cloudKitRemoteSharedDataSubscription"
     
-    class func setupSharedSubscription() -> Promise<Int> {
+    class func setupSubscriptions() {
+        if UserDefaults.standard.bool(forKey: subscriptionsKey) == false {
+            _ = Observable.of(setupSharedSubscription(), setupLocalSubscriptions()).merge().subscribe(onCompleted: {
+                UserDefaults.standard.set(true, forKey: subscriptionsKey)
+            })
+        }
+    }
+    
+    private class func setupSharedSubscription() -> Observable<Void> {
         let subscription = CKDatabaseSubscription(subscriptionID: sharedSubscriptionID)
         let notificationInfo = CKNotificationInfo()
         notificationInfo.shouldSendContentAvailable = true
@@ -24,16 +32,7 @@ class CloudSubscriptions {
         return CloudKitUtils.updateSubscriptions(subscriptions: [subscription], localDb: false)
     }
     
-    class func setupSubscriptions() {
-        if UserDefaults.standard.bool(forKey: subscriptionsKey) == false {
-            all(setupSharedSubscription(), setupLocalSubscriptions()
-                ).then({_ in
-                    UserDefaults.standard.set(true, forKey: subscriptionsKey)
-                })
-        }
-    }
-    
-    private class func setupLocalSubscriptions() -> Promise<Int> {
+    private class func setupLocalSubscriptions() -> Observable<Void> {
         let listsSubscription = createSubscription(forType: CloudKitUtils.listRecordType)
         let itemsSubscription = createSubscription(forType: CloudKitUtils.itemRecordType)
         return CloudKitUtils.updateSubscriptions(subscriptions: [listsSubscription, itemsSubscription], localDb: true)

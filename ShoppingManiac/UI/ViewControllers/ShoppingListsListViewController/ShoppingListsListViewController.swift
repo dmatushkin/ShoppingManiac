@@ -9,12 +9,15 @@
 import UIKit
 import CoreStore
 import NoticeObserveKit
+import RxSwift
 
 class ShoppingListsListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var tableView: UITableView!
     
     private let pool = NoticeObserverPool()
+    
+    private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,8 +59,9 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
                     CoreStore.perform(asynchronous: { transaction in
                         let list = transaction.edit(shoppingList)
                         list?.isRemoved = true
-                    }, completion: { _ in
-                        CloudShare.updateList(list: shoppingList)
+                    }, completion: {[weak self] _ in
+                        guard let `self` = self else { return }
+                        CloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
                         self.tableView.reloadData()
                     })
                 }

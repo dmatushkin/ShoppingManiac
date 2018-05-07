@@ -10,7 +10,7 @@ import UIKit
 import CloudKit
 import CoreStore
 import SwiftyBeaver
-import Hydra
+import RxSwift
 
 class CloudShare {
 
@@ -61,9 +61,9 @@ class CloudShare {
         return getListRecord(list: list)
     }
 
-    class func updateList(list: ShoppingList) {
+    class func updateList(list: ShoppingList) -> Observable<Void> {
         let listRecord = getListRecord(list: list)
-        updateRecord(record: listRecord)
+        return updateRecord(record: listRecord)
     }
 
     private class func updateListRecord(record: CKRecord, list: ShoppingList) -> ShoppingListItemsWrapper {
@@ -124,34 +124,28 @@ class CloudShare {
         }
     }
     
-    private class func updateRecord(record: ShoppingListItemsWrapper) {
-        CloudKitUtils.updateRecords(records: [record.record], localDb: record.localDb).then({_ in
-            updateRecords(wrapper: RecordsWrapper(localDb: !record.shoppingList.isRemote, records: record.items, ownerName: record.ownerName)).then { _ in
-            }
-        })
+    private class func updateRecord(record: ShoppingListItemsWrapper) -> Observable<Void> {
+        return CloudKitUtils.updateRecords(records: [record.record], localDb: record.localDb)
+            .concat(CloudKitUtils.updateRecords(records: record.items, localDb: record.localDb))
     }
-    
-    class func updateRecords(wrapper: RecordsWrapper) -> Promise<Error?> {
-        return Promise<Error?>(in: .background, { (resolve, _, _) in
-            CloudKitUtils.updateRecords(records: wrapper.records, localDb: wrapper.localDb).then({_ in
-                resolve(nil)
-            }).catch({error in
-                resolve(error)
-            })
-        })
-    }
-    
-    class func createShare(wrapper: ShoppingListItemsWrapper) -> Promise<CKShare> {
-        return Promise<CKShare>(in: .background, { (resolve, _, _) in
+        
+    class func createShare(wrapper: ShoppingListItemsWrapper) -> Observable<CKShare> {
+        return Observable<CKShare>.create { observer in
             let share = CKShare(rootRecord: wrapper.record)
             share[CKShareTitleKey] = "Shopping list" as CKRecordValue
             share[CKShareTypeKey] = "org.md.ShoppingManiac" as CKRecordValue
             share.publicPermission = .readWrite
-            
             let recordsToUpdate = [wrapper.record, share]
-            CloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true).then({_ in
-                resolve(share)
+            
+            let disposable = CloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true)
+                .concat(CloudKitUtils.updateRecords(records: wrapper.items, localDb: true))
+                .subscribe(onCompleted: {
+                observer.onNext(share)
+                observer.onCompleted()
             })
-        })
+            return Disposables.create {
+                disposable.dispose()
+            }
+        }
     }
 }

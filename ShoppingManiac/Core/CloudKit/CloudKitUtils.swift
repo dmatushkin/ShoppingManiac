@@ -8,8 +8,8 @@
 
 import Foundation
 import CloudKit
-import Hydra
 import SwiftyBeaver
+import RxSwift
 
 class CloudKitUtils {
     
@@ -17,30 +17,33 @@ class CloudKitUtils {
     static let listRecordType = "ShoppingList"
     static let itemRecordType = "ShoppingListItem"
     
-    class func fetchRecords(recordIds: [CKRecordID], localDb: Bool) -> Promise<[CKRecord]> {
-        return Promise<[CKRecord]>(in: .background, { (resolve, reject, _) in
+    class func fetchRecords(recordIds: [CKRecordID], localDb: Bool) -> Observable<CKRecord> {
+        return Observable<CKRecord>.create { observer in
             let operation = CKFetchRecordsOperation(recordIDs: recordIds)
             operation.perRecordCompletionBlock = { record, recordid, error in
                 if let error = error {
                     SwiftyBeaver.debug(error.localizedDescription)
-                } else {
+                } else if let record = record {
                     SwiftyBeaver.debug("Successfully loaded record \(recordid?.recordName ?? "no record name")")
+                    observer.onNext(record)
                 }
             }
-            operation.fetchRecordsCompletionBlock = { records, error in
-                if let records = records, error == nil {
-                    resolve(records.map({$0.value}))
+            operation.fetchRecordsCompletionBlock = { _, error in
+                if let error = error {
+                    observer.onError(error)
                 } else {
-                    reject(CommonError(description: "No items found"))
+                    observer.onCompleted()
                 }
-            }            
+            }
             operation.qualityOfService = .utility
             CKContainer.default().database(localDb: localDb).add(operation)
-        })
+            
+            return Disposables.create()
+        }
     }
     
-    class func deleteRecords(recordIds: [CKRecordID], localDb: Bool) -> Promise<Int> {
-        return Promise<Int>(in: .background, { (resolve, _, _) in
+    class func deleteRecords(recordIds: [CKRecordID], localDb: Bool) -> Observable<Void> {
+        return Observable<Void>.create { observer in
             let modifyOperation = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: recordIds)
             modifyOperation.savePolicy = .allKeys
             modifyOperation.perRecordCompletionBlock = {record, error in
@@ -54,45 +57,53 @@ class CloudKitUtils {
                 if let error = error {
                     SwiftyBeaver.debug("Error when deleting records \(error.localizedDescription)")
                 }
-                resolve(0)
+                observer.onCompleted()
             }
             CKContainer.default().database(localDb: localDb).add(modifyOperation)
-        })
+            
+            return Disposables.create()
+        }
     }
     
-    class func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> Promise<Int> {
-        return Promise<Int>(in: .background, { (resolve, reject, _) in
+    class func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> Observable<Void> {
+        return Observable<Void>.create { observer in
             let operation = CKModifySubscriptionsOperation(subscriptionsToSave: subscriptions, subscriptionIDsToDelete: [])
             operation.modifySubscriptionsCompletionBlock = { (_, _, error) in
                 if let error = error {
-                    reject(error)
+                    SwiftyBeaver.error(error.localizedDescription)
+                    observer.onCompleted()
+                    //observer.onError(error)
                 } else {
-                    resolve(0)
+                    observer.onCompleted()
                 }
             }
             operation.qualityOfService = .utility
             CKContainer.default().database(localDb: localDb).add(operation)
-        })
+            
+            return Disposables.create()
+        }
     }
     
-    class func fetchRecordsQuery(recordType: String, localDb: Bool) -> Promise<[CKRecord]> {
-        return Promise<[CKRecord]>(in: .background, { (resolve, _, _) in
+    class func fetchRecordsQuery(recordType: String, localDb: Bool) -> Observable<[CKRecord]> {
+        return Observable<[CKRecord]>.create { observer in
             let query = CKQuery(recordType: recordType, predicate: NSPredicate(format: "TRUEPREDICATE", argumentArray: nil))
             let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
             CKContainer.default().database(localDb: localDb).perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
                 if let records = records, error == nil {
                     SwiftyBeaver.debug("\(records.count) list records found")
-                    resolve(records)
+                    observer.onNext(records)
+                    observer.onCompleted()
                 } else {
                     SwiftyBeaver.debug("no list records found")
-                    resolve([])
+                    observer.onCompleted()
                 }
             })
-        })
+            return Disposables.create()
+        }
     }
     
-    class func updateRecords(records: [CKRecord], localDb: Bool) -> Promise<Int> {
-        return Promise<Int>(in: .background, { (resolve, reject, _) in
+    class func updateRecords(records: [CKRecord], localDb: Bool) -> Observable<Void> {
+        return Observable<Void>.create { observer in
             let modifyOperation = CKModifyRecordsOperation(recordsToSave: records, recordIDsToDelete: nil)
             modifyOperation.savePolicy = .allKeys
             modifyOperation.perRecordCompletionBlock = {record, error in
@@ -105,22 +116,22 @@ class CloudKitUtils {
             modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
                 if let error = error {
                     AppDelegate.showAlert(title: "Sharing error", message: error.localizedDescription)
-                    reject(error)
+                    observer.onError(error)
                 } else {
                     SwiftyBeaver.debug("Records modification done successfully")
-                    resolve(0)
+                    observer.onCompleted()
                 }
             }
             CKContainer.default().database(localDb: localDb).add(modifyOperation)
-        })
+            return Disposables.create()
+        }
     }
     
-    class func fetchDatabaseChanges(localDb: Bool) -> Promise<[CKRecordZoneID]> {
-        return Promise<[CKRecordZoneID]>(in: .background, { (resolve, reject, _) in
-            var zoneIds: [CKRecordZoneID] = []
+    class func fetchDatabaseChanges(localDb: Bool) -> Observable<CKRecordZoneID> {
+        return Observable<CKRecordZoneID>.create { observer in
             let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: localDb ? UserDefaults.standard.localServerChangeToken : UserDefaults.standard.sharedServerChangeToken)
             operation.recordZoneWithIDChangedBlock = { zoneId in
-                zoneIds.append(zoneId)
+                observer.onNext(zoneId)
             }
             operation.changeTokenUpdatedBlock = { token in
                 if localDb {
@@ -134,18 +145,19 @@ class CloudKitUtils {
             operation.fetchDatabaseChangesCompletionBlock = { token, moreComing, error in
                 if let error = error {
                     SwiftyBeaver.debug(error.localizedDescription)
-                    reject(error)
+                    observer.onError(error)
                 } else {
-                    SwiftyBeaver.debug("\(zoneIds.count) updated zones found")
-                    resolve(zoneIds)
+                    SwiftyBeaver.debug("Update zones request finished")
+                    observer.onCompleted()
                 }
             }
             CKContainer.default().database(localDb: localDb).add(operation)
-        })
+            return Disposables.create()
+        }
     }
     
-    class func fetchZoneChanges(localDb: Bool, zoneIds: [CKRecordZoneID]) -> Promise<[CKRecord]> {
-        return Promise<[CKRecord]>(in: .background, { (resolve, reject, _) in
+    class func fetchZoneChanges(localDb: Bool, zoneIds: [CKRecordZoneID]) -> Observable<[CKRecord]> {
+        return Observable<[CKRecord]>.create { observer in
             if zoneIds.count > 0 {
                 var records: [CKRecord] = []
                 var optionsByRecordZoneID = [CKRecordZoneID: CKFetchRecordZoneChangesOptions]()
@@ -169,16 +181,18 @@ class CloudKitUtils {
                 operation.fetchRecordZoneChangesCompletionBlock = { error in
                     if let error = error {
                         SwiftyBeaver.debug(error.localizedDescription)
-                        reject(error)
+                        observer.onError(error)
                     } else {
                         SwiftyBeaver.debug("\(records.count) updated records found")
-                        resolve(records)
+                        observer.onNext(records)
+                        observer.onCompleted()
                     }
                 }
                 CKContainer.default().database(localDb: localDb).add(operation)
             } else {
-                resolve([])
+                observer.onCompleted()
             }
-        })
-    }
+            return Disposables.create()
+        }
+    }    
 }

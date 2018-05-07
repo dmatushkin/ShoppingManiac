@@ -12,6 +12,7 @@ import MessageUI
 import NoticeObserveKit
 import SwiftyBeaver
 import CloudKit
+import RxSwift
 
 class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate {
 
@@ -21,6 +22,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     var shoppingList: ShoppingList!
 
     var shoppingGroups: [ShoppingGroup] = []
+    
+    private let disposeBag = DisposeBag()
 
     private var indexPathToEdit: IndexPath?
     private let pool = NoticeObserverPool()
@@ -45,7 +48,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     
     private func resyncData() {
         if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
-            CloudShare.updateList(list: self.shoppingList)
+            CloudShare.updateList(list: self.shoppingList).subscribe().disposed(by: self.disposeBag)
         }
         self.reloadData()
     }
@@ -132,7 +135,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
         item.togglePurchased()
         if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
-            CloudShare.updateList(list: self.shoppingList)
+            CloudShare.updateList(list: self.shoppingList).subscribe().disposed(by: self.disposeBag)
         }
         let sortedItems = self.sortItems(items: group.items)
         var itemFound: Bool = false
@@ -256,18 +259,13 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     private func icloudShare() {
         let wrapper = CloudShare.shareList(list: self.shoppingList)
-        let controller = UICloudSharingController { (_, onDone) in
-            CloudShare.createShare(wrapper: wrapper).then({ share in
-                CloudShare.updateRecords(wrapper: RecordsWrapper(localDb: true, records: wrapper.items, ownerName: wrapper.ownerName)).then({ error in
-                    if let error = error {
-                        onDone(nil, CKContainer.default(), error)
-                    } else {
-                        onDone(share, CKContainer.default(), nil)
-                    }
-                })
-            }).catch({ error in
+        let controller = UICloudSharingController {[weak self] (_, onDone) in
+            guard let `self` = self else {return}
+            CloudShare.createShare(wrapper: wrapper).observeOnMain().subscribe(onNext: { share in
+                onDone(share, CKContainer.default(), nil)
+            }, onError: {error in
                 onDone(nil, CKContainer.default(), error)
-            })
+            }).disposed(by: self.disposeBag)
         }
         controller.delegate = self
         controller.availablePermissions = [.allowReadWrite, .allowPublic]

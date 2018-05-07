@@ -118,4 +118,47 @@ public class ShoppingList: NSManagedObject {
 
         return try? JSONSerialization.data(withJSONObject: result, options: [])
     }
+    
+    class func importShoppingList(fromJsonData jsonData: NSDictionary) -> ShoppingList? {
+        do {
+            let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
+                let list = transaction.create(Into<ShoppingList>())
+                list.name = jsonData["name"] as? String
+                list.jsonDate = (jsonData["date"] as? String) ?? ""
+                if let itemsArray = jsonData["items"] as? [NSDictionary] {
+                    for itemDict in itemsArray {
+                        let shoppingListItem = transaction.create(Into<ShoppingListItem>())
+                        if let goodName = itemDict["good"] as? String, goodName.count > 0 {
+                            if let good = transaction.fetchOne(From<Good>().where(Where("name == %@", goodName))) {
+                                shoppingListItem.good = good
+                            } else {
+                                let good = transaction.create(Into<Good>())
+                                good.name = goodName
+                                shoppingListItem.good = good
+                            }
+                        }
+                        if let storeName = itemDict["store"] as? String, storeName.count > 0 {
+                            if let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
+                                shoppingListItem.store = store
+                            } else {
+                                let store = transaction.create(Into<Store>())
+                                store.name = storeName
+                                shoppingListItem.store = store
+                            }
+                        }
+                        shoppingListItem.purchased = (itemDict["purchased"] as? NSNumber)?.boolValue ?? false
+                        shoppingListItem.price = (itemDict["price"] as? NSNumber)?.floatValue ?? 0
+                        shoppingListItem.quantity = (itemDict["quantity"] as? NSNumber)?.floatValue ?? 0
+                        shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
+                        shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
+                        shoppingListItem.list = list
+                    }
+                }
+                return list
+            })
+            return CoreStore.fetchExisting(list)
+        } catch {
+            return nil
+        }
+    }
 }
