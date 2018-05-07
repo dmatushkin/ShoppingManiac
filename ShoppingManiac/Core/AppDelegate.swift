@@ -107,8 +107,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             if let topController = self.window?.rootViewController as? UITabBarController, let navigation = topController.viewControllers?.first as? UINavigationController, let listController = navigation.viewControllers.first as? ShoppingListsListViewController {
                 topController.selectedIndex = 0
                 listController.dismiss(animated: false, completion: nil)
-                listController.listToShow = list
-                listController.performSegue(withIdentifier: "shoppingListSegue", sender: self)
+                listController.showList(list: list)
             }
         }
         return true

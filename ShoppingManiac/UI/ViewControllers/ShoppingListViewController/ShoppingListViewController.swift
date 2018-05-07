@@ -37,8 +37,11 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         NewDataAvailable.observe {[weak self] _ in
             self?.reloadData()
         }.disposed(by: self.pool)
+        if let controllers = self.navigationController?.viewControllers {
+            self.navigationController?.viewControllers = controllers.filter({!($0 is AddShoppingListViewController)})
+        }
     }
-
+    
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: true)
         self.tableView.setEditing(editing, animated: animated)

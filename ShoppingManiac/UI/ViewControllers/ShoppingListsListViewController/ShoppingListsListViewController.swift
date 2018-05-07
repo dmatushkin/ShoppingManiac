@@ -27,8 +27,6 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
         }.disposed(by: self.pool)
     }
 
-    var listToShow: ShoppingList?
-
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tableView.reloadData()
@@ -61,7 +59,9 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
                         list?.isRemoved = true
                     }, completion: {[weak self] _ in
                         guard let `self` = self else { return }
-                        CloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
+                        if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
+                            CloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
+                        }
                         self.tableView.reloadData()
                     })
                 }
@@ -87,27 +87,29 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
             fetchRequest.fetchLimit = 1
         }))
     }
+    
+    func showList(list: ShoppingList) {
+        self.tableView.reloadData()
+        for idx in 0..<self.tableView.numberOfRows(inSection: 0) {
+            let path = IndexPath(row: idx, section: 0)
+            if list == self.getItem(forIndex: path) {
+                self.tableView.selectRow(at: path, animated: false, scrollPosition: .middle)
+                self.performSegue(withIdentifier: "shoppingListSegue", sender: self)
+                break
+            }
+        }
+    }
 
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "shoppingListSegue", let controller = segue.destination as? ShoppingListViewController {
-            if let item = self.listToShow {
-                controller.shoppingList = item
-            } else if let path = self.tableView.indexPathForSelectedRow, let item = self.getItem(forIndex: path) {
+            if let path = self.tableView.indexPathForSelectedRow, let item = self.getItem(forIndex: path) {
                 controller.shoppingList = item
             }
-            self.listToShow = nil
         }
     }
 
     @IBAction func shoppingListsList(unwindSegue: UIStoryboardSegue) {
-        if unwindSegue.identifier == "addListSaveSegue" {
-            self.tableView.reloadData()
-            //self.tableView.selectRow(at: IndexPath(row: 0, section: 0) , animated: true, scrollPosition: .top)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.performSegue(withIdentifier: "shoppingListSegue", sender: self)
-            }
-        }
     }
 }

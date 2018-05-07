@@ -37,7 +37,7 @@ class AddShoppingListViewController: ShoppingManiacViewController {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "addListSaveSegue", let name = self.shoppingNameEditField.text, let list = self.createItem(withName: name) {
-            (segue.destination as? ShoppingListsListViewController)?.listToShow = list
+            (segue.destination as? ShoppingListViewController)?.shoppingList = list
         }
     }
 }
