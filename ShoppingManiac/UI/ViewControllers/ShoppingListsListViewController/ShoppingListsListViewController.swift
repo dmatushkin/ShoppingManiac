@@ -80,6 +80,12 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let item = self.getItem(forIndex: indexPath) {
+            self.showList(list: item)
+        }
+    }
 
     private func getItem(forIndex: IndexPath) -> ShoppingList? {
         return CoreStore.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)).tweak({ fetchRequest in
@@ -89,24 +95,14 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     }
     
     func showList(list: ShoppingList) {
-        self.tableView.reloadData()
-        for idx in 0..<self.tableView.numberOfRows(inSection: 0) {
-            let path = IndexPath(row: idx, section: 0)
-            if list == self.getItem(forIndex: path) {
-                self.tableView.selectRow(at: path, animated: false, scrollPosition: .middle)
-                self.performSegue(withIdentifier: "shoppingListSegue", sender: self)
-                break
-            }
-        }
+        self.performSegue(withIdentifier: "shoppingListSegue", sender: list)
     }
 
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "shoppingListSegue", let controller = segue.destination as? ShoppingListViewController {
-            if let path = self.tableView.indexPathForSelectedRow, let item = self.getItem(forIndex: path) {
-                controller.shoppingList = item
-            }
+        if segue.identifier == "shoppingListSegue", let controller = segue.destination as? ShoppingListViewController, let item = sender as? ShoppingList {
+            controller.shoppingList = item
         }
     }
 

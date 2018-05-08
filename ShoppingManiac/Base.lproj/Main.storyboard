@@ -72,7 +72,6 @@
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <connections>
                                             <outlet property="listTitleLabel" destination="Qfq-ym-urE" id="5yF-au-R4M"/>
-                                            <segue destination="xGt-Cw-N2w" kind="show" identifier="shoppingListSegue" id="YWL-L8-uwR"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -101,6 +100,7 @@
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
                         <outlet property="tableView" destination="4Xu-ek-bL5" id="mJm-Te-1f7"/>
+                        <segue destination="xGt-Cw-N2w" kind="show" identifier="shoppingListSegue" id="seW-b9-odQ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GG3-Fv-giW" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1375,6 +1375,6 @@
         <segue reference="ZO6-PV-dit"/>
         <segue reference="BXP-sM-UTE"/>
         <segue reference="9g7-tp-mJE"/>
-        <segue reference="miQ-Wc-AQR"/>
+        <segue reference="seW-b9-odQ"/>
     </inferredMetricsTieBreakers>
 </document>
