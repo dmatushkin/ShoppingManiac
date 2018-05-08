@@ -134,7 +134,7 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="NcH-Am-o6r"/>
                                 </constraints>
-                                <state key="normal" title="Save">
+                                <state key="normal" title="Add">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <userDefinedRuntimeAttributes>
@@ -157,7 +157,9 @@
                             <constraint firstItem="mCb-qb-Y0h" firstAttribute="top" secondItem="I8t-RF-T4H" secondAttribute="bottom" constant="20" id="eea-WC-s9C"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Add shopping list" id="d7m-qS-U2b"/>
+                    <navigationItem key="navigationItem" title="Add shopping list" id="d7m-qS-U2b">
+                        <barButtonItem key="backBarButtonItem" title=" " id="Sfv-ua-iVp"/>
+                    </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
                         <outlet property="shoppingNameEditField" destination="mCb-qb-Y0h" id="WBb-xp-R9N"/>
@@ -1373,6 +1375,6 @@
         <segue reference="ZO6-PV-dit"/>
         <segue reference="BXP-sM-UTE"/>
         <segue reference="9g7-tp-mJE"/>
-        <segue reference="YWL-L8-uwR"/>
+        <segue reference="miQ-Wc-AQR"/>
     </inferredMetricsTieBreakers>
 </document>
