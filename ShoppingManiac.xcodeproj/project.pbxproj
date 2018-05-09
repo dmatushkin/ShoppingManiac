@@ -59,6 +59,8 @@
 		5666997D2094F7140053F39E /* CloudSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5666997C2094F7140053F39E /* CloudSubscriptions.swift */; };
 		5666997F2095B33C0053F39E /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5666997E2095B33C0053F39E /* UserDefaultsExtension.swift */; };
 		567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F7321206F915B00B67B5C /* CloudKit.framework */; };
+		568ADB2220A2B4930005B14C /* ShoppingListsListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */; };
+		568ADB2420A2C1260005B14C /* AddShoppingListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568ADB2320A2C1260005B14C /* AddShoppingListModel.swift */; };
 		56C7334C208EF05800E085FF /* CKContainerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C7334B208EF05800E085FF /* CKContainerExtension.swift */; };
 		56CFDBAF20A010BA00C299AA /* ObservableTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */; };
 		56D540571F9A73180036C646 /* UIKeyboardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D540561F9A73180036C646 /* UIKeyboardInfo.swift */; };
@@ -134,6 +136,8 @@
 		566A7DD41ED1759C005F9D31 /* ShoppingManiac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingManiac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		567F7320206F915700B67B5C /* ShoppingManiac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShoppingManiac.entitlements; sourceTree = "<group>"; };
 		567F7321206F915B00B67B5C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListsListModel.swift; sourceTree = "<group>"; };
+		568ADB2320A2C1260005B14C /* AddShoppingListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListModel.swift; sourceTree = "<group>"; };
 		56C7334B208EF05800E085FF /* CKContainerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKContainerExtension.swift; sourceTree = "<group>"; };
 		56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableTypeExtension.swift; sourceTree = "<group>"; };
 		56D540561F9A73180036C646 /* UIKeyboardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKeyboardInfo.swift; sourceTree = "<group>"; };
@@ -249,6 +253,7 @@
 			children = (
 				560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */,
 				565C3B881ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift */,
+				568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */,
 			);
 			path = ShoppingListsListViewController;
 			sourceTree = "<group>";
@@ -334,6 +339,7 @@
 			isa = PBXGroup;
 			children = (
 				565C3B861ED18CDE003D8EE8 /* AddShoppingListViewController.swift */,
+				568ADB2320A2C1260005B14C /* AddShoppingListModel.swift */,
 			);
 			path = AddShoppingListViewController;
 			sourceTree = "<group>";
@@ -644,6 +650,7 @@
 				565C3BB51ED1B662003D8EE8 /* GoodsListTableViewCell.swift in Sources */,
 				565C3B991ED19EC5003D8EE8 /* ShoppingListItem+CoreDataClass.swift in Sources */,
 				565C3B871ED18CDE003D8EE8 /* AddShoppingListViewController.swift in Sources */,
+				568ADB2220A2B4930005B14C /* ShoppingListsListModel.swift in Sources */,
 				5650C1361EDAA7E400977503 /* AutocompleteTextField.swift in Sources */,
 				56CFDBAF20A010BA00C299AA /* ObservableTypeExtension.swift in Sources */,
 				565C3B841ED17DF3003D8EE8 /* AboutViewController.swift in Sources */,
@@ -656,6 +663,7 @@
 				565C3B891ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift in Sources */,
 				565C3B9B1ED19EC5003D8EE8 /* Good+CoreDataClass.swift in Sources */,
 				565C3BCA1ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift in Sources */,
+				568ADB2420A2C1260005B14C /* AddShoppingListModel.swift in Sources */,
 				5666997B20948B700053F39E /* CloudKitUtils.swift in Sources */,
 				560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */,
 				565C3BB81ED1B8CE003D8EE8 /* AddGoodViewController.swift in Sources */,
