@@ -128,11 +128,11 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "addShoppingListItemSegue", let destination = segue.destination as? AddShoppingItemViewController {
-            destination.shoppingList = self.model.shoppingList
+            destination.model.shoppingList = self.model.shoppingList
         } else if segue.identifier == "editShoppingListItemSegue", let indexPath = sender as? IndexPath, let destination = segue.destination as? AddShoppingItemViewController {
             let item = self.model.item(forIndexPath: indexPath)
-            destination.shoppingListItem = CoreStore.fetchExisting(item.objectId)
-            destination.shoppingList = self.model.shoppingList
+            destination.model.shoppingListItem = CoreStore.fetchExisting(item.objectId)
+            destination.model.shoppingList = self.model.shoppingList
         }
     }
 

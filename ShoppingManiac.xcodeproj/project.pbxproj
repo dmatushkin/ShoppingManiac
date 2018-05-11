@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
+		562BAA4F20A60CC30061D654 /* AddShoppingListItemModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */; };
 		562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
 		563E92802086395800933522 /* CloudShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563E927F2086395700933522 /* CloudShare.swift */; };
@@ -76,6 +77,7 @@
 /* Begin PBXFileReference section */
 		46ED4AFFBD5958695A9B33C1 /* Pods_ShoppingManiac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShoppingManiac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
+		562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListItemModel.swift; sourceTree = "<group>"; };
 		562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingManiacViewController.swift; sourceTree = "<group>"; };
 		56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSaveSegue.swift; sourceTree = "<group>"; };
 		563E927F2086395700933522 /* CloudShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShare.swift; sourceTree = "<group>"; };
@@ -287,6 +289,7 @@
 			isa = PBXGroup;
 			children = (
 				5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */,
+				562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */,
 			);
 			path = AddShoppingItemViewController;
 			sourceTree = "<group>";
@@ -589,6 +592,7 @@
 				"${BUILT_PRODUCTS_DIR}/EXTView/EXTView.framework",
 				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
 				"${BUILT_PRODUCTS_DIR}/NoticeObserveKit/NoticeObserveKit.framework",
+				"${BUILT_PRODUCTS_DIR}/PKHUD/PKHUD.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SWCompression/SWCompression.framework",
@@ -602,6 +606,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EXTView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NoticeObserveKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PKHUD.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SWCompression.framework",
@@ -681,6 +686,7 @@
 				56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */,
 				565C3B981ED19EC5003D8EE8 /* Store+CoreDataProperties.swift in Sources */,
 				565C3B971ED19EC5003D8EE8 /* Store+CoreDataClass.swift in Sources */,
+				562BAA4F20A60CC30061D654 /* AddShoppingListItemModel.swift in Sources */,
 				565A16E520A54E650063F19E /* ShoppingListModel.swift in Sources */,
 				565C3BC01ED1DE56003D8EE8 /* AddCategoryViewController.swift in Sources */,
 				56C7334C208EF05800E085FF /* CKContainerExtension.swift in Sources */,

@@ -8,6 +8,8 @@
 
 import UIKit
 import CoreStore
+import RxSwift
+import RxCocoa
 
 class AddShoppingItemViewController: ShoppingManiacViewController {
 
@@ -21,68 +23,28 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
     @IBOutlet weak var starButton4: UIButton!
     @IBOutlet weak var starButton5: UIButton!
     @IBOutlet weak var weightSwitch: UISwitch!
+    
+    let model = AddShoppingListItemModel()
 
-    var rating: Int = 0 {
-        didSet {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        (self.nameEditField.rx.text.orEmpty <-> self.model.itemName).disposed(by: self.model.disposeBag)
+        (self.storeEditField.rx.text.orEmpty <-> self.model.storeName).disposed(by: self.model.disposeBag)
+        (self.amountEditField.rx.text.orEmpty <-> self.model.amountText).disposed(by: self.model.disposeBag)
+        (self.priceEditField.rx.text.orEmpty <-> self.model.priceText).disposed(by: self.model.disposeBag)
+        (self.weightSwitch.rx.isOn <-> self.model.isWeight).disposed(by: self.model.disposeBag)
+        self.nameEditField.autocompleteStrings = self.model.listAllGoods()
+        self.storeEditField.autocompleteStrings = self.model.listAllStores()
+        self.model.rating.asObservable().subscribe(onNext: {[weak self] rating in
+            guard let `self` = self else { return }
             let stars = [self.starButton1, self.starButton2, self.starButton3, self.starButton4, self.starButton5]
             for star in stars {
                 star?.isSelected = (star?.tag ?? 0) <= rating
             }
-        }
-    }
-
-    var shoppingListItem: ShoppingListItem?
-    var shoppingList: ShoppingList!
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
+        }).disposed(by: self.model.disposeBag)
+        
         self.nameEditField.becomeFirstResponder()
-        self.loadData()
-    }
-    
-    private func loadData() {
-        self.nameEditField.text = self.shoppingListItem?.good?.name
-        self.nameEditField.autocompleteStrings = CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
-        self.storeEditField.autocompleteStrings = CoreStore.fetchAll(From<Store>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
-        self.storeEditField.text = self.shoppingListItem?.store?.name
-        if let price = self.shoppingListItem?.price, price > 0 {
-            self.priceEditField.text = "\(price)"
-        }
-        if let amount = self.shoppingListItem?.quantityText {
-            self.amountEditField.text = amount
-        }
-        self.weightSwitch.isOn = (self.shoppingListItem?.isWeight == true)
-        self.rating = Int(self.shoppingListItem?.good?.personalRating ?? 0)
-    }
-
-    private func updateItem(withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
-            let good = transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
-            good.name = name
-            item?.good = good
-            item?.isWeight = self.weightSwitch.isOn
-            item?.good?.personalRating = Int16(self.rating)
-            if let storeName = self.storeEditField.text, storeName.count > 0 {
-                let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
-                store.name = storeName
-                item?.store = store
-            } else {
-                item?.store = nil
-            }
-            if let amount = self.amountEditField.text?.replacingOccurrences(of: ",", with: "."), amount.count > 0, let value = Float(amount) {
-                item?.quantity = value
-            } else {
-                item?.quantity = 1
-            }
-            if let price = self.priceEditField.text?.replacingOccurrences(of: ",", with: "."), price.count > 0, let value = Float(price) {
-                item?.price = value
-            } else {
-                item?.price = 0
-            }
-            item?.list = transaction.edit(self.shoppingList)
-        })
+        self.model.applyData()
     }
 
     // MARK: - Navigation
@@ -92,8 +54,8 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
 
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addShoppingItemSaveSegue" {
-            if let name = self.nameEditField.text, name.count > 0 {
-                self.updateItem(withName: name)
+            if self.model.itemName.value.count > 0 {
+                self.model.persistData()
                 return true
             } else {
                 return false
@@ -104,6 +66,6 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
     }
 
     @IBAction func starSelectedAction(button: UIButton) {
-        self.rating = button.tag
+        self.model.rating.value = button.tag
     }
 }

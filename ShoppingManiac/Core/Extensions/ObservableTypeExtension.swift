@@ -8,6 +8,21 @@
 
 import Foundation
 import RxSwift
+import RxCocoa
+
+infix operator <->
+
+func <-> <T>(property: ControlProperty<T>, variable: Variable<T>) -> Disposable {
+    let bindToUIDisposable = variable.asObservable()
+        .bind(to: property)
+    let bindToVariable = property
+        .subscribe(onNext: { next in
+            variable.value = next
+        }, onCompleted: {
+            bindToUIDisposable.dispose()
+        })
+    return CompositeDisposable(bindToUIDisposable, bindToVariable)
+}
 
 extension ObservableType {
     

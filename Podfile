@@ -14,4 +14,5 @@ target 'ShoppingManiac' do
   pod 'SWCompression/BZip2'
   pod 'RxSwift'
   pod 'RxCocoa'
+  pod 'PKHUD'
 end
