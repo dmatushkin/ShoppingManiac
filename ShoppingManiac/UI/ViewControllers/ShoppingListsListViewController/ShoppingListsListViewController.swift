@@ -82,7 +82,7 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "shoppingListSegue", let controller = segue.destination as? ShoppingListViewController, let item = sender as? ShoppingList {
-            controller.shoppingList = item
+            controller.model.shoppingList = item
         }
     }
 

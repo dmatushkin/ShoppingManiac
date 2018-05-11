@@ -16,6 +16,7 @@
 		5650C1361EDAA7E400977503 /* AutocompleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */; };
 		5650C1391EDBEF7B00977503 /* GroupItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1381EDBEF7B00977503 /* GroupItem.swift */; };
 		5650C13B1EDBEFA600977503 /* ShoppingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C13A1EDBEFA600977503 /* ShoppingGroup.swift */; };
+		565A16E520A54E650063F19E /* ShoppingListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565A16E420A54E650063F19E /* ShoppingListModel.swift */; };
 		565C3B7B1ED17D01003D8EE8 /* GoodsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B7A1ED17D01003D8EE8 /* GoodsListViewController.swift */; };
 		565C3B7E1ED17D70003D8EE8 /* StoresListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B7D1ED17D70003D8EE8 /* StoresListViewController.swift */; };
 		565C3B811ED17DB5003D8EE8 /* CategoriesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B801ED17DB5003D8EE8 /* CategoriesListViewController.swift */; };
@@ -84,6 +85,7 @@
 		5650C1381EDBEF7B00977503 /* GroupItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupItem.swift; sourceTree = "<group>"; };
 		5650C13A1EDBEFA600977503 /* ShoppingGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingGroup.swift; sourceTree = "<group>"; };
 		5650C1401EDBF19D00977503 /* ShoppingManiac-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ShoppingManiac-Bridging-Header.h"; sourceTree = "<group>"; };
+		565A16E420A54E650063F19E /* ShoppingListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListModel.swift; sourceTree = "<group>"; };
 		565C3B7A1ED17D01003D8EE8 /* GoodsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoodsListViewController.swift; sourceTree = "<group>"; };
 		565C3B7D1ED17D70003D8EE8 /* StoresListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoresListViewController.swift; sourceTree = "<group>"; };
 		565C3B801ED17DB5003D8EE8 /* CategoriesListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CategoriesListViewController.swift; sourceTree = "<group>"; };
@@ -386,6 +388,7 @@
 			children = (
 				565C3BC71ED1FCAA003D8EE8 /* ShoppingListViewController.swift */,
 				565C3BC91ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift */,
+				565A16E420A54E650063F19E /* ShoppingListModel.swift */,
 			);
 			path = ShoppingListViewController;
 			sourceTree = "<group>";
@@ -678,6 +681,7 @@
 				56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */,
 				565C3B981ED19EC5003D8EE8 /* Store+CoreDataProperties.swift in Sources */,
 				565C3B971ED19EC5003D8EE8 /* Store+CoreDataClass.swift in Sources */,
+				565A16E520A54E650063F19E /* ShoppingListModel.swift in Sources */,
 				565C3BC01ED1DE56003D8EE8 /* AddCategoryViewController.swift in Sources */,
 				56C7334C208EF05800E085FF /* CKContainerExtension.swift in Sources */,
 				565C3BBA1ED1D235003D8EE8 /* CategorySelectionTableViewCell.swift in Sources */,
