@@ -12,7 +12,6 @@ import RxCocoa
 import NoticeObserveKit
 import CoreStore
 
-
 class AddGoodModel {
     
     var good: Good?

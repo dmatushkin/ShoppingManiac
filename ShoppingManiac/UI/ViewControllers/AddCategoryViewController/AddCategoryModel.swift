@@ -11,7 +11,6 @@ import RxSwift
 import RxCocoa
 import CoreStore
 
-
 class AddCategoryModel {
     
     var category: Category?

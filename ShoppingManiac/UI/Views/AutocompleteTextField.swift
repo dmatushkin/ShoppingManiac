@@ -70,7 +70,9 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.text = self.item(forIndexPath: indexPath)
+        let text = self.item(forIndexPath: indexPath)
+        self.text = text
+        self.sendActions(for: .editingChanged)
         self.autocompleteTable.removeFromSuperview()
     }
 
