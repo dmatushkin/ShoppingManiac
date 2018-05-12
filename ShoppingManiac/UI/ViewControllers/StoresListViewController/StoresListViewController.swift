@@ -13,15 +13,14 @@ import NoticeObserveKit
 class StoresListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 
     @IBOutlet weak var tableView: UITableView!
-    
-    private let pool = NoticeObserverPool()
+    private let model = StoresListModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.automaticallyAdjustsScrollViewInsets = false
-        NewDataAvailable.observe {[weak self] _ in
+        self.model.onUpdate = {[weak self] in
             self?.tableView.reloadData()
-        }.disposed(by: self.pool)
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -30,11 +29,11 @@ class StoresListViewController: ShoppingManiacViewController, UITableViewDataSou
     }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return CoreStore.fetchCount(From<Store>(), []) ?? 0
+        return self.model.itemsCount()
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let item = self.getItem(forIndex: indexPath), let cell: StoresListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
+        if let item = self.model.getItem(forIndex: indexPath), let cell: StoresListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
             cell.setup(withStore: item)
             return cell
         } else {
@@ -49,13 +48,9 @@ class StoresListViewController: ShoppingManiacViewController, UITableViewDataSou
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let disableAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [unowned self] _, indexPath in
             tableView.isEditing = false
-            if let item = self.getItem(forIndex: indexPath) {
-                let alertController = UIAlertController(title: "Delete store", message: "Are you sure you want to delete \(item.name ?? "store")?", confirmActionTitle: "Delete") {
-                    CoreStore.perform(asynchronous: { transaction in
-                        transaction.delete(item)
-                    }, completion: { _ in
-                        self.tableView.reloadData()
-                    })
+            if let item = self.model.getItem(forIndex: indexPath) {
+                let alertController = UIAlertController(title: "Delete store", message: "Are you sure you want to delete \(item.name ?? "store")?", confirmActionTitle: "Delete") {[weak self] in
+                    self?.model.deleteItem(item: item)
                 }
                 self.present(alertController, animated: true, completion: nil)
             }
@@ -73,18 +68,11 @@ class StoresListViewController: ShoppingManiacViewController, UITableViewDataSou
         return CGFloat.leastNormalMagnitude
     }
 
-    private func getItem(forIndex: IndexPath) -> Store? {
-        return CoreStore.fetchOne(From<Store>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-            fetchRequest.fetchLimit = 1
-        }))
-    }
-
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "editStoreSegue", let controller = segue.destination as? AddStoreViewController, let path = self.tableView.indexPathForSelectedRow, let item = self.getItem(forIndex: path) {
-            controller.store = item
+        if segue.identifier == "editStoreSegue", let controller = segue.destination as? AddStoreViewController, let path = self.tableView.indexPathForSelectedRow, let item = self.model.getItem(forIndex: path) {
+            controller.model.store = item
         }
     }
 

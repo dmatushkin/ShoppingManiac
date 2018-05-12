@@ -8,6 +8,8 @@
 
 import UIKit
 import CoreStore
+import RxSwift
+import RxCocoa
 
 class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -22,55 +24,26 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
     @IBOutlet weak var cancelCategorySelectionButton: UIButton!
     @IBOutlet var categorySelectionPanel: UIView!
     private var stars: [UIButton] = []
-
-    var good: Good?
-    private var rating: Int = 0 {
-        didSet {
-            for star in self.stars {
-                star.isSelected = (star.tag <= rating)
-            }
-        }
-    }
-    private var category: Category? = nil {
-        didSet {
-            self.goodCategoryEditField.text = category?.name
-        }
-    }
+    
+    let model = AddGoodModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.stars = [self.ratingStar1Button, self.ratingStar2Button, self.ratingStar3Button, self.ratingStar4Button, self.ratingStar5Button]
-        self.goodNameEditField.text = good?.name
-        self.category = good?.category
-        self.rating = Int(good?.personalRating ?? 0)
+        (self.goodNameEditField.rx.text.orEmpty <-> self.model.goodName).disposed(by: self.model.disposeBag)
+        self.model.goodCategory.asObservable().bind(to: self.goodCategoryEditField.rx.text).disposed(by: self.model.disposeBag)
+        self.ratingStar1Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+        self.ratingStar2Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+        self.ratingStar3Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+        self.ratingStar4Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+        self.ratingStar5Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
         self.goodNameEditField.becomeFirstResponder()
         self.goodCategoryEditField.inputView = self.categorySelectionPanel
-    }
-
-    private func createItem(withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.create(Into<Good>())
-            item.name = name
-            item.category = transaction.edit(self.category)
-            item.personalRating = Int16(self.rating)
-        })
-    }
-
-    private func updateItem(item: Good, withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.edit(item)
-            item?.name = name
-            item?.category = transaction.edit(self.category)
-            item?.personalRating = Int16(self.rating)
-        })
-    }
-
-    @IBAction func starSelectedAction(button: UIButton) {
-        self.rating = button.tag
+        self.model.applyData()
     }
 
     @IBAction func editCategoryAction(_ sender: Any) {
-        self.categoriesTable.isHidden = (CoreStore.fetchCount(From<Category>(), []) ?? 0) == 0
+        self.categoriesTable.isHidden = self.model.categoriesCount() == 0
         self.categoriesTable.reloadData()
     }
 
@@ -79,12 +52,12 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
     }
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return CoreStore.fetchCount(From<Category>(), []) ?? 0
+        return self.model.categoriesCount()
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell: CategorySelectionTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
-            cell.setup(withCategory: self.getItem(forIndex: indexPath))
+            cell.setup(withCategory: self.model.getCategoryItem(forIndex: indexPath))
             return cell
         } else {
             fatalError()
@@ -96,17 +69,10 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.category = self.getItem(forIndex: indexPath)
+        self.model.category = self.model.getCategoryItem(forIndex: indexPath)
         self.goodCategoryEditField.endEditing(true)
     }
-
-    private func getItem(forIndex: IndexPath) -> Category? {
-        return CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-            fetchRequest.fetchLimit = 1
-        }))
-    }
-
+    
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -114,12 +80,8 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
 
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addGoodSaveSegue" {
-            if let name = self.goodNameEditField.text, name.count > 0 {
-                if let item = self.good {
-                    self.updateItem(item: item, withName: name)
-                } else {
-                    self.createItem(withName: name)
-                }
+            if self.model.goodName.value.count > 0 {
+                self.model.persistChanges()
                 return true
             } else {
                 return false

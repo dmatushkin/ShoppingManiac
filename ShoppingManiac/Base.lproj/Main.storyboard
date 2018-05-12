@@ -438,9 +438,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="YIa-9X-Crd" eventType="touchUpInside" id="5MI-Bs-SoD"/>
-                                </connections>
                             </button>
                             <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pVU-2t-K4G">
                                 <rect key="frame" x="151" y="225" width="40" height="40"/>
@@ -450,9 +447,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="YIa-9X-Crd" eventType="touchUpInside" id="g4f-HH-4ER"/>
-                                </connections>
                             </button>
                             <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="g6j-Ng-GsZ">
                                 <rect key="frame" x="191" y="225" width="40" height="40"/>
@@ -462,9 +456,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="YIa-9X-Crd" eventType="touchUpInside" id="eIG-xv-S7m"/>
-                                </connections>
                             </button>
                             <button opaque="NO" tag="4" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SrZ-8U-78U">
                                 <rect key="frame" x="231" y="225" width="40" height="40"/>
@@ -474,9 +465,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="YIa-9X-Crd" eventType="touchUpInside" id="1GQ-80-C7b"/>
-                                </connections>
                             </button>
                             <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ltr-7y-g9o">
                                 <rect key="frame" x="271" y="225" width="40" height="40"/>
@@ -486,9 +474,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="YIa-9X-Crd" eventType="touchUpInside" id="bpp-cQ-dx5"/>
-                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="items" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HA1-rt-uF9">
                                 <rect key="frame" x="106" y="179.5" width="42" height="21"/>
@@ -1014,9 +999,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="ihD-iJ-3RI" eventType="touchUpInside" id="AO8-2U-bRB"/>
-                                </connections>
                             </button>
                             <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bGL-0r-JGo">
                                 <rect key="frame" x="56" y="180" width="40" height="40"/>
@@ -1026,9 +1008,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="ihD-iJ-3RI" eventType="touchUpInside" id="ghp-Xw-y9H"/>
-                                </connections>
                             </button>
                             <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rsm-2K-o5F">
                                 <rect key="frame" x="96" y="180" width="40" height="40"/>
@@ -1038,9 +1017,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="ihD-iJ-3RI" eventType="touchUpInside" id="KFl-dK-6bc"/>
-                                </connections>
                             </button>
                             <button opaque="NO" tag="4" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WiR-Be-P9u">
                                 <rect key="frame" x="136" y="180" width="40" height="40"/>
@@ -1050,9 +1026,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="ihD-iJ-3RI" eventType="touchUpInside" id="4Ya-uz-NfM"/>
-                                </connections>
                             </button>
                             <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jIg-Fc-7fA">
                                 <rect key="frame" x="176" y="180" width="40" height="40"/>
@@ -1062,9 +1035,6 @@
                                 </constraints>
                                 <state key="normal" image="star_not_selected"/>
                                 <state key="selected" image="star_selected"/>
-                                <connections>
-                                    <action selector="starSelectedActionWithButton:" destination="ihD-iJ-3RI" eventType="touchUpInside" id="jxn-q7-4xj"/>
-                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.94999999999999996" colorSpace="calibratedRGB"/>

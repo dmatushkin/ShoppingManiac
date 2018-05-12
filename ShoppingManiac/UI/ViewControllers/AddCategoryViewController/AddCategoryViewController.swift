@@ -12,27 +12,14 @@ import CoreStore
 class AddCategoryViewController: ShoppingManiacViewController {
 
     @IBOutlet weak var categoryNameEditField: UITextField!
+    
+    let model = AddCategoryModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.categoryNameEditField.text = self.category?.name
+        (self.categoryNameEditField.rx.text.orEmpty <-> self.model.categoryName).disposed(by: self.model.disposeBag)
         self.categoryNameEditField.becomeFirstResponder()
-    }
-
-    var category: Category?
-
-    private func createItem(withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.create(Into<Category>())
-            item.name = name
-        })
-    }
-
-    private func updateItem(item: Category, withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.edit(item)
-            item?.name = name
-        })
+        self.model.applyData()
     }
 
     // MARK: - Navigation
@@ -42,12 +29,8 @@ class AddCategoryViewController: ShoppingManiacViewController {
 
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addCategorySaveSegue" {
-            if let name = self.categoryNameEditField.text, name.count > 0 {
-                if let item = self.category {
-                    self.updateItem(item: item, withName: name)
-                } else {
-                    self.createItem(withName: name)
-                }
+            if self.model.categoryName.value.count > 0 {
+                self.model.persistData()
                 return true
             } else {
                 return false

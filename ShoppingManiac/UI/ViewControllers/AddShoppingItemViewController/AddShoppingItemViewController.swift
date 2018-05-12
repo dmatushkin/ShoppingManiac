@@ -33,15 +33,13 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
         (self.amountEditField.rx.text.orEmpty <-> self.model.amountText).disposed(by: self.model.disposeBag)
         (self.priceEditField.rx.text.orEmpty <-> self.model.priceText).disposed(by: self.model.disposeBag)
         (self.weightSwitch.rx.isOn <-> self.model.isWeight).disposed(by: self.model.disposeBag)
+        self.starButton1.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+        self.starButton2.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+        self.starButton3.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+        self.starButton4.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+        self.starButton5.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
         self.nameEditField.autocompleteStrings = self.model.listAllGoods()
         self.storeEditField.autocompleteStrings = self.model.listAllStores()
-        self.model.rating.asObservable().subscribe(onNext: {[weak self] rating in
-            guard let `self` = self else { return }
-            let stars = [self.starButton1, self.starButton2, self.starButton3, self.starButton4, self.starButton5]
-            for star in stars {
-                star?.isSelected = (star?.tag ?? 0) <= rating
-            }
-        }).disposed(by: self.model.disposeBag)
         
         self.nameEditField.becomeFirstResponder()
         self.model.applyData()
@@ -63,9 +61,5 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
         } else {
             return true
         }
-    }
-
-    @IBAction func starSelectedAction(button: UIButton) {
-        self.model.rating.value = button.tag
     }
 }

@@ -13,26 +13,13 @@ class AddStoreViewController: ShoppingManiacViewController {
 
     @IBOutlet weak var storeNameEditField: UITextField!
 
+    let model = AddStoreModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.storeNameEditField.text = self.store?.name
+        (self.storeNameEditField.rx.text.orEmpty <-> self.model.storeName).disposed(by: self.model.disposeBag)
         self.storeNameEditField.becomeFirstResponder()
-    }
-
-    var store: Store?
-
-    private func createItem(withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.create(Into<Store>())
-            item.name = name
-        })
-    }
-
-    private func updateItem(item: Store, withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.edit(item)
-            item?.name = name
-        })
+        self.model.applyData()
     }
 
     // MARK: - Navigation
@@ -42,12 +29,8 @@ class AddStoreViewController: ShoppingManiacViewController {
 
     override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
         if identifier == "addStoreSaveSegue" {
-            if let name = self.storeNameEditField.text, name.count > 0 {
-                if let item = self.store {
-                    self.updateItem(item: item, withName: name)
-                } else {
-                    self.createItem(withName: name)
-                }
+            if self.model.storeName.value.count > 0 {
+                self.model.persistData()
                 return true
             } else {
                 return false
