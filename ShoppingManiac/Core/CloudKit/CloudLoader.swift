@@ -14,7 +14,7 @@ import RxSwift
 
 class CloudLoader {
     
-    class func loadShare(metadata: CKShareMetadata) -> Observable<Void> {
+    class func loadShare(metadata: CKShareMetadata) -> Observable<ShoppingList> {
         return CloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
             .map({RecordWrapper(record: $0, localDb: false, ownerName: metadata.rootRecordID.zoneID.ownerName)})
             .flatMap(storeListRecord)
@@ -62,8 +62,8 @@ class CloudLoader {
         }
     }
 
-    private class func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<Void> {
-        return Observable<Void>.create { observer in
+    private class func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
+        return Observable<ShoppingList>.create { observer in
             CoreStore.perform(asynchronous: { (transaction)  in
                 for record in wrapper.items {
                     let item: ShoppingListItem = transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
@@ -92,6 +92,7 @@ class CloudLoader {
                     }
                 }
             }, completion: {_ in
+                observer.onNext(wrapper.shoppingList)
                 observer.onCompleted()
             })
             return Disposables.create()
@@ -122,6 +123,6 @@ class CloudLoader {
         let wrapper = RecordWrapper(record: listRecord, localDb: localDb, ownerName: ownerName)
         return storeListRecord(recordWrapper: wrapper)
             .map({ShoppingListItemsWrapper(localDb: localDb, shoppingList: $0.shoppingList, record: listRecord, items: items, ownerName: ownerName)})
-            .flatMap(storeListItems)
+            .flatMap(storeListItems).flatMap({_ in Observable<Void>.empty()})
     }
 }

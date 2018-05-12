@@ -14,6 +14,7 @@ import AppCenterAnalytics
 import AppCenterCrashes
 import SwiftyBeaver
 import RxSwift
+import PKHUD
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -92,7 +93,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 SwiftyBeaver.debug("sharing accept error \(error.localizedDescription)")
             } else {
                 SwiftyBeaver.debug("sharing accepted successfully")
-                CloudLoader.loadShare(metadata: metadata).subscribe(onCompleted: {
+                DispatchQueue.main.async {
+                    HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
+                }
+                CloudLoader.loadShare(metadata: metadata).observeOnMain().subscribe(onNext: {[weak self] list in
+                    HUD.hide()
+                    guard let list = CoreStore.fetchExisting(list) else { return }
+                    self?.showList(list: list)
+                }, onCompleted: {
                     SwiftyBeaver.debug("loading lists done")
                     NewDataAvailable.post(info: true)
                 }).disposed(by: self.disposeBag)
@@ -104,13 +112,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
         let data = try? Data(contentsOf: url)
         if let jsonObject = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions())) as? NSDictionary, let list = ShoppingList.importShoppingList(fromJsonData: jsonObject) {
-            if let topController = self.window?.rootViewController as? UITabBarController, let navigation = topController.viewControllers?.first as? UINavigationController, let listController = navigation.viewControllers.first as? ShoppingListsListViewController {
-                topController.selectedIndex = 0
-                listController.dismiss(animated: false, completion: nil)
-                listController.showList(list: list)
-            }
+            self.showList(list: list)
         }
         return true
+    }
+    
+    private func showList(list: ShoppingList) {
+        if let topController = self.window?.rootViewController as? UITabBarController, let navigation = topController.viewControllers?.first as? UINavigationController, let listController = navigation.viewControllers.first as? ShoppingListsListViewController {
+            topController.selectedIndex = 0
+            listController.dismiss(animated: false, completion: nil)
+            listController.showList(list: list)
+        }
     }
 
     class func topViewController(rootViewController: UIViewController?) -> UIViewController? {
