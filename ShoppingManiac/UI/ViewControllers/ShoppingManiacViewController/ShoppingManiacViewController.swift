@@ -16,6 +16,11 @@ class ShoppingManiacViewController: UIViewController, MFMailComposeViewControlle
         super.viewDidLoad()
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.view.endEditing(true)
+    }
+    
     /*override var canBecomeFirstResponder: Bool {
         return true
     }
