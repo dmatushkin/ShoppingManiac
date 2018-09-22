@@ -26,7 +26,7 @@ class CloudSubscriptions {
     
     private class func setupSharedSubscription() -> Observable<Void> {
         let subscription = CKDatabaseSubscription(subscriptionID: sharedSubscriptionID)
-        let notificationInfo = CKNotificationInfo()
+        let notificationInfo = CKSubscription.NotificationInfo()
         notificationInfo.shouldSendContentAvailable = true
         subscription.notificationInfo = notificationInfo
         return CloudKitUtils.updateSubscriptions(subscriptions: [subscription], localDb: false)
@@ -41,7 +41,7 @@ class CloudSubscriptions {
     private class func createSubscription(forType type: String) -> CKQuerySubscription {
         let predicate = NSPredicate(value: true)
         let subscription = CKQuerySubscription(recordType: type, predicate: predicate, subscriptionID: subscriptionID, options: [.firesOnRecordCreation, .firesOnRecordDeletion, .firesOnRecordUpdate])
-        let notificationInfo = CKNotificationInfo()
+        let notificationInfo = CKSubscription.NotificationInfo()
         notificationInfo.shouldSendContentAvailable = true
         subscription.notificationInfo = notificationInfo
         return subscription

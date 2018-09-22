@@ -15,7 +15,7 @@ class AddShoppingListViewController: ShoppingManiacViewController {
 
     private let disposeBag = DisposeBag()
     private let model = AddShoppingListModel()
-    @IBOutlet weak var shoppingNameEditField: UITextField!
+    @IBOutlet private weak var shoppingNameEditField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()

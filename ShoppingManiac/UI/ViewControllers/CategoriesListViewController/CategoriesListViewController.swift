@@ -12,7 +12,7 @@ import NoticeObserveKit
 
 class CategoriesListViewController: ShoppingManiacViewController, UITableViewDelegate, UITableViewDataSource {
 
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet private weak var tableView: UITableView!
     
     private let model = CategoriesListModel()
 
@@ -47,7 +47,7 @@ class CategoriesListViewController: ShoppingManiacViewController, UITableViewDel
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let disableAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [unowned self] _, indexPath in
+        let disableAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Delete") { [unowned self] _, indexPath in
             tableView.isEditing = false
             if let item = self.model.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete category", message: "Are you sure you want to delete \(item.name ?? "category")?", confirmActionTitle: "Delete") {[weak self] in
@@ -61,7 +61,7 @@ class CategoriesListViewController: ShoppingManiacViewController, UITableViewDel
         return [disableAction]
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 
     }
 
@@ -77,7 +77,7 @@ class CategoriesListViewController: ShoppingManiacViewController, UITableViewDel
         }
     }
 
-    @IBAction func categoriesList(unwindSegue: UIStoryboardSegue) {
+    @IBAction private func categoriesList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addCategorySaveSegue" {
             self.tableView.reloadData()
         }

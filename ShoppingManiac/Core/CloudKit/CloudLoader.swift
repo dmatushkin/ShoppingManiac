@@ -14,7 +14,7 @@ import RxSwift
 
 class CloudLoader {
     
-    class func loadShare(metadata: CKShareMetadata) -> Observable<ShoppingList> {
+    class func loadShare(metadata: CKShare.Metadata) -> Observable<ShoppingList> {
         return CloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
             .map({RecordWrapper(record: $0, localDb: false, ownerName: metadata.rootRecordID.zoneID.ownerName)})
             .flatMap(storeListRecord)
@@ -38,7 +38,7 @@ class CloudLoader {
             }, completion: {result in
                 switch result {
                 case .success(let list):
-                    let items = recordWrapper.record["items"] as? [CKReference] ?? []
+                    let items = recordWrapper.record["items"] as? [CKRecord.Reference] ?? []
                     observer.onNext(ShoppingListWrapper(localDb: recordWrapper.localDb, record: recordWrapper.record, shoppingList: list, items: items, ownerName: recordWrapper.ownerName))
                     observer.onCompleted()
                 case .failure(let error):
@@ -51,15 +51,8 @@ class CloudLoader {
     }
     
     private class func fetchListItems(wrapper: ShoppingListWrapper) -> Observable<ShoppingListItemsWrapper> {
-        return Observable<ShoppingListItemsWrapper>.create { observer in
-            CloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray().subscribe(onNext: {records in
-                observer.onNext(ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: records, ownerName: wrapper.ownerName))
-            }, onError: {error in
-                observer.onError(error)
-            }, onCompleted: {
-                observer.onCompleted()
-            })
-        }
+        return CloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray()
+            .map({ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: $0, ownerName: wrapper.ownerName)})
     }
 
     private class func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
@@ -101,7 +94,7 @@ class CloudLoader {
 
     class func fetchChanges(localDb: Bool) -> Observable<Void> {
         return CloudKitUtils.fetchDatabaseChanges(localDb: localDb).toArray()
-            .flatMap({(zoneIds: [CKRecordZoneID]) -> Observable<[CKRecord]> in
+            .flatMap({(zoneIds: [CKRecordZone.ID]) -> Observable<[CKRecord]> in
                 CloudKitUtils.fetchZoneChanges(localDb: localDb, zoneIds: zoneIds)
             }).flatMap({ records in
                 processChangesRecords(records: records, localDb: localDb)

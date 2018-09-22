@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     private let disposeBag = DisposeBag()
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.registerForRemoteNotifications()
         
         let log = SwiftyBeaver.self
@@ -84,7 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
     }
 
-    func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShareMetadata) {
+    func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
         let operation = CKAcceptSharesOperation(shareMetadatas: [cloudKitShareMetadata])
         operation.qualityOfService = .userInteractive
         operation.perShareCompletionBlock = {[weak self] metadata, share, error in
@@ -100,6 +100,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     HUD.hide()
                     guard let list = CoreStore.fetchExisting(list) else { return }
                     self?.showList(list: list)
+                }, onError: {error in
+                    HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
                 }, onCompleted: {
                     SwiftyBeaver.debug("loading lists done")
                     NewDataAvailable.post(info: true)

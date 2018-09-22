@@ -17,8 +17,8 @@ import RxCocoa
 
 class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate {
 
-    @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var totalLabel: UILabel!
+    @IBOutlet private weak var tableView: UITableView!
+    @IBOutlet private weak var totalLabel: UILabel!
     
     let model = ShoppingListModel()
 
@@ -34,7 +34,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
             UIView.animate(withDuration: 0.5, animations: {[weak self] () -> Void in
                 self?.tableView.moveRow(at: fromPath, to: toPath)
             }, completion: {[weak self] (_) -> Void in
-                self?.tableView.reloadRows(at: [fromPath, toPath], with: UITableViewRowAnimation.none)
+                self?.tableView.reloadRows(at: [fromPath, toPath], with: UITableView.RowAnimation.none)
             })
         }
         self.model.totalText.asObservable().observeOnMain().bind(to: self.totalLabel.rx.text).disposed(by: self.model.disposeBag)
@@ -92,7 +92,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let item = self.model.item(forIndexPath: indexPath)
-        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [weak self] _, _ in
+        let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Delete") { [weak self] _, _ in
             let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {[weak self] in
                 self?.tableView.isEditing = false
                 item.markRemoved()
@@ -101,7 +101,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
             self?.present(alertController, animated: true, completion: nil)
         }
         deleteAction.backgroundColor = UIColor.red
-        let editAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Edit") { [weak self] _, indexPath in
+        let editAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Edit") { [weak self] _, indexPath in
             tableView.isEditing = false
             self?.performSegue(withIdentifier: "editShoppingListItemSegue", sender: indexPath)
         }
@@ -110,7 +110,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         return [deleteAction, editAction]
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 
     }
 
@@ -136,13 +136,13 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         }
     }
 
-    @IBAction func shoppingList(unwindSegue: UIStoryboardSegue) {
+    @IBAction private func shoppingList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addShoppingItemSaveSegue" {
             self.model.resyncData()
         }
     }
 
-    @IBAction func shareAction(_ sender: Any) {
+    @IBAction private func shareAction(_ sender: Any) {
         if AppDelegate.discoverabilityStatus {
             let controller = UIAlertController(title: "Sharing", message: "Select sharing type", preferredStyle: .actionSheet)
             let smsAction = UIAlertAction(title: "Text message", style: .default) {[weak self] _ in

@@ -5,3 +5,16 @@ excluded:
 disabled_rules:
   - line_length
   - trailing_whitespace
+
+custom_rules:
+  private_outlets:
+    included: ".*\\.swift"
+    name: "Outlets should be private"
+    regex: "IBOutlet[[:space:]]*weak[[:space:]]*var"
+    severity: warning
+
+  private_actions:
+    included: ".*\\.swift"
+    name: "Actions should be private"
+    regex: "IBAction[[:space:]]*func"
+    severity: warning

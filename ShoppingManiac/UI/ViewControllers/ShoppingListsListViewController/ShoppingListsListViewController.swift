@@ -12,7 +12,7 @@ import RxSwift
 
 class ShoppingListsListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet private weak var tableView: UITableView!
     
     private let model = ShoppingListsListModel()
 
@@ -47,7 +47,7 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let disableAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [weak self] _, indexPath in
+        let disableAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Delete") { [weak self] _, indexPath in
             tableView.isEditing = false
             if let shoppingList = self?.model.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete list", message: "Are you sure you want to delete list \(shoppingList.title)?", confirmActionTitle: "Delete") {[weak self] in
@@ -60,7 +60,7 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
         return [disableAction]
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 
     }
 
@@ -86,6 +86,6 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
         }
     }
 
-    @IBAction func shoppingListsList(unwindSegue: UIStoryboardSegue) {
+    @IBAction private func shoppingListsList(unwindSegue: UIStoryboardSegue) {
     }
 }

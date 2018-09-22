@@ -13,16 +13,16 @@ import RxCocoa
 
 class AddShoppingItemViewController: ShoppingManiacViewController {
 
-    @IBOutlet weak var nameEditField: AutocompleteTextField!
-    @IBOutlet weak var storeEditField: AutocompleteTextField!
-    @IBOutlet weak var amountEditField: RoundRectTextField!
-    @IBOutlet weak var priceEditField: RoundRectTextField!
-    @IBOutlet weak var starButton1: UIButton!
-    @IBOutlet weak var starButton2: UIButton!
-    @IBOutlet weak var starButton3: UIButton!
-    @IBOutlet weak var starButton4: UIButton!
-    @IBOutlet weak var starButton5: UIButton!
-    @IBOutlet weak var weightSwitch: UISwitch!
+    @IBOutlet private weak var nameEditField: AutocompleteTextField!
+    @IBOutlet private weak var storeEditField: AutocompleteTextField!
+    @IBOutlet private weak var amountEditField: RoundRectTextField!
+    @IBOutlet private weak var priceEditField: RoundRectTextField!
+    @IBOutlet private weak var starButton1: UIButton!
+    @IBOutlet private weak var starButton2: UIButton!
+    @IBOutlet private weak var starButton3: UIButton!
+    @IBOutlet private weak var starButton4: UIButton!
+    @IBOutlet private weak var starButton5: UIButton!
+    @IBOutlet private weak var weightSwitch: UISwitch!
     
     let model = AddShoppingListItemModel()
 

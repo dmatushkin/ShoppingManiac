@@ -12,7 +12,7 @@ import NoticeObserveKit
 
 class StoresListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet private weak var tableView: UITableView!
     private let model = StoresListModel()
 
     override func viewDidLoad() {
@@ -46,7 +46,7 @@ class StoresListViewController: ShoppingManiacViewController, UITableViewDataSou
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let disableAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [unowned self] _, indexPath in
+        let disableAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Delete") { [unowned self] _, indexPath in
             tableView.isEditing = false
             if let item = self.model.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete store", message: "Are you sure you want to delete \(item.name ?? "store")?", confirmActionTitle: "Delete") {[weak self] in
@@ -60,7 +60,7 @@ class StoresListViewController: ShoppingManiacViewController, UITableViewDataSou
         return [disableAction]
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 
     }
 
@@ -76,7 +76,7 @@ class StoresListViewController: ShoppingManiacViewController, UITableViewDataSou
         }
     }
 
-    @IBAction func storesList(unwindSegue: UIStoryboardSegue) {
+    @IBAction private func storesList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addStoreSaveSegue" {
             self.tableView.reloadData()
         }

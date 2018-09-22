@@ -10,7 +10,7 @@ import UIKit
 
 class ShoppingListsListTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var listTitleLabel: UILabel!
+    @IBOutlet private weak var listTitleLabel: UILabel!
 
     override func awakeFromNib() {
         super.awakeFromNib()

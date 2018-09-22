@@ -11,7 +11,7 @@ import CoreStore
 
 class AddStoreViewController: ShoppingManiacViewController {
 
-    @IBOutlet weak var storeNameEditField: UITextField!
+    @IBOutlet private weak var storeNameEditField: UITextField!
 
     let model = AddStoreModel()
     

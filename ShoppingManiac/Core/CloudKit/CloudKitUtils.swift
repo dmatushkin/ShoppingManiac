@@ -17,7 +17,7 @@ class CloudKitUtils {
     static let listRecordType = "ShoppingList"
     static let itemRecordType = "ShoppingListItem"
     
-    class func fetchRecords(recordIds: [CKRecordID], localDb: Bool) -> Observable<CKRecord> {
+    class func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> Observable<CKRecord> {
         return Observable<CKRecord>.create { observer in
             let operation = CKFetchRecordsOperation(recordIDs: recordIds)
             operation.perRecordCompletionBlock = { record, recordid, error in
@@ -42,7 +42,7 @@ class CloudKitUtils {
         }
     }
     
-    class func deleteRecords(recordIds: [CKRecordID], localDb: Bool) -> Observable<Void> {
+    class func deleteRecords(recordIds: [CKRecord.ID], localDb: Bool) -> Observable<Void> {
         return Observable<Void>.create { observer in
             let modifyOperation = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: recordIds)
             modifyOperation.savePolicy = .allKeys
@@ -127,8 +127,8 @@ class CloudKitUtils {
         }
     }
     
-    class func fetchDatabaseChanges(localDb: Bool) -> Observable<CKRecordZoneID> {
-        return Observable<CKRecordZoneID>.create { observer in
+    class func fetchDatabaseChanges(localDb: Bool) -> Observable<CKRecordZone.ID> {
+        return Observable<CKRecordZone.ID>.create { observer in
             let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: localDb ? UserDefaults.standard.localServerChangeToken : UserDefaults.standard.sharedServerChangeToken)
             operation.recordZoneWithIDChangedBlock = { zoneId in
                 observer.onNext(zoneId)
@@ -156,13 +156,13 @@ class CloudKitUtils {
         }
     }
     
-    class func fetchZoneChanges(localDb: Bool, zoneIds: [CKRecordZoneID]) -> Observable<[CKRecord]> {
+    class func fetchZoneChanges(localDb: Bool, zoneIds: [CKRecordZone.ID]) -> Observable<[CKRecord]> {
         return Observable<[CKRecord]>.create { observer in
             if zoneIds.count > 0 {
                 var records: [CKRecord] = []
-                var optionsByRecordZoneID = [CKRecordZoneID: CKFetchRecordZoneChangesOptions]()
+                var optionsByRecordZoneID = [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneOptions]()
                 for zoneId in zoneIds {
-                    let options = CKFetchRecordZoneChangesOptions()
+                    let options = CKFetchRecordZoneChangesOperation.ZoneOptions()
                     options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName)
                     optionsByRecordZoneID[zoneId] = options
                 }

@@ -12,7 +12,7 @@ import NoticeObserveKit
 
 class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate, UITableViewDataSource {
 
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet private weak var tableView: UITableView!
     
     private let model = GoodsListModel()
 
@@ -47,7 +47,7 @@ class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate
     }
 
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let disableAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Delete") { [unowned self] _, indexPath in
+        let disableAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Delete") { [unowned self] _, indexPath in
             tableView.isEditing = false
             if let good = self.model.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete good", message: "Are you sure you want to delete \(good.name ?? "this good")?", confirmActionTitle: "Delete") {[weak self] in
@@ -61,7 +61,7 @@ class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate
         return [disableAction]
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
 
     }
 
@@ -77,7 +77,7 @@ class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate
         }
     }
 
-    @IBAction func goodsList(unwindSegue: UIStoryboardSegue) {
+    @IBAction private func goodsList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addGoodSaveSegue" {
             self.tableView.reloadData()
         }

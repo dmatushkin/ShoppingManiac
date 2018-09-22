@@ -80,7 +80,7 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         super.editingChanged()
         if self.autocompleteTable.superview == nil {
             self.superview?.addSubview(self.autocompleteTable)
-            self.superview?.bringSubview(toFront: self.autocompleteTable)
+            self.superview?.bringSubviewToFront(self.autocompleteTable)
         }
         self.layoutAutocompleteTable()
         self.autocompleteTable.reloadData()

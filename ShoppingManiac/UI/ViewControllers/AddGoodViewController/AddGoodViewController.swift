@@ -13,15 +13,15 @@ import RxCocoa
 
 class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 
-    @IBOutlet weak var goodNameEditField: UITextField!
-    @IBOutlet weak var goodCategoryEditField: UITextField!
-    @IBOutlet weak var ratingStar1Button: UIButton!
-    @IBOutlet weak var ratingStar2Button: UIButton!
-    @IBOutlet weak var ratingStar3Button: UIButton!
-    @IBOutlet weak var ratingStar4Button: UIButton!
-    @IBOutlet weak var ratingStar5Button: UIButton!
-    @IBOutlet weak var categoriesTable: UITableView!
-    @IBOutlet weak var cancelCategorySelectionButton: UIButton!
+    @IBOutlet private weak var goodNameEditField: UITextField!
+    @IBOutlet private weak var goodCategoryEditField: UITextField!
+    @IBOutlet private weak var ratingStar1Button: UIButton!
+    @IBOutlet private weak var ratingStar2Button: UIButton!
+    @IBOutlet private weak var ratingStar3Button: UIButton!
+    @IBOutlet private weak var ratingStar4Button: UIButton!
+    @IBOutlet private weak var ratingStar5Button: UIButton!
+    @IBOutlet private weak var categoriesTable: UITableView!
+    @IBOutlet private weak var cancelCategorySelectionButton: UIButton!
     @IBOutlet var categorySelectionPanel: UIView!
     private var stars: [UIButton] = []
     
@@ -42,12 +42,12 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
         self.model.applyData()
     }
 
-    @IBAction func editCategoryAction(_ sender: Any) {
+    @IBAction private func editCategoryAction(_ sender: Any) {
         self.categoriesTable.isHidden = self.model.categoriesCount() == 0
         self.categoriesTable.reloadData()
     }
 
-    @IBAction func cancelCategorySelectionAction(_ sender: Any) {
+    @IBAction private func cancelCategorySelectionAction(_ sender: Any) {
         self.goodCategoryEditField.endEditing(true)
     }
 
