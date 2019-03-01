@@ -11,4 +11,10 @@ import CoreData
 import CoreStore
 
 public class Store: NSManagedObject {
+    
+    class func item(forName name: String, inTransaction transaction: SynchronousDataTransaction) -> Store {
+        let store = transaction.fetchOne(From<Store>().where(Where("name == %@", name))) ?? transaction.create(Into<Store>())
+        store.name = name
+        return store
+    }
 }

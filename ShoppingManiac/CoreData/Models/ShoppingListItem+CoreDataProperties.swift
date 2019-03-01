@@ -2,8 +2,9 @@
 //  ShoppingListItem+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 21/05/2017.
-//  Copyright © 2017 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 28/04/2018.
+//  Copyright © 2018 Dmitry Matyushkin. All rights reserved.
+//
 //
 
 import Foundation
@@ -22,6 +23,7 @@ extension ShoppingListItem {
     @NSManaged public var purchaseDate: TimeInterval
     @NSManaged public var quantity: Float
     @NSManaged public var recordid: String?
+    @NSManaged public var isRemoved: Bool
     @NSManaged public var good: Good?
     @NSManaged public var list: ShoppingList?
     @NSManaged public var store: Store?

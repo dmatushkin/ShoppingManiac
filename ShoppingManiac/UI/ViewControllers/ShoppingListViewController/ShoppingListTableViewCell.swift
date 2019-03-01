@@ -10,10 +10,10 @@ import UIKit
 
 class ShoppingListTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var statusImageView: UIImageView!
-    @IBOutlet weak var productTitleLabel: UILabel!
-    @IBOutlet weak var storeTitleLabel: UILabel!
-    @IBOutlet weak var productQuantityLabel: UILabel!
+    @IBOutlet private weak var statusImageView: UIImageView!
+    @IBOutlet private weak var productTitleLabel: UILabel!
+    @IBOutlet private weak var storeTitleLabel: UILabel!
+    @IBOutlet private weak var productQuantityLabel: UILabel!
 
     override func awakeFromNib() {
         super.awakeFromNib()

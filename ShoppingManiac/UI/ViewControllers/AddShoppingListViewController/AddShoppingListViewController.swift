@@ -8,37 +8,26 @@
 
 import UIKit
 import CoreStore
+import RxSwift
+import RxCocoa
 
 class AddShoppingListViewController: ShoppingManiacViewController {
 
-    @IBOutlet weak var shoppingNameEditField: UITextField!
-    var shoppingList: ShoppingList?
+    private let disposeBag = DisposeBag()
+    private let model = AddShoppingListModel()
+    @IBOutlet private weak var shoppingNameEditField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.shoppingNameEditField.rx.text.orEmpty.bind(to: self.model.listTitle).disposed(by: self.disposeBag)
         self.shoppingNameEditField.becomeFirstResponder()
-    }
-
-    private func createItem(withName name: String) -> ShoppingList? {
-        do {
-            let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
-                let item = transaction.create(Into<ShoppingList>())
-                item.name = name
-                item.date = Date().timeIntervalSinceReferenceDate
-                return item
-            })
-            return CoreStore.fetchExisting(list)
-        } catch {
-            return nil
-        }
-
     }
 
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "addListSaveSegue", let name = self.shoppingNameEditField.text, let list = self.createItem(withName: name) {
-            (segue.destination as? ShoppingListsListViewController)?.listToShow = list
+        if segue.identifier == "addListSaveSegue", let list = self.model.createItem() {
+            (segue.destination as? ShoppingListViewController)?.model.shoppingList = list
         }
     }
 }

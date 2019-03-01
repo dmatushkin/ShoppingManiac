@@ -17,19 +17,19 @@ class RoundRectTextField: UITextField {
     private let floatingLabel = UILabel()
 
     private func setup() {
-        self.borderStyle = UITextBorderStyle.roundedRect
-        self.floatingLabel.font = UIFont.preferredFont(forTextStyle: UIFontTextStyle.caption2)
+        self.borderStyle = UITextField.BorderStyle.roundedRect
+        self.floatingLabel.font = UIFont.preferredFont(forTextStyle: UIFont.TextStyle.caption2)
         self.floatingLabel.textColor = self.floatingLabelInactiveColor
         self.floatingLabel.text = self.placeholder
         self.floatingLabel.sizeToFit()
-        self.clearButtonMode = UITextFieldViewMode.whileEditing
+        self.clearButtonMode = UITextField.ViewMode.whileEditing
         self.addSubview(self.floatingLabel)
         self.floatingLabel.frame = CGRect(x: 5, y: 0, width: self.floatingLabel.bounds.width, height: self.floatingLabel.bounds.height)
         self.floatingLabel.alpha = 0.0
-        self.addTarget(self, action: #selector(RoundRectTextField.editingDone), for: UIControlEvents.editingDidEndOnExit)
-        self.addTarget(self, action: #selector(RoundRectTextField.editingStarted), for: UIControlEvents.editingDidBegin)
-        self.addTarget(self, action: #selector(RoundRectTextField.editingChanged), for: UIControlEvents.editingChanged)
-        self.addTarget(self, action: #selector(RoundRectTextField.editingEnded), for: UIControlEvents.editingDidEnd)
+        self.addTarget(self, action: #selector(RoundRectTextField.editingDone), for: UIControl.Event.editingDidEndOnExit)
+        self.addTarget(self, action: #selector(RoundRectTextField.editingStarted), for: UIControl.Event.editingDidBegin)
+        self.addTarget(self, action: #selector(RoundRectTextField.editingChanged), for: UIControl.Event.editingChanged)
+        self.addTarget(self, action: #selector(RoundRectTextField.editingEnded), for: UIControl.Event.editingDidEnd)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -105,6 +105,6 @@ class RoundRectTextField: UITextField {
 
     private func rectWithTitle(_ rect: CGRect) -> CGRect {
         floatingLabel.sizeToFit()
-        return UIEdgeInsetsInsetRect(rect, UIEdgeInsets(top: floatingLabel.font.lineHeight, left: 0, bottom: 0, right: 0))
+        return rect.inset(by: UIEdgeInsets(top: floatingLabel.font.lineHeight, left: 0, bottom: 0, right: 0))
     }
 }

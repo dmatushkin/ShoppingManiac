@@ -13,9 +13,11 @@ class RecordsWrapper {
     
     let localDb: Bool
     let records: [CKRecord]
+    let ownerName: String?
     
-    init(localDb: Bool, records: [CKRecord]) {
+    init(localDb: Bool, records: [CKRecord], ownerName: String?) {
         self.localDb = localDb
         self.records = records
+        self.ownerName = ownerName
     }
 }

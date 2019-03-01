@@ -13,6 +13,8 @@ import AppCenter
 import AppCenterAnalytics
 import AppCenterCrashes
 import SwiftyBeaver
+import RxSwift
+import PKHUD
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -24,8 +26,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     static let documentsRootDirectory: URL = {
         return FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).first!
     }()
+    
+    private let disposeBag = DisposeBag()
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.registerForRemoteNotifications()
         
         let log = SwiftyBeaver.self
@@ -36,16 +40,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
         _ = try? CoreStore.addStorageAndWait(store)
         CloudShare.setupUserPermissions()
-        /*CloudLoader.clearRecords().then(in: .main) {
-            CloudLoader.loadLists().then(in: .main) {
-                SwiftyBeaver.debug("loading lists done")
-            }
-        }*/
-        CloudLoader.loadLists().then(in: .main) {
-            SwiftyBeaver.debug("loading lists done")
+        CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).subscribe(onCompleted: {
+            SwiftyBeaver.debug("loading updates done")
             NewDataAvailable.post(info: true)
-        }
-        CloudLoader.setupSubscriptions()
+        }).disposed(by: self.disposeBag)
+        CloudSubscriptions.setupSubscriptions()
         
         MSAppCenter.start("55fd6e0b-d425-4b37-801e-9b64709efd6b", withServices: [
             MSAnalytics.self,
@@ -57,11 +56,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-            CloudLoader.loadLists().then {
-                SwiftyBeaver.debug("loading lists done")
+            CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).observeOnMain().subscribe(onError: { error in
+                SwiftyBeaver.debug(error.localizedDescription)
+                completionHandler(.noData)
+            }, onCompleted: {
+                SwiftyBeaver.debug("loading updates done")
                 NewDataAvailable.post(info: true)
                 completionHandler(.newData)
-            }
+            }).disposed(by: self.disposeBag)
         } else {
             completionHandler(.noData)
         }
@@ -82,18 +84,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
     }
 
-    func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShareMetadata) {
+    func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
         let operation = CKAcceptSharesOperation(shareMetadatas: [cloudKitShareMetadata])
         operation.qualityOfService = .userInteractive
-        operation.perShareCompletionBlock = { metadata, share, error in
+        operation.perShareCompletionBlock = {[weak self] metadata, share, error in
+            guard let `self` = self else {return}
             if let error = error {
                 SwiftyBeaver.debug("sharing accept error \(error.localizedDescription)")
             } else {
                 SwiftyBeaver.debug("sharing accepted successfully")
-                CloudLoader.loadShare(metadata: metadata).then {
+                DispatchQueue.main.async {
+                    HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
+                }
+                CloudLoader.loadShare(metadata: metadata).observeOnMain().subscribe(onNext: {[weak self] list in
+                    HUD.hide()
+                    guard let list = CoreStore.fetchExisting(list) else { return }
+                    self?.showList(list: list)
+                }, onError: {error in
+                    HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
+                }, onCompleted: {
                     SwiftyBeaver.debug("loading lists done")
                     NewDataAvailable.post(info: true)
-                }
+                }).disposed(by: self.disposeBag)
             }
         }
         CKContainer.default().add(operation)
@@ -101,57 +113,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
         let data = try? Data(contentsOf: url)
-        if let jsonObject = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions())) as? NSDictionary, let list = self.importShoppingList(fromJsonData: jsonObject) {
-            if let topController = self.window?.rootViewController as? UITabBarController, let navigation = topController.viewControllers?.first as? UINavigationController, let listController = navigation.viewControllers.first as? ShoppingListsListViewController {
-                topController.selectedIndex = 0
-                listController.dismiss(animated: false, completion: nil)
-                listController.listToShow = list
-                listController.performSegue(withIdentifier: "shoppingListSegue", sender: self)
-            }
+        if let jsonObject = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions())) as? NSDictionary, let list = ShoppingList.importShoppingList(fromJsonData: jsonObject) {
+            self.showList(list: list)
         }
         return true
     }
-
-    func importShoppingList(fromJsonData jsonData: NSDictionary) -> ShoppingList? {
-        do {
-            let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
-                let list = transaction.create(Into<ShoppingList>())
-                list.name = jsonData["name"] as? String
-                list.jsonDate = (jsonData["date"] as? String) ?? ""
-                if let itemsArray = jsonData["items"] as? [NSDictionary] {
-                    for itemDict in itemsArray {
-                        let shoppingListItem = transaction.create(Into<ShoppingListItem>())
-                        if let goodName = itemDict["good"] as? String, goodName.count > 0 {
-                            if let good = transaction.fetchOne(From<Good>().where(Where("name == %@", goodName))) {
-                                shoppingListItem.good = good
-                            } else {
-                                let good = transaction.create(Into<Good>())
-                                good.name = goodName
-                                shoppingListItem.good = good
-                            }
-                        }
-                        if let storeName = itemDict["store"] as? String, storeName.count > 0 {
-                            if let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
-                                shoppingListItem.store = store
-                            } else {
-                                let store = transaction.create(Into<Store>())
-                                store.name = storeName
-                                shoppingListItem.store = store
-                            }
-                        }
-                        shoppingListItem.purchased = (itemDict["purchased"] as? NSNumber)?.boolValue ?? false
-                        shoppingListItem.price = (itemDict["price"] as? NSNumber)?.floatValue ?? 0
-                        shoppingListItem.quantity = (itemDict["quantity"] as? NSNumber)?.floatValue ?? 0
-                        shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
-                        shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
-                        shoppingListItem.list = list
-                    }
-                }
-                return list
-            })
-            return CoreStore.fetchExisting(list)
-        } catch {
-            return nil
+    
+    private func showList(list: ShoppingList) {
+        if let topController = self.window?.rootViewController as? UITabBarController, let navigation = topController.viewControllers?.first as? UINavigationController, let listController = navigation.viewControllers.first as? ShoppingListsListViewController {
+            topController.selectedIndex = 0
+            listController.dismiss(animated: false, completion: nil)
+            listController.showList(list: list)
         }
     }
 

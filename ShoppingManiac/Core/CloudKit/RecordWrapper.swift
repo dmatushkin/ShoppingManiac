@@ -12,9 +12,11 @@ import CloudKit
 class RecordWrapper {
     let record: CKRecord
     let localDb: Bool
+    let ownerName: String?
 
-    init(record: CKRecord, localDb: Bool) {
+    init(record: CKRecord, localDb: Bool, ownerName: String?) {
         self.record = record
         self.localDb = localDb
+        self.ownerName = ownerName
     }
 }

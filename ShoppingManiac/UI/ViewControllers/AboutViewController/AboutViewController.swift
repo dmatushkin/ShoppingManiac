@@ -10,7 +10,7 @@ import UIKit
 
 class AboutViewController: ShoppingManiacViewController {
 
-    @IBOutlet weak var versionLabel: UILabel!
+    @IBOutlet private weak var versionLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()

@@ -9,137 +9,60 @@
 import Foundation
 import CloudKit
 import CoreStore
-import Hydra
 import SwiftyBeaver
+import RxSwift
 
 class CloudLoader {
     
-    private static let subscriptionsKey = "cloudKitSubscriptionsDone"
-    private static let subscriptionID = "cloudKitSharedDataSubscription"
-    
-    class func loadShare(metadata: CKShareMetadata) -> Promise<Void> {
-        return Promise<RecordsWrapper>(in: .background, { (resolve, reject, _) in
-            let operation = CKFetchRecordsOperation(recordIDs: [metadata.rootRecordID])
-            operation.fetchRecordsCompletionBlock = { records, error in
-                if let records = records, error == nil {
-                    SwiftyBeaver.debug("\(records.count) shared list records found")
-                    resolve(RecordsWrapper(localDb: false, records: records.map({$0.value})))
-                } else {
-                    SwiftyBeaver.debug("No shared list records found")
-                    reject(CommonError(description: "No shared list records found"))
-                }
-            }
-            CKContainer.default().sharedCloudDatabase.add(operation)
-        }).then(loadListRecords).void
+    class func loadShare(metadata: CKShare.Metadata) -> Observable<ShoppingList> {
+        return CloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
+            .map({RecordWrapper(record: $0, localDb: false, ownerName: metadata.rootRecordID.zoneID.ownerName)})
+            .flatMap(storeListRecord)
+            .flatMap(fetchListItems)
+            .flatMap(storeListItems)
     }
     
-    class func setupSubscriptions() {
-        if UserDefaults.standard.bool(forKey: subscriptionsKey) == false {
-            let listsSubscription = createSubscription(forType: CloudShare.listRecordType)
-            let itemsSubscription = createSubscription(forType: CloudShare.itemRecordType)
-            
-            let operation = CKModifySubscriptionsOperation(subscriptionsToSave: [listsSubscription, itemsSubscription], subscriptionIDsToDelete: [])
-            operation.modifySubscriptionsCompletionBlock = { (_, _, error) in
-                guard error == nil else {
-                    return
-                }                
-                UserDefaults.standard.set(true, forKey: subscriptionsKey)
-            }
-            operation.qualityOfService = .utility
-            
-            CKContainer.default().privateCloudDatabase.add(operation)
-        }
-    }
-    
-    private class func createSubscription(forType type: String) -> CKQuerySubscription {
-        let predicate = NSPredicate(value: true)
-        let subscription = CKQuerySubscription(recordType: type, predicate: predicate, subscriptionID: subscriptionID, options: [.firesOnRecordCreation, .firesOnRecordDeletion, .firesOnRecordUpdate])
-        let notificationInfo = CKNotificationInfo()
-        notificationInfo.shouldSendContentAvailable = true
-        subscription.notificationInfo = notificationInfo
-        return subscription
-    }
-
-    class func loadLists() -> Promise<Void> {
-        return loadListsFromDatabase(localDb: true).then(loadListRecords).then({_ in
-            loadListsFromDatabase(localDb: false).then(loadListRecords)
-        })
-    }
-
-    private class func loadListsFromDatabase(localDb: Bool) -> Promise<RecordsWrapper> {
-        return Promise<RecordsWrapper>(in: .background, { (resolve, _, _) in
-            let query = CKQuery(recordType: CloudShare.listRecordType, predicate: NSPredicate(format: "TRUEPREDICATE", argumentArray: nil))
-            let recordZone = CKRecordZone(zoneName: CloudShare.zoneName)
-            CKContainer.default().database(localDb: localDb).perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
-                if let records = records, error == nil {
-                    SwiftyBeaver.debug("\(records.count) list records found")
-                    resolve(RecordsWrapper(localDb: localDb, records: records))
-                } else {
-                    SwiftyBeaver.debug("no list records found")
-                    resolve(RecordsWrapper(localDb: localDb, records: []))
-                }
-            })
-        })
-    }
-
-    private class func loadListRecords(wrapper: RecordsWrapper) -> Promise<[Void]> {
-        return all(wrapper.records.map({loadListRecord(wrapper: RecordWrapper(record: $0, localDb: wrapper.localDb)).then(fetchListItems).then(loadListItems).void}))
-    }
-
-    private class func loadListRecord(wrapper: RecordWrapper) -> Promise<ShoppingListWrapper> {
-        return Promise<ShoppingListWrapper>(in: .background, { (resolve, reject, _) in
+    private class func storeListRecord(recordWrapper: RecordWrapper) -> Observable<ShoppingListWrapper> {
+        return Observable<ShoppingListWrapper>.create { observer in
             CoreStore.perform(asynchronous: { (transaction) -> ShoppingList in
-                let shoppingList: ShoppingList = transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", wrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
-                shoppingList.recordid = wrapper.record.recordID.recordName
-                shoppingList.name = wrapper.record["name"] as? String
-                shoppingList.isRemote = !wrapper.localDb
-                let date = wrapper.record["date"] as? Date ?? Date()
+                let shoppingList: ShoppingList = transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", recordWrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
+                shoppingList.recordid = recordWrapper.record.recordID.recordName
+                shoppingList.ownerName = recordWrapper.ownerName
+                shoppingList.name = recordWrapper.record["name"] as? String
+                shoppingList.isRemote = !recordWrapper.localDb
+                shoppingList.isRemoved = recordWrapper.record["isRemoved"] as? Bool ?? false
+                let date = recordWrapper.record["date"] as? Date ?? Date()
                 shoppingList.date = date.timeIntervalSinceReferenceDate
-                SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name")")
+                SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name") record \(String(describing: recordWrapper.record))")
                 return shoppingList
             }, completion: {result in
                 switch result {
                 case .success(let list):
-                    let items = wrapper.record["items"] as? [CKReference] ?? []
-                    resolve(ShoppingListWrapper(localDb: wrapper.localDb, record: wrapper.record, shoppingList: list, items: items))
+                    let items = recordWrapper.record["items"] as? [CKRecord.Reference] ?? []
+                    observer.onNext(ShoppingListWrapper(localDb: recordWrapper.localDb, record: recordWrapper.record, shoppingList: list, items: items, ownerName: recordWrapper.ownerName))
+                    observer.onCompleted()
                 case .failure(let error):
                     SwiftyBeaver.debug(error.debugDescription)
-                    reject(error)
+                    observer.onError(error)
                 }
             })
-        })
+            return Disposables.create()
+        }
+    }
+    
+    private class func fetchListItems(wrapper: ShoppingListWrapper) -> Observable<ShoppingListItemsWrapper> {
+        return CloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray()
+            .map({ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: $0, ownerName: wrapper.ownerName)})
     }
 
-    private class func fetchListItems(wrapper: ShoppingListWrapper) -> Promise<ShoppingListItemsWrapper> {
-        return Promise<ShoppingListItemsWrapper>(in: .background, { (resolve, reject, _) in
-            let operation = CKFetchRecordsOperation(recordIDs: wrapper.items.map({$0.recordID}))
-            operation.fetchRecordsCompletionBlock = { records, error in
-                if let records = records, error == nil {
-                    resolve(ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: records.map({$0.value})))
-                } else {
-                    reject(CommonError(description: "No items found"))
-                }
-            }
-            operation.perRecordCompletionBlock = { record, recordid, error in
-                if let error = error {
-                    SwiftyBeaver.debug(error.localizedDescription)
-                } else {
-                    SwiftyBeaver.debug("Successfully loaded record \(recordid?.recordName ?? "no record name")")
-                }
-            }
-            operation.qualityOfService = .utility
-            CKContainer.default().database(localDb: wrapper.localDb).add(operation)
-        })
-    }
-
-    private class func loadListItems(wrapper: ShoppingListItemsWrapper) -> Promise<Int> {
-        return Promise<Int>(in: .background, { (resolve, _, _) in
+    private class func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
+        return Observable<ShoppingList>.create { observer in
             CoreStore.perform(asynchronous: { (transaction)  in
                 for record in wrapper.items {
                     let item: ShoppingListItem = transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
                     SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
                     item.recordid = record.recordID.recordName
-                    item.list = transaction.fetchExisting(wrapper.shoppingList)
+                    item.list = transaction.edit(wrapper.shoppingList)
                     item.comment = record["comment"] as? String
                     if let name = record["goodName"] as? String {
                         let good = transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
@@ -152,6 +75,7 @@ class CloudLoader {
                     item.price = record["price"] as? Float ?? 0
                     item.purchased = record["purchased"] as? Bool ?? false
                     item.quantity = record["quantity"] as? Float ?? 1
+                    item.isRemoved = record["isRemoved"] as? Bool ?? false
                     if let storeName = record["storeName"] as? String, storeName.count > 0 {
                         let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
                         store.name = storeName
@@ -161,81 +85,37 @@ class CloudLoader {
                     }
                 }
             }, completion: {_ in
-                resolve(0)
+                observer.onNext(wrapper.shoppingList)
+                observer.onCompleted()
             })
-        })
-    }
-    
-    class func deleteList(list: ShoppingList) {
-        if let listRecordId = list.recordid {
-            let recordZone = CKRecordZone(zoneName: CloudShare.zoneName)
-            let itemRecordIds = list.listItems.map({$0.recordid}).filter({$0 != nil}).map({$0!})
-            var recordIdsToDelete = [CKRecordID(recordName: listRecordId, zoneID: recordZone.zoneID)]
-            recordIdsToDelete.append(contentsOf: itemRecordIds.map({CKRecordID(recordName: $0, zoneID: recordZone.zoneID)}))
-            deleteRecords(recordIds: recordIdsToDelete, localDb: !list.isRemote)
+            return Disposables.create()
         }
     }
-    
-    private class func deleteRecords(recordIds: [CKRecordID], localDb: Bool) {
-        let modifyOperation = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: recordIds)
-        modifyOperation.savePolicy = .allKeys
-        modifyOperation.perRecordCompletionBlock = {record, error in
-            if let error = error {
-                SwiftyBeaver.debug("Error while deleting record \(error.localizedDescription)")
-            } else {
-                SwiftyBeaver.debug("Successfully deleted record \(record.recordID.recordName)")
-            }
-        }
-        modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-            if let error = error {
-                SwiftyBeaver.debug("Error when deleting records \(error.localizedDescription)")
-            }
-        }
-        CKContainer.default().database(localDb: localDb).add(modifyOperation)
-    }
-    
-    class func clearRecords() -> Promise<Void> {
-        let privateLists = clearRecordsFromDatabase(localDb: true, recordType: CloudShare.listRecordType).then(deleteRecords).void
-        let privateItems = clearRecordsFromDatabase(localDb: true, recordType: CloudShare.itemRecordType).then(deleteRecords).void
-        let sharedLists = clearRecordsFromDatabase(localDb: false, recordType: CloudShare.listRecordType).then(deleteRecords).void
-        let sharedItems = clearRecordsFromDatabase(localDb: false, recordType: CloudShare.itemRecordType).then(deleteRecords).void
-        return all(privateLists, privateItems, sharedLists, sharedItems).void
-    }
-    
-    private class func clearRecordsFromDatabase(localDb: Bool, recordType: String) -> Promise<RecordsWrapper> {
-        return Promise<RecordsWrapper>(in: .background, { (resolve, reject, _) in
-            let query = CKQuery(recordType: recordType, predicate: NSPredicate(format: "TRUEPREDICATE", argumentArray: nil))
-            let recordZone = CKRecordZone(zoneName: CloudShare.zoneName)
-            CKContainer.default().database(localDb: localDb).perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
-                if let records = records, error == nil {
-                    SwiftyBeaver.debug("\(records.count) records found")
-                    resolve(RecordsWrapper(localDb: localDb, records: records))
-                } else {
-                    SwiftyBeaver.debug("no list records found")
-                    reject(CommonError(description: "No list records found"))
-                }
+
+    class func fetchChanges(localDb: Bool) -> Observable<Void> {
+        return CloudKitUtils.fetchDatabaseChanges(localDb: localDb).toArray()
+            .flatMap({(zoneIds: [CKRecordZone.ID]) -> Observable<[CKRecord]> in
+                CloudKitUtils.fetchZoneChanges(localDb: localDb, zoneIds: zoneIds)
+            }).flatMap({ records in
+                processChangesRecords(records: records, localDb: localDb)
             })
-        })
     }
     
-    private class func deleteRecords(wrapper: RecordsWrapper) -> Promise<Int> {
-        return Promise<Int>(in: .background, { (resolve, _, _) in
-            let modifyOperation = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: wrapper.records.map({$0.recordID}))
-            modifyOperation.savePolicy = .allKeys
-            modifyOperation.perRecordCompletionBlock = {record, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error while deleting records \(error.localizedDescription)")
-                } else {
-                    SwiftyBeaver.debug("Successfully deleted record \(record.recordID.recordName)")
-                }
-            }
-            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error when deleting records \(error.localizedDescription)")
-                }
-                resolve(0)
-            }
-            CKContainer.default().database(localDb: wrapper.localDb).add(modifyOperation)
-        })
+    private class func processChangesRecords(records: [CKRecord], localDb: Bool) -> Observable<Void> {
+        if records.count > 0 {
+            let lists = records.filter({$0.recordType == CloudKitUtils.listRecordType}).map({processChangesList(listRecord: $0, allRecords: records, localDb: localDb)})
+            return Observable.merge(lists)
+        } else {
+            return Observable<Void>.empty()
+        }
+    }
+    
+    private class func processChangesList(listRecord: CKRecord, allRecords: [CKRecord], localDb: Bool) -> Observable<Void> {
+        let items = allRecords.filter({$0.recordType == CloudKitUtils.itemRecordType && $0.parent?.recordID.recordName == listRecord.recordID.recordName})
+        let ownerName = listRecord.recordID.zoneID.ownerName
+        let wrapper = RecordWrapper(record: listRecord, localDb: localDb, ownerName: ownerName)
+        return storeListRecord(recordWrapper: wrapper)
+            .map({ShoppingListItemsWrapper(localDb: localDb, shoppingList: $0.shoppingList, record: listRecord, items: items, ownerName: ownerName)})
+            .flatMap(storeListItems).flatMap({_ in Observable<Void>.empty()})
     }
 }

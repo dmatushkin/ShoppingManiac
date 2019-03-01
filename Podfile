@@ -10,7 +10,9 @@ target 'ShoppingManiac' do
   pod 'Hero'
   pod 'AppCenter'
   pod 'SwiftLint'
-  pod 'HydraAsync'
   pod 'SwiftyBeaver'
   pod 'SWCompression/BZip2'
+  pod 'RxSwift'
+  pod 'RxCocoa'
+  pod 'PKHUD'
 end

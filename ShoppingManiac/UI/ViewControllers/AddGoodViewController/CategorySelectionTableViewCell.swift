@@ -10,7 +10,7 @@ import UIKit
 
 class CategorySelectionTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var categoryNameLabel: UILabel!
+    @IBOutlet private weak var categoryNameLabel: UILabel!
 
     override func awakeFromNib() {
         super.awakeFromNib()
