@@ -26,11 +26,11 @@ class AddShoppingListItemModel {
     let rating = Variable<Int>(0)
     
     func listAllGoods() -> [String] {
-        return CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        return (try? CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
     }
     
     func listAllStores() -> [String] {
-        return CoreStore.fetchAll(From<Store>().orderBy(.ascending(\.name)))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        return (try? CoreStore.fetchAll(From<Store>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
     }
     
     func applyData() {
@@ -49,11 +49,11 @@ class AddShoppingListItemModel {
     func persistData() {
         try? CoreStore.perform(synchronous: { transaction in
             let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
-            item?.good = Good.item(forName: self.itemName.value, inTransaction: transaction)
+            item?.good = try Good.item(forName: self.itemName.value, inTransaction: transaction)
             item?.isWeight = self.isWeight.value
             item?.good?.personalRating = Int16(self.rating.value)
             if self.storeName.value.count > 0 {
-                item?.store = Store.item(forName: self.storeName.value, inTransaction: transaction)
+                item?.store = try Store.item(forName: self.storeName.value, inTransaction: transaction)
             } else {
                 item?.store = nil
             }

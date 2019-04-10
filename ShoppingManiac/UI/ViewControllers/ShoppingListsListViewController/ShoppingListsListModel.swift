@@ -14,21 +14,21 @@ import NoticeObserveKit
 class ShoppingListsListModel {
     
     let disposeBag = DisposeBag()
-    private let pool = NoticeObserverPool()
+    private let pool = Notice.ObserverPool()
     var onUpdate: (() -> Void)?
     
     init() {
-        NewDataAvailable.observe {[weak self] _ in
+        Notice.Center.default.observe(name: .newDataAvailable) {[weak self] _ in
             self?.onUpdate?()
-        }.disposed(by: self.pool)
+        }.invalidated(by: self.pool)
     }
     
     func itemsCount() -> Int {
-        return CoreStore.fetchCount(From<ShoppingList>().where(Where("isRemoved == false"))) ?? 0
+        return (try? CoreStore.fetchCount(From<ShoppingList>().where(Where("isRemoved == false")))) ?? 0
     }
     
     func getItem(forIndex: IndexPath) -> ShoppingList? {
-        return CoreStore.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)).tweak({ fetchRequest in
+        return try? CoreStore.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))

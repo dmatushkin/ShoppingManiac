@@ -71,14 +71,13 @@ public class ShoppingList: NSManagedObject {
         do {
             let itemsLine = try CoreStore.perform(synchronous: { transaction -> String in
                 var result = ""
-                if let items = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self)))?.sorted( by: {item1, item2 in (item1.good?.name ?? "") < (item2.good?.name ?? "") }) {
-                    for item in items {
-                        var line = "\(item.good?.name ?? "") \(item.quantityText)"
-                        if item.store != nil {
-                            line += " : \(item.store?.name ?? "")"
-                        }
-                        result += (line + "\n")
+                let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self))).sorted( by: {item1, item2 in (item1.good?.name ?? "") < (item2.good?.name ?? "") })
+                for item in items {
+                    var line = "\(item.good?.name ?? "") \(item.quantityText)"
+                    if item.store != nil {
+                        line += " : \(item.store?.name ?? "")"
                     }
+                    result += (line + "\n")
                 }
                 return result
             })
@@ -97,18 +96,17 @@ public class ShoppingList: NSManagedObject {
         do {
             let itemsArray = try CoreStore.perform(synchronous: { transaction -> [[String: Any]] in
                 var resultItems = [[String: Any]]()
-                if let items = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self))) {
-                    for item in items {
-                        var itemDict = [String: Any]()
-                        itemDict["good"] = item.good?.name ?? ""
-                        itemDict["store"] = item.store?.name ?? ""
-                        itemDict["price"] = item.price
-                        itemDict["purchased"] = item.purchased
-                        itemDict["purchaseDate"] = item.jsonPurchaseDate
-                        itemDict["quantity"] = item.quantity
-                        itemDict["isWeight"] = item.isWeight
-                        resultItems.append(itemDict)
-                    }
+                let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self)))
+                for item in items {
+                    var itemDict = [String: Any]()
+                    itemDict["good"] = item.good?.name ?? ""
+                    itemDict["store"] = item.store?.name ?? ""
+                    itemDict["price"] = item.price
+                    itemDict["purchased"] = item.purchased
+                    itemDict["purchaseDate"] = item.jsonPurchaseDate
+                    itemDict["quantity"] = item.quantity
+                    itemDict["isWeight"] = item.isWeight
+                    resultItems.append(itemDict)
                 }
                 return resultItems
             })
@@ -129,7 +127,7 @@ public class ShoppingList: NSManagedObject {
                     for itemDict in itemsArray {
                         let shoppingListItem = transaction.create(Into<ShoppingListItem>())
                         if let goodName = itemDict["good"] as? String, goodName.count > 0 {
-                            if let good = transaction.fetchOne(From<Good>().where(Where("name == %@", goodName))) {
+                            if let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", goodName))) {
                                 shoppingListItem.good = good
                             } else {
                                 let good = transaction.create(Into<Good>())
@@ -138,7 +136,7 @@ public class ShoppingList: NSManagedObject {
                             }
                         }
                         if let storeName = itemDict["store"] as? String, storeName.count > 0 {
-                            if let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
+                            if let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
                                 shoppingListItem.store = store
                             } else {
                                 let store = transaction.create(Into<Store>())

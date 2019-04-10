@@ -16,7 +16,7 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
     var autocompleteStrings: [String] = []
 
     private var keyboardHeight: CGFloat = 0
-    private var pool = NoticeObserverPool()
+    private var pool = Notice.ObserverPool()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,12 +42,12 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         self.autocompleteTable.layer.borderColor = UIColor.gray.cgColor
         self.autocompleteTable.layer.borderWidth = 1
         self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
-        UIKeyboardWillChangeFrame.observe { keyboardInfo in
-            self.setBottomOffset(keyboardInfo: keyboardInfo)
-            }.disposed(by: self.pool)
-        UIKeyboardWillHide.observe { keyboardInfo in
-            self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
-            }.disposed(by: self.pool)
+        Notice.Center.default.observe(name: .keyboardWillChangeFrame) {[weak self] keyboardInfo in
+            self?.setBottomOffset(keyboardInfo: keyboardInfo)
+        }.invalidated(by: self.pool)
+        Notice.Center.default.observe(name: .keyboardWillHide) {[weak self] _ in
+            self?.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
+        }.invalidated(by: self.pool)
     }
 
     private func item(forIndexPath indexPath: IndexPath) -> String {

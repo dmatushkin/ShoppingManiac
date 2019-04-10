@@ -25,13 +25,3 @@ struct UIKeyboardInfo: NoticeUserInfoDecodable {
         self.keyboardIsHidden = frame.size.height == 0
     }
 }
-
-struct UIKeyboardWillChangeFrame: NoticeType {
-    typealias InfoType = UIKeyboardInfo
-    static let name: Notification.Name = UIResponder.keyboardWillChangeFrameNotification
-}
-
-struct UIKeyboardWillHide: NoticeType {
-    typealias InfoType = UIKeyboardInfo
-    static let name: Notification.Name = UIResponder.keyboardWillHideNotification
-}

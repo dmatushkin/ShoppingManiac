@@ -61,11 +61,11 @@ class AddGoodModel {
     }
     
     func categoriesCount() -> Int {
-        return (CoreStore.fetchCount(From<Category>(), []) ?? 0)
+        return (try? CoreStore.fetchCount(From<Category>(), [])) ?? 0
     }
     
     func getCategoryItem(forIndex: IndexPath) -> Category? {
-        return CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
+        return try? CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))

@@ -16,7 +16,7 @@ class ShoppingListModel {
     let totalText = Variable<String>("")
     
     let disposeBag = DisposeBag()
-    private let pool = NoticeObserverPool()
+    private let pool = Notice.ObserverPool()
     var onUpdate: (() -> Void)?
     var moveRow: ((IndexPath, IndexPath) -> Void)?
     
@@ -24,9 +24,9 @@ class ShoppingListModel {
     var shoppingGroups: [ShoppingGroup] = []
     
     init() {
-        NewDataAvailable.observe {[weak self] _ in
-            self?.reloadData()
-        }.disposed(by: self.pool)
+        Notice.Center.default.observe(name: .newDataAvailable) {[weak self] _ in
+            self?.onUpdate?()
+        }.invalidated(by: self.pool)
     }
     
     func syncWithCloud() {
@@ -40,29 +40,31 @@ class ShoppingListModel {
         self.reloadData()
     }
     
-    func reloadData() {
-        CoreStore.perform(asynchronous: { transaction in
-            if let items:[ShoppingListItem] = transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@ AND isRemoved == false", self.shoppingList))) {
-                let totalPrice = items.reduce(0.0) { acc, curr in
-                    return acc + curr.totalPrice
-                }
-                var groups: [ShoppingGroup] = []
-                for item in items {
-                    let storeName = item.store?.name
-                    let storeObjectId = item.store?.objectID
-                    if let group = groups.filter({ $0.objectId == storeObjectId }).first {
-                        group.items.append(GroupItem(shoppingListItem: item))
-                    } else {
-                        let group = ShoppingGroup(name: storeName, objectId: storeObjectId, items: [GroupItem(shoppingListItem: item)])
-                        groups.append(group)
-                    }
-                }
-                self.shoppingGroups = self.sortGroups(groups: groups)
-                self.totalText.value = String(format: "Total: %.2f", totalPrice)
-            } else {
-                self.shoppingGroups = []
-                self.totalText.value = String(format: "Total: %.2f", 0)
+    private func processData(transaction: AsynchronousDataTransaction) throws {
+        if let list = self.shoppingList {
+            let items: [ShoppingListItem] = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@ AND isRemoved == false", list)))
+            let totalPrice = items.reduce(0.0) { acc, curr in
+                return acc + curr.totalPrice
             }
+            var groups: [ShoppingGroup] = []
+            for item in items {
+                let storeName = item.store?.name
+                let storeObjectId = item.store?.objectID
+                if let group = groups.filter({ $0.objectId == storeObjectId }).first {
+                    group.items.append(GroupItem(shoppingListItem: item))
+                } else {
+                    let group = ShoppingGroup(name: storeName, objectId: storeObjectId, items: [GroupItem(shoppingListItem: item)])
+                    groups.append(group)
+                }
+            }
+            self.shoppingGroups = self.sortGroups(groups: groups)
+            self.totalText.value = String(format: "Total: %.2f", totalPrice)
+        }
+    }
+    
+    func reloadData() {
+        CoreStore.perform(asynchronous: {[weak self] transaction in
+            try self?.processData(transaction: transaction)
         }, completion: { _ in
             self.onUpdate?()
         })

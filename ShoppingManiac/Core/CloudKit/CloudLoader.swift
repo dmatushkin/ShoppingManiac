@@ -25,7 +25,7 @@ class CloudLoader {
     private class func storeListRecord(recordWrapper: RecordWrapper) -> Observable<ShoppingListWrapper> {
         return Observable<ShoppingListWrapper>.create { observer in
             CoreStore.perform(asynchronous: { (transaction) -> ShoppingList in
-                let shoppingList: ShoppingList = transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", recordWrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
+                let shoppingList: ShoppingList = try transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", recordWrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
                 shoppingList.recordid = recordWrapper.record.recordID.recordName
                 shoppingList.ownerName = recordWrapper.ownerName
                 shoppingList.name = recordWrapper.record["name"] as? String
@@ -59,13 +59,13 @@ class CloudLoader {
         return Observable<ShoppingList>.create { observer in
             CoreStore.perform(asynchronous: { (transaction)  in
                 for record in wrapper.items {
-                    let item: ShoppingListItem = transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
+                    let item: ShoppingListItem = try transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
                     SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
                     item.recordid = record.recordID.recordName
                     item.list = transaction.edit(wrapper.shoppingList)
                     item.comment = record["comment"] as? String
                     if let name = record["goodName"] as? String {
-                        let good = transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
+                        let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
                         good.name = name
                         item.good = good
                     } else {
@@ -77,7 +77,7 @@ class CloudLoader {
                     item.quantity = record["quantity"] as? Float ?? 1
                     item.isRemoved = record["isRemoved"] as? Bool ?? false
                     if let storeName = record["storeName"] as? String, storeName.count > 0 {
-                        let store = transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
+                        let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
                         store.name = storeName
                         item.store = store
                     } else {

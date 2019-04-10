@@ -15,21 +15,21 @@ import NoticeObserveKit
 class StoresListModel {
     
     let disposeBag = DisposeBag()
-    private let pool = NoticeObserverPool()
+    private let pool = Notice.ObserverPool()
     var onUpdate: (() -> Void)?
     
     init() {
-        NewDataAvailable.observe {[weak self] _ in
+        Notice.Center.default.observe(name: .newDataAvailable) {[weak self] _ in
             self?.onUpdate?()
-        }.disposed(by: self.pool)
+        }.invalidated(by: self.pool)
     }
     
     func itemsCount() -> Int {
-        return CoreStore.fetchCount(From<Store>(), []) ?? 0
+        return (try? CoreStore.fetchCount(From<Store>(), [])) ?? 0
     }
     
     func getItem(forIndex: IndexPath) -> Store? {
-        return CoreStore.fetchOne(From<Store>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
+        return try? CoreStore.fetchOne(From<Store>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))

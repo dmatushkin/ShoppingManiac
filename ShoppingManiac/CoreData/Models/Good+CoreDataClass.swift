@@ -12,8 +12,8 @@ import CoreStore
 
 public class Good: NSManagedObject {
     
-    class func item(forName name: String, inTransaction transaction: SynchronousDataTransaction) -> Good {
-        let good = transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
+    class func item(forName name: String, inTransaction transaction: SynchronousDataTransaction) throws -> Good {
+        let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
         good.name = name
         return good
     }

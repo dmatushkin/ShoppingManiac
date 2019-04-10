@@ -18,9 +18,10 @@ class DataSaveSegue: UIStoryboardSegue {
         CoreStore.perform(asynchronous: {transaction->Bool in
             return self.processBlock(transaction)
         }, completion: { result in
-            if result.boolValue {
+            switch result {
+            case .success:
                 self.realPerform()
-            } else {
+            case .failure:
                 self.showAlert(message: self.errorMessage ?? "Error saving data")
             }
         })

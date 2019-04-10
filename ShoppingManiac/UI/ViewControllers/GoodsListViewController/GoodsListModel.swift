@@ -15,21 +15,21 @@ import CoreStore
 class GoodsListModel {
     
     let disposeBag = DisposeBag()
-    private let pool = NoticeObserverPool()
+    private let pool = Notice.ObserverPool()
     var onUpdate: (() -> Void)?
     
     init() {
-        NewDataAvailable.observe {[weak self] _ in
+        Notice.Center.default.observe(name: .newDataAvailable) {[weak self] _ in
             self?.onUpdate?()
-            }.disposed(by: self.pool)
+        }.invalidated(by: self.pool)
     }
     
     func itemsCount() -> Int {
-        return CoreStore.fetchCount(From<Good>(), []) ?? 0
+        return (try? CoreStore.fetchCount(From<Good>(), [])) ?? 0
     }
     
     func getItem(forIndex: IndexPath) -> Good? {
-        return CoreStore.fetchOne(From<Good>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
+        return try? CoreStore.fetchOne(From<Good>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))
