@@ -17,10 +17,10 @@ class AddCategoryModel {
     
     let disposeBag = DisposeBag()
     
-    let categoryName = Variable<String>("")
+    let categoryName = BehaviorRelay<String>(value: "")
     
     func applyData() {
-        self.categoryName.value = self.category?.name ?? ""
+        self.categoryName.accept(self.category?.name ?? "")
     }
     
     private func createItem(withName name: String) {

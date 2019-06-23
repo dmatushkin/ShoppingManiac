@@ -18,12 +18,12 @@ class AddShoppingListItemModel {
     
     let disposeBag = DisposeBag()
     
-    let itemName = Variable<String>("")
-    let storeName = Variable<String>("")
-    let priceText = Variable<String>("")
-    let amountText = Variable<String>("")
-    let isWeight = Variable<Bool>(false)
-    let rating = Variable<Int>(0)
+    let itemName = BehaviorRelay<String>(value: "")
+    let storeName = BehaviorRelay<String>(value: "")
+    let priceText = BehaviorRelay<String>(value: "")
+    let amountText = BehaviorRelay<String>(value: "")
+    let isWeight = BehaviorRelay<Bool>(value: false)
+    let rating = BehaviorRelay<Int>(value: 0)
     
     func listAllGoods() -> [String] {
         return (try? CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
@@ -34,16 +34,16 @@ class AddShoppingListItemModel {
     }
     
     func applyData() {
-        self.itemName.value = self.shoppingListItem?.good?.name ?? ""
-        self.storeName.value = self.shoppingListItem?.store?.name ?? ""
+        self.itemName.accept(self.shoppingListItem?.good?.name ?? "")
+        self.storeName.accept(self.shoppingListItem?.store?.name ?? "")
         if let price = self.shoppingListItem?.price, price > 0 {
-            self.priceText.value = "\(price)"
+            self.priceText.accept("\(price)")
         }
         if let amount = self.shoppingListItem?.quantityText {
-            self.amountText.value = amount
+            self.amountText.accept(amount)
         }
-        self.isWeight.value = (self.shoppingListItem?.isWeight == true)
-        self.rating.value = Int(self.shoppingListItem?.good?.personalRating ?? 0)
+        self.isWeight.accept((self.shoppingListItem?.isWeight == true))
+        self.rating.accept(Int(self.shoppingListItem?.good?.personalRating ?? 0))
     }
     
     func persistData() {

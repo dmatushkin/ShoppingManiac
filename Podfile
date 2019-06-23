@@ -5,7 +5,6 @@ target 'ShoppingManiac' do
 
   pod 'CoreStore'
   pod 'SwiftDate'
-  pod 'NoticeObserveKit'
   pod 'EXTView'
   pod 'Hero'
   pod 'AppCenter'

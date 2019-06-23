@@ -51,7 +51,7 @@ class CloudLoader {
     }
     
     private class func fetchListItems(wrapper: ShoppingListWrapper) -> Observable<ShoppingListItemsWrapper> {
-        return CloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray()
+        return CloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray().asObservable()
             .map({ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: $0, ownerName: wrapper.ownerName)})
     }
 
@@ -93,7 +93,7 @@ class CloudLoader {
     }
 
     class func fetchChanges(localDb: Bool) -> Observable<Void> {
-        return CloudKitUtils.fetchDatabaseChanges(localDb: localDb).toArray()
+        return CloudKitUtils.fetchDatabaseChanges(localDb: localDb).toArray().asObservable()
             .flatMap({(zoneIds: [CKRecordZone.ID]) -> Observable<[CKRecord]> in
                 CloudKitUtils.fetchZoneChanges(localDb: localDb, zoneIds: zoneIds)
             }).flatMap({ records in

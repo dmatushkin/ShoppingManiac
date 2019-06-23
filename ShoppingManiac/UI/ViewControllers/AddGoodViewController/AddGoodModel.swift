@@ -9,7 +9,6 @@
 import Foundation
 import RxSwift
 import RxCocoa
-import NoticeObserveKit
 import CoreStore
 
 class AddGoodModel {
@@ -17,21 +16,21 @@ class AddGoodModel {
     var good: Good?
     var category: Category? = nil {
         didSet {
-            self.goodCategory.value = category?.name ?? ""
+            self.goodCategory.accept(category?.name ?? "")
         }
     }
     
     let disposeBag = DisposeBag()
     
-    let goodName = Variable<String>("")
-    let goodCategory = Variable<String>("")
-    let rating = Variable<Int>(0)
+    let goodName = BehaviorRelay<String>(value: "")
+    let goodCategory = BehaviorRelay<String>(value: "")
+    let rating = BehaviorRelay<Int>(value: 0)
     
     func applyData() {
-        self.goodName.value = self.good?.name ?? ""
-        self.goodCategory.value = self.good?.category?.name ?? ""
+        self.goodName.accept(self.good?.name ?? "")
+        self.goodCategory.accept(self.good?.category?.name ?? "")
         self.category = good?.category
-        self.rating.value = Int(good?.personalRating ?? 0)
+        self.rating.accept(Int(good?.personalRating ?? 0))
     }
     
     func persistChanges() {

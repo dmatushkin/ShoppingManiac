@@ -7,9 +7,13 @@
 //
 
 import Foundation
-import NoticeObserveKit
+import UIKit
 
-struct UIKeyboardInfo: NoticeUserInfoDecodable {
+public protocol NotificationUserInfoDecodable {
+    init?(info: [AnyHashable: Any])
+}
+
+struct UIKeyboardInfo: NotificationUserInfoDecodable {
     let frame: CGRect
     let animationDuration: TimeInterval
     let animationCurve: UIView.AnimationOptions

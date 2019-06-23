@@ -15,7 +15,6 @@ import AppCenterCrashes
 import SwiftyBeaver
 import RxSwift
 import PKHUD
-import NoticeObserveKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -43,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         CloudShare.setupUserPermissions()
         CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).subscribe(onCompleted: {
             SwiftyBeaver.debug("loading updates done")
-            Notice.Center.default.post(name: .newDataAvailable, with: true)
+            LocalNotifications.newDataAvailable.post(value: ())
         }).disposed(by: self.disposeBag)
         CloudSubscriptions.setupSubscriptions()
         
@@ -62,7 +61,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 completionHandler(.noData)
             }, onCompleted: {
                 SwiftyBeaver.debug("loading updates done")
-                Notice.Center.default.post(name: .newDataAvailable, with: true)
+                LocalNotifications.newDataAvailable.post(value: ())
                 completionHandler(.newData)
             }).disposed(by: self.disposeBag)
         } else {
@@ -105,7 +104,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
                 }, onCompleted: {
                     SwiftyBeaver.debug("loading lists done")
-                    Notice.Center.default.post(name: .newDataAvailable, with: true)
+                    LocalNotifications.newDataAvailable.post(value: ())
                 }).disposed(by: self.disposeBag)
             }
         }

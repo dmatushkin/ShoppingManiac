@@ -7,16 +7,17 @@
 //
 
 import UIKit
-import NoticeObserveKit
+import RxSwift
+import RxCocoa
 
 class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableViewDataSource {
 
     private let autocompleteTable = UITableView()
+    private let disposeBag = DisposeBag()
 
     var autocompleteStrings: [String] = []
 
     private var keyboardHeight: CGFloat = 0
-    private var pool = Notice.ObserverPool()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,12 +43,8 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         self.autocompleteTable.layer.borderColor = UIColor.gray.cgColor
         self.autocompleteTable.layer.borderWidth = 1
         self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
-        Notice.Center.default.observe(name: .keyboardWillChangeFrame) {[weak self] keyboardInfo in
-            self?.setBottomOffset(keyboardInfo: keyboardInfo)
-        }.invalidated(by: self.pool)
-        Notice.Center.default.observe(name: .keyboardWillHide) {[weak self] _ in
-            self?.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
-        }.invalidated(by: self.pool)
+        LocalNotifications.keyboardWillChangeFrame.listen().subscribe(onNext: self.setBottomOffset).disposed(by: self.disposeBag)
+        LocalNotifications.keyboardWillHide.listen().map({_ in UIKeyboardInfo(info: [:])}).subscribe(onNext: self.setBottomOffset).disposed(by: self.disposeBag)
     }
 
     private func item(forIndexPath indexPath: IndexPath) -> String {

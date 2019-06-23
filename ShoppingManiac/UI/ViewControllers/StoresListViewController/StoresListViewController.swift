@@ -8,7 +8,6 @@
 
 import UIKit
 import CoreStore
-import NoticeObserveKit
 
 class StoresListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 

@@ -9,7 +9,6 @@
 import UIKit
 import CoreStore
 import MessageUI
-import NoticeObserveKit
 import SwiftyBeaver
 import CloudKit
 import RxSwift

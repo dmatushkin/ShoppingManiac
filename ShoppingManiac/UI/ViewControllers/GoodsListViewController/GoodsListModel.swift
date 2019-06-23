@@ -9,19 +9,15 @@
 import Foundation
 import RxSwift
 import RxCocoa
-import NoticeObserveKit
 import CoreStore
 
 class GoodsListModel {
     
     let disposeBag = DisposeBag()
-    private let pool = Notice.ObserverPool()
     var onUpdate: (() -> Void)?
     
     init() {
-        Notice.Center.default.observe(name: .newDataAvailable) {[weak self] _ in
-            self?.onUpdate?()
-        }.invalidated(by: self.pool)
+        LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.onUpdate ?? {}).disposed(by: self.disposeBag)
     }
     
     func itemsCount() -> Int {

@@ -8,15 +8,14 @@
 
 import Foundation
 import CoreStore
-import NoticeObserveKit
 import RxSwift
+import RxCocoa
 
 class ShoppingListModel {
     
-    let totalText = Variable<String>("")
+    let totalText = BehaviorRelay<String>(value: "")
     
     let disposeBag = DisposeBag()
-    private let pool = Notice.ObserverPool()
     var onUpdate: (() -> Void)?
     var moveRow: ((IndexPath, IndexPath) -> Void)?
     
@@ -24,9 +23,7 @@ class ShoppingListModel {
     var shoppingGroups: [ShoppingGroup] = []
     
     init() {
-        Notice.Center.default.observe(name: .newDataAvailable) {[weak self] _ in
-            self?.onUpdate?()
-        }.invalidated(by: self.pool)
+        LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.onUpdate ?? {}).disposed(by: self.disposeBag)
     }
     
     func syncWithCloud() {
@@ -58,7 +55,7 @@ class ShoppingListModel {
                 }
             }
             self.shoppingGroups = self.sortGroups(groups: groups)
-            self.totalText.value = String(format: "Total: %.2f", totalPrice)
+            self.totalText.accept(String(format: "Total: %.2f", totalPrice))
         }
     }
     

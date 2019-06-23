@@ -17,10 +17,10 @@ class AddStoreModel {
     
     let disposeBag = DisposeBag()
     
-    let storeName = Variable<String>("")
+    let storeName = BehaviorRelay<String>(value: "")
     
     func applyData() {
-        self.storeName.value = self.store?.name ?? ""
+        self.storeName.accept(self.store?.name ?? "") 
     }
     
     private func createItem(withName name: String) {

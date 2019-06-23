@@ -12,12 +12,12 @@ import RxCocoa
 
 infix operator <->
 
-func <-> <T>(property: ControlProperty<T>, variable: Variable<T>) -> Disposable {
+func <-> <T>(property: ControlProperty<T>, variable: BehaviorRelay<T>) -> Disposable {
     let bindToUIDisposable = variable.asObservable()
         .bind(to: property)
     let bindToVariable = property
         .subscribe(onNext: { next in
-            variable.value = next
+            variable.accept(next)
         }, onCompleted: {
             bindToUIDisposable.dispose()
         })
@@ -26,7 +26,7 @@ func <-> <T>(property: ControlProperty<T>, variable: Variable<T>) -> Disposable 
 
 extension ObservableType {
     
-    public func observeOnMain() -> RxSwift.Observable<Self.E> {
+    public func observeOnMain() -> RxSwift.Observable<Self.Element> {
         return self.observeOn(MainScheduler.asyncInstance)
     }
 }

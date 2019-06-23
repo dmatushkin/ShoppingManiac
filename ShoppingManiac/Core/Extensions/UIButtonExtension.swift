@@ -12,14 +12,14 @@ import RxSwift
 
 extension UIButton {
     
-    func tagRatingBinding(variable: Variable<Int>) -> Disposable {
+    func tagRatingBinding(variable: BehaviorRelay<Int>) -> Disposable {
         let bindToUIDisposable = variable.asObservable().subscribe(onNext: {[weak self] rating in
             guard let `self` = self else {return}
             self.isSelected = (self.tag <= rating)
         })
         let bindToVariable = self.rx.tap.map({[weak self] in self?.tag ?? 0})
             .subscribe(onNext: { next in
-                variable.value = next
+                variable.accept(next)
             }, onCompleted: {
                 bindToUIDisposable.dispose()
             })

@@ -9,10 +9,11 @@
 import Foundation
 import CoreStore
 import RxSwift
+import RxCocoa
 
 class AddShoppingListModel {
     
-    let listTitle = Variable<String>("")
+    let listTitle = BehaviorRelay<String>(value: "")
     
     func createItem() -> ShoppingList? {
         do {
