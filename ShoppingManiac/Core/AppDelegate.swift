@@ -9,9 +9,6 @@
 import UIKit
 import CoreStore
 import CloudKit
-import AppCenter
-import AppCenterAnalytics
-import AppCenterCrashes
 import SwiftyBeaver
 import RxSwift
 import PKHUD
@@ -45,11 +42,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             LocalNotifications.newDataAvailable.post(value: ())
         }).disposed(by: self.disposeBag)
         CloudSubscriptions.setupSubscriptions()
-        
-        MSAppCenter.start("55fd6e0b-d425-4b37-801e-9b64709efd6b", withServices: [
-            MSAnalytics.self,
-            MSCrashes.self
-            ])
         return true
     }
     

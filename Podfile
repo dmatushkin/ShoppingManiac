@@ -7,7 +7,6 @@ target 'ShoppingManiac' do
   pod 'SwiftDate'
   pod 'EXTView'
   pod 'Hero'
-  pod 'AppCenter'
   pod 'SwiftLint'
   pod 'SwiftyBeaver'
   pod 'SWCompression/BZip2'
