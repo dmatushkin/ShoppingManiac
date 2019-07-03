@@ -24,6 +24,7 @@ class AddShoppingListItemModel {
     let amountText = BehaviorRelay<String>(value: "")
     let isWeight = BehaviorRelay<Bool>(value: false)
     let rating = BehaviorRelay<Int>(value: 0)
+    let crossListItem = BehaviorRelay<Bool>(value: false)
     
     func listAllGoods() -> [String] {
         return (try? CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
@@ -44,6 +45,7 @@ class AddShoppingListItemModel {
         }
         self.isWeight.accept((self.shoppingListItem?.isWeight == true))
         self.rating.accept(Int(self.shoppingListItem?.good?.personalRating ?? 0))
+        self.crossListItem.accept(self.shoppingListItem?.isCrossListItem ?? false)
     }
     
     func persistData() {
@@ -69,6 +71,7 @@ class AddShoppingListItemModel {
             } else {
                 item?.price = 0
             }
+            item?.isCrossListItem = self.crossListItem.value
             item?.list = transaction.edit(self.shoppingList)
         })
     }

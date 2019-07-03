@@ -39,7 +39,7 @@ class ShoppingListModel {
     
     private func processData(transaction: AsynchronousDataTransaction) throws {
         if let list = self.shoppingList {
-            let items: [ShoppingListItem] = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@ AND isRemoved == false", list)))
+            let items: [ShoppingListItem] = try transaction.fetchAll(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", list)))
             let totalPrice = items.reduce(0.0) { acc, curr in
                 return acc + curr.totalPrice
             }
@@ -104,7 +104,7 @@ class ShoppingListModel {
         let group = self.shoppingGroups[indexPath.section]
         let item = group.items[indexPath.row]
         
-        item.togglePurchased()
+        item.togglePurchased(list: self.shoppingList)
         self.syncWithCloud()
         let sortedItems = self.sortItems(items: group.items)
         var itemFound: Bool = false

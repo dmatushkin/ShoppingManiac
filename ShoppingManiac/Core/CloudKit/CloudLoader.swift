@@ -76,6 +76,7 @@ class CloudLoader {
                     item.purchased = record["purchased"] as? Bool ?? false
                     item.quantity = record["quantity"] as? Float ?? 1
                     item.isRemoved = record["isRemoved"] as? Bool ?? false
+                    item.isCrossListItem = record["isCrossListItem"] as? Bool ?? false
                     if let storeName = record["storeName"] as? String, storeName.count > 0 {
                         let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
                         store.name = storeName

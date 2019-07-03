@@ -33,12 +33,13 @@ class GroupItem {
         }
     }
     
-    func togglePurchased() {
+    func togglePurchased(list: ShoppingList) {
         self.purchased = !self.purchased
         try? CoreStore.perform(synchronous: {[weak self] transaction in
             guard let `self` = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
+            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId), let shoppingList: ShoppingList = transaction.edit(list) {
                 shoppingListItem.purchased = self.purchased
+                shoppingListItem.list = shoppingList
             }
         })
     }

@@ -87,6 +87,7 @@ class CloudShare {
         record["quantity"] = item.quantity as CKRecordValue
         record["storeName"] = (item.store?.name ?? "") as CKRecordValue
         record["isRemoved"] = item.isRemoved as CKRecordValue
+        record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
     }
     
     class func zone(ownerName: String?) -> CKRecordZone {

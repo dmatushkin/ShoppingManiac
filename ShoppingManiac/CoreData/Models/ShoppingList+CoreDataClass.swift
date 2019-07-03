@@ -106,6 +106,7 @@ public class ShoppingList: NSManagedObject {
                     itemDict["purchaseDate"] = item.jsonPurchaseDate
                     itemDict["quantity"] = item.quantity
                     itemDict["isWeight"] = item.isWeight
+                    itemDict["isCrossListItem"] = item.isCrossListItem
                     resultItems.append(itemDict)
                 }
                 return resultItems
@@ -149,6 +150,7 @@ public class ShoppingList: NSManagedObject {
                         shoppingListItem.quantity = (itemDict["quantity"] as? NSNumber)?.floatValue ?? 0
                         shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
                         shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
+                        shoppingListItem.isCrossListItem = (itemDict["isCrossListItem"] as? NSNumber)?.boolValue ?? false
                         shoppingListItem.list = list
                     }
                 }
