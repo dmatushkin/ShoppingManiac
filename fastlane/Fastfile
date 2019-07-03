@@ -18,8 +18,10 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
-    increment_build_number(xcodeproj: "ShoppingManiac.xcodeproj")
-    build_app(workspace: "ShoppingManiac.xcworkspace", scheme: "ShoppingManiac")
+    version = get_version_number(xcodeproj: "ShoppingManiac.xcodeproj", target: "ShoppingManiac")
+    buildNumber = latest_testflight_build_number(version: version) + 1
+    set_info_plist_value(path: "./ShoppingManiac/Resources/Info.plist", key: "CFBundleVersion", value: buildNumber.to_s)
+    build_app(workspace: "ShoppingManiac.xcworkspace", scheme: "ShoppingManiac", clean: true, output_directory: "/tmp/fastlane", silent: true, suppress_xcode_output: true)
     upload_to_testflight
   end
 end
