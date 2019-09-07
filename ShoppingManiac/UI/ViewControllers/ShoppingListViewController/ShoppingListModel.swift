@@ -37,6 +37,12 @@ class ShoppingListModel {
         self.reloadData()
     }
     
+    func setLatestList() {
+        if let list = DAO.fetchOne(ShoppingList.self, predicate: NSPredicate(format: "isRemoved == false"), sort: [NSSortDescriptor(key: "date", ascending: false)]) {
+            self.shoppingList = list
+        }
+    }
+    
     private func processData(context: NSManagedObjectContext) {
         if let list = self.shoppingList {
             let items: [ShoppingListItem] = context.fetchAll(ShoppingListItem.self, predicate: NSPredicate(format: "(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", list))

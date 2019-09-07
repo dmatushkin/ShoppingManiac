@@ -15,6 +15,7 @@ class AddShoppingListViewController: ShoppingManiacViewController {
     private let disposeBag = DisposeBag()
     private let model = AddShoppingListModel()
     @IBOutlet private weak var shoppingNameEditField: UITextField!
+    var listsViewController: UIViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +23,13 @@ class AddShoppingListViewController: ShoppingManiacViewController {
         self.shoppingNameEditField.becomeFirstResponder()
     }
 
+    @IBAction func addAction(_ sender: Any) {
+        if let list = self.model.createItem(), let presenter = self.listsViewController {
+            self.dismiss(animated: true, completion: {
+                presenter.performSegue(withIdentifier: "shoppingListSegue", sender: list)
+            })
+        }
+    }
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

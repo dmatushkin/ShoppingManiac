@@ -13,6 +13,7 @@
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
 		563E92802086395800933522 /* CloudShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563E927F2086395700933522 /* CloudShare.swift */; };
 		5644D7822322C9E800982D4E /* DAO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5644D7812322C9E800982D4E /* DAO.swift */; };
+		5644D78523239C3E00982D4E /* ListSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5644D78423239C3E00982D4E /* ListSplitViewController.swift */; };
 		56451714208BB46C00295393 /* CloudLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56451713208BB46C00295393 /* CloudLoader.swift */; };
 		5650C1341EDAA3EB00977503 /* AddShoppingItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */; };
 		5650C1361EDAA7E400977503 /* AutocompleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */; };
@@ -90,6 +91,7 @@
 		56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSaveSegue.swift; sourceTree = "<group>"; };
 		563E927F2086395700933522 /* CloudShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShare.swift; sourceTree = "<group>"; };
 		5644D7812322C9E800982D4E /* DAO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAO.swift; sourceTree = "<group>"; };
+		5644D78423239C3E00982D4E /* ListSplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSplitViewController.swift; sourceTree = "<group>"; };
 		56451713208BB46C00295393 /* CloudLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLoader.swift; sourceTree = "<group>"; };
 		5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddShoppingItemViewController.swift; sourceTree = "<group>"; };
 		5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutocompleteTextField.swift; sourceTree = "<group>"; };
@@ -206,6 +208,7 @@
 		560E12211ED1787400E2529E /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				5644D78323239C2100982D4E /* ListSplitViewController */,
 				562BABAF208C9E860063013A /* ShoppingManiacViewController */,
 				560E122A1ED17B3700E2529E /* ShoppingListsListViewController */,
 				565C3B851ED18CCB003D8EE8 /* AddShoppingListViewController */,
@@ -301,6 +304,14 @@
 				5666997C2094F7140053F39E /* CloudSubscriptions.swift */,
 			);
 			path = CloudKit;
+			sourceTree = "<group>";
+		};
+		5644D78323239C2100982D4E /* ListSplitViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5644D78423239C3E00982D4E /* ListSplitViewController.swift */,
+			);
+			path = ListSplitViewController;
 			sourceTree = "<group>";
 		};
 		5650C1321EDAA3BB00977503 /* AddShoppingItemViewController */ = {
@@ -678,6 +689,7 @@
 				565C3B9A1ED19EC5003D8EE8 /* ShoppingListItem+CoreDataProperties.swift in Sources */,
 				565C3B8C1ED19999003D8EE8 /* UITableViewExtension.swift in Sources */,
 				565C3B9C1ED19EC5003D8EE8 /* Good+CoreDataProperties.swift in Sources */,
+				5644D78523239C3E00982D4E /* ListSplitViewController.swift in Sources */,
 				565DA771208C72F2005CF8C2 /* CommonError.swift in Sources */,
 				56D1216A20A713800044C486 /* AddCategoryModel.swift in Sources */,
 				B0A4CDE4167BCAEB3B90E9E5 /* AppDelegate.swift in Sources */,
