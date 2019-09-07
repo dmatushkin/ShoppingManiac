@@ -23,6 +23,10 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if self.model.shoppingList == nil {
+            self.model.setLatestList()
+        }
         self.automaticallyAdjustsScrollViewInsets = false
         self.tableView.setBottomInset(inset: 70)
         self.navigationItem.rightBarButtonItem = self.editButtonItem

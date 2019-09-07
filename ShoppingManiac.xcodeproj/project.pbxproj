@@ -12,6 +12,8 @@
 		562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
 		563E92802086395800933522 /* CloudShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563E927F2086395700933522 /* CloudShare.swift */; };
+		5644D7822322C9E800982D4E /* DAO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5644D7812322C9E800982D4E /* DAO.swift */; };
+		5644D78523239C3E00982D4E /* ListSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5644D78423239C3E00982D4E /* ListSplitViewController.swift */; };
 		56451714208BB46C00295393 /* CloudLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56451713208BB46C00295393 /* CloudLoader.swift */; };
 		5650C1341EDAA3EB00977503 /* AddShoppingItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */; };
 		5650C1361EDAA7E400977503 /* AutocompleteTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */; };
@@ -88,6 +90,8 @@
 		562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingManiacViewController.swift; sourceTree = "<group>"; };
 		56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSaveSegue.swift; sourceTree = "<group>"; };
 		563E927F2086395700933522 /* CloudShare.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShare.swift; sourceTree = "<group>"; };
+		5644D7812322C9E800982D4E /* DAO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAO.swift; sourceTree = "<group>"; };
+		5644D78423239C3E00982D4E /* ListSplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSplitViewController.swift; sourceTree = "<group>"; };
 		56451713208BB46C00295393 /* CloudLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLoader.swift; sourceTree = "<group>"; };
 		5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddShoppingItemViewController.swift; sourceTree = "<group>"; };
 		5650C1351EDAA7E400977503 /* AutocompleteTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutocompleteTextField.swift; sourceTree = "<group>"; };
@@ -204,6 +208,7 @@
 		560E12211ED1787400E2529E /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				5644D78323239C2100982D4E /* ListSplitViewController */,
 				562BABAF208C9E860063013A /* ShoppingManiacViewController */,
 				560E122A1ED17B3700E2529E /* ShoppingListsListViewController */,
 				565C3B851ED18CCB003D8EE8 /* AddShoppingListViewController */,
@@ -234,6 +239,7 @@
 			children = (
 				560E12261ED178D200E2529E /* Models */,
 				560E12241ED178BB00E2529E /* Resources */,
+				5644D7812322C9E800982D4E /* DAO.swift */,
 			);
 			path = CoreData;
 			sourceTree = "<group>";
@@ -298,6 +304,14 @@
 				5666997C2094F7140053F39E /* CloudSubscriptions.swift */,
 			);
 			path = CloudKit;
+			sourceTree = "<group>";
+		};
+		5644D78323239C2100982D4E /* ListSplitViewController */ = {
+			isa = PBXGroup;
+			children = (
+				5644D78423239C3E00982D4E /* ListSplitViewController.swift */,
+			);
+			path = ListSplitViewController;
 			sourceTree = "<group>";
 		};
 		5650C1321EDAA3BB00977503 /* AddShoppingItemViewController */ = {
@@ -611,7 +625,6 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ShoppingManiac/Pods-ShoppingManiac-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/BitByteData/BitByteData.framework",
-				"${BUILT_PRODUCTS_DIR}/CoreStore/CoreStore.framework",
 				"${BUILT_PRODUCTS_DIR}/EXTView/EXTView.framework",
 				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
 				"${BUILT_PRODUCTS_DIR}/PKHUD/PKHUD.framework",
@@ -625,7 +638,6 @@
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BitByteData.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CoreStore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EXTView.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PKHUD.framework",
@@ -672,10 +684,12 @@
 				565C3BC41ED1E05C003D8EE8 /* CategoriesListTableViewCell.swift in Sources */,
 				565C3BAC1ED1A61B003D8EE8 /* GoodRating+CoreDataClass.swift in Sources */,
 				565C3BB31ED1B283003D8EE8 /* UIAlertControllerExtension.swift in Sources */,
+				5644D7822322C9E800982D4E /* DAO.swift in Sources */,
 				565C3BA51ED1A5D1003D8EE8 /* ShoppingManiac.xcdatamodeld in Sources */,
 				565C3B9A1ED19EC5003D8EE8 /* ShoppingListItem+CoreDataProperties.swift in Sources */,
 				565C3B8C1ED19999003D8EE8 /* UITableViewExtension.swift in Sources */,
 				565C3B9C1ED19EC5003D8EE8 /* Good+CoreDataProperties.swift in Sources */,
+				5644D78523239C3E00982D4E /* ListSplitViewController.swift in Sources */,
 				565DA771208C72F2005CF8C2 /* CommonError.swift in Sources */,
 				56D1216A20A713800044C486 /* AddCategoryModel.swift in Sources */,
 				B0A4CDE4167BCAEB3B90E9E5 /* AppDelegate.swift in Sources */,

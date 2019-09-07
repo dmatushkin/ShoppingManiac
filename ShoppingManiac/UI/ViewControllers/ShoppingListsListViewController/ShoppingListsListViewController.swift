@@ -81,8 +81,10 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "shoppingListSegue", let controller = segue.destination as? ShoppingListViewController, let item = sender as? ShoppingList {
+        if segue.identifier == "shoppingListSegue", let controller = (segue.destination as? UINavigationController)?.viewControllers.first as? ShoppingListViewController, let item = sender as? ShoppingList {
             controller.model.shoppingList = item
+        } else if segue.identifier == "addShoppingListSegue", let controller = segue.destination as? AddShoppingListViewController {
+            controller.listsViewController = self
         }
     }
 
