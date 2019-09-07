@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CoreStore
 import MessageUI
 import SwiftyBeaver
 import CloudKit
@@ -130,7 +129,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
             destination.model.shoppingList = self.model.shoppingList
         } else if segue.identifier == "editShoppingListItemSegue", let indexPath = sender as? IndexPath, let destination = segue.destination as? AddShoppingItemViewController {
             let item = self.model.item(forIndexPath: indexPath)
-            destination.model.shoppingListItem = CoreStore.fetchExisting(item.objectId)
+            destination.model.shoppingListItem = DAO.fetchExisting(item.objectId)
             destination.model.shoppingList = self.model.shoppingList
         }
     }

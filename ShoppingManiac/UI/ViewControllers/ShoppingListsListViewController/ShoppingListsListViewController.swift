@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CoreStore
 import RxSwift
 
 class ShoppingListsListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {

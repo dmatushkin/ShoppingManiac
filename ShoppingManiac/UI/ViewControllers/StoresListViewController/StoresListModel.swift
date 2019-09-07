@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import CoreStore
+import CoreData
 import RxSwift
 import RxCocoa
 
@@ -21,21 +21,18 @@ class StoresListModel {
     }
         
     func itemsCount() -> Int {
-        return (try? CoreStore.fetchCount(From<Store>(), [])) ?? 0
+        return DAO.fetchCount(Store.self)
     }
     
     func getItem(forIndex: IndexPath) -> Store? {
-        return try? CoreStore.fetchOne(From<Store>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-            fetchRequest.fetchLimit = 1
-        }))
+        return DAO.fetchOne(Store.self, sort: [NSSortDescriptor(key: "name", ascending: true)], index: forIndex.row)
     }
     
     func deleteItem(item: Store) {
-        CoreStore.perform(asynchronous: { transaction in
-            transaction.delete(item)
-        }, completion: {[weak self] _ in
+        DAO.performAsync(updates: {context -> Void in
+            context.delete(item)
+        }).observeOn(MainScheduler.asyncInstance).subscribe(onNext: {[weak self] in
             self?.onUpdate?()
-        })
+        }).disposed(by: self.disposeBag)
     }
 }

@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CoreStore
 
 class AddCategoryViewController: ShoppingManiacViewController {
 

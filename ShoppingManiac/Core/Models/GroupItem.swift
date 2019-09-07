@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreData
-import CoreStore
 
 class GroupItem {
     let objectId: NSManagedObjectID
@@ -35,9 +34,9 @@ class GroupItem {
     
     func togglePurchased(list: ShoppingList) {
         self.purchased = !self.purchased
-        try? CoreStore.perform(synchronous: {[weak self] transaction in
-            guard let `self` = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId), let shoppingList: ShoppingList = transaction.edit(list) {
+        DAO.performSync(updates: {[weak self] context -> Void in
+            guard let self = self else { return }
+            if let shoppingListItem: ShoppingListItem = context.edit(self.objectId), let shoppingList = context.edit(list) {
                 shoppingListItem.purchased = self.purchased
                 shoppingListItem.list = shoppingList
             }
@@ -45,23 +44,19 @@ class GroupItem {
     }
     
     func markRemoved() {
-        try? CoreStore.perform(synchronous: {[weak self] transaction in
-            guard let `self` = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
+        DAO.performSync(updates: {[weak self] context -> Void in
+            guard let self = self else { return }
+            if let shoppingListItem: ShoppingListItem = context.edit(self.objectId) {
                 shoppingListItem.isRemoved = true
             }
         })
     }
     
     func moveTo(group: ShoppingGroup) {
-        try? CoreStore.perform(synchronous: {[weak self] transaction in
-            guard let `self` = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
-                if let storeObjectId = group.objectId {
-                    shoppingListItem.store = transaction.edit(Into<Store>(), storeObjectId)
-                } else {
-                    shoppingListItem.store = nil
-                }
+        DAO.performSync(updates: {[weak self] context -> Void in
+            guard let self = self else { return }
+            if let shoppingListItem: ShoppingListItem = context.edit(self.objectId) {
+                shoppingListItem.store = context.edit(group.objectId)
             }
         })
     }

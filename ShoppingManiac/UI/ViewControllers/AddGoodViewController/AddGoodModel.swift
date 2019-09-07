@@ -9,7 +9,7 @@
 import Foundation
 import RxSwift
 import RxCocoa
-import CoreStore
+import CoreData
 
 class AddGoodModel {
     
@@ -42,31 +42,30 @@ class AddGoodModel {
     }
     
     private func createItem(withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.create(Into<Good>())
+        DAO.performSync(updates: {[weak self] context -> Void in
+            guard let self = self else { return }
+            let item: Good = context.create()
             item.name = name
-            item.category = transaction.edit(self.category)
+            item.category = context.edit(self.category)
             item.personalRating = Int16(self.rating.value)
         })
     }
     
     private func updateItem(item: Good, withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.edit(item)
+        DAO.performSync(updates: {[weak self] context -> Void in
+            guard let self = self else { return }
+            let item = context.edit(item)
             item?.name = name
-            item?.category = transaction.edit(self.category)
+            item?.category = context.edit(self.category)
             item?.personalRating = Int16(self.rating.value)
         })
     }
     
     func categoriesCount() -> Int {
-        return (try? CoreStore.fetchCount(From<Category>(), [])) ?? 0
+        return DAO.fetchCount(Category.self)
     }
     
     func getCategoryItem(forIndex: IndexPath) -> Category? {
-        return try? CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-            fetchRequest.fetchLimit = 1
-        }))
+        return DAO.fetchOne(Category.self, sort: [NSSortDescriptor(key: "name", ascending: true)], index: forIndex.row)
     }
 }

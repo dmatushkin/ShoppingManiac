@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import CoreStore
 import CloudKit
 import SwiftyBeaver
 import RxSwift
@@ -33,9 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         log.addDestination(FileDestination())
         log.addDestination(ConsoleDestination())
         
-        let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
-        let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
-        _ = try? CoreStore.addStorageAndWait(store)
         CloudShare.setupUserPermissions()
         CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).subscribe(onCompleted: {
             SwiftyBeaver.debug("loading updates done")
@@ -90,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 CloudLoader.loadShare(metadata: metadata).observeOnMain().subscribe(onNext: {[weak self] list in
                     HUD.hide()
-                    guard let list = CoreStore.fetchExisting(list) else { return }
+                    guard let list = DAO.fetchExisting(list) else { return }
                     self?.showList(list: list)
                 }, onError: {error in
                     HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)

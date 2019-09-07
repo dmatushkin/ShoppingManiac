@@ -8,12 +8,11 @@
 
 import Foundation
 import CoreData
-import CoreStore
 
 public class Good: NSManagedObject {
     
-    class func item(forName name: String, inTransaction transaction: SynchronousDataTransaction) throws -> Good {
-        let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
+    class func item(forName name: String, inContext context: NSManagedObjectContext) -> Good {
+        let good = context.fetchOne(Good.self, predicate: NSPredicate(format: "name == %@", name)) ?? context.create()
         good.name = name
         return good
     }

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import CoreStore
 import RxSwift
 
 class ShoppingListsListModel {
@@ -20,26 +19,22 @@ class ShoppingListsListModel {
     }
     
     func itemsCount() -> Int {
-        return (try? CoreStore.fetchCount(From<ShoppingList>().where(Where("isRemoved == false")))) ?? 0
+        return DAO.fetchCount(ShoppingList.self, predicate: NSPredicate(format: "isRemoved == false"))
     }
     
     func getItem(forIndex: IndexPath) -> ShoppingList? {
-        return try? CoreStore.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)).tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-            fetchRequest.fetchLimit = 1
-        }))
+        return DAO.fetchOne(ShoppingList.self, predicate: NSPredicate(format: "isRemoved == false"), sort: [NSSortDescriptor(key: "date", ascending: false)], index: forIndex.row)
     }
     
     func deleteItem(shoppingList: ShoppingList) {
-        CoreStore.perform(asynchronous: { transaction in
-            let list = transaction.edit(shoppingList)
-            list?.isRemoved = true
-        }, completion: {[weak self] _ in
-            guard let `self` = self else { return }
+        DAO.performAsync(updates: {context -> Void in
+            context.edit(shoppingList)?.isRemoved = true
+        }).observeOn(MainScheduler.asyncInstance).subscribe(onNext: {[weak self] in
+            guard let self = self else { return }
             if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
                 CloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
             }
             self.onUpdate?()
-        })
+        }).disposed(by: self.disposeBag)
     }
 }

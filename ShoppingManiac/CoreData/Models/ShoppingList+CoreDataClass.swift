@@ -8,7 +8,6 @@
 
 import Foundation
 import CoreData
-import CoreStore
 import SwiftyBeaver
 
 public class ShoppingList: NSManagedObject {
@@ -18,12 +17,11 @@ public class ShoppingList: NSManagedObject {
     }
 
     func setRecordId(recordId: String) {
-        _ = try? CoreStore.perform(synchronous: {[weak self] transaction -> String in
-            guard let `self` = self else { return recordId }
-            if let shoppingList: ShoppingList = transaction.edit(self) {
+        DAO.performSync(updates: {[weak self] context -> Void in
+            guard let self = self else { return }
+            if let shoppingList: ShoppingList = context.edit(self) {
                 shoppingList.recordid = recordId
             }
-            return recordId
         })
     }
 
@@ -68,22 +66,20 @@ public class ShoppingList: NSManagedObject {
 
     func textData() -> String {
         var result = self.title + "\n"
-        do {
-            let itemsLine = try CoreStore.perform(synchronous: { transaction -> String in
-                var result = ""
-                let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self))).sorted( by: {item1, item2 in (item1.good?.name ?? "") < (item2.good?.name ?? "") })
-                for item in items {
-                    var line = "\(item.good?.name ?? "") \(item.quantityText)"
-                    if item.store != nil {
-                        line += " : \(item.store?.name ?? "")"
-                    }
-                    result += (line + "\n")
+        let itemsLine = DAO.performSync(updates: {[weak self] context -> String in
+            guard let self = self else { return "" }
+            var result = ""
+            let items = context.fetchAll(ShoppingListItem.self, predicate: NSPredicate(format: "list = %@", self)).sorted( by: {item1, item2 in (item1.good?.name ?? "") < (item2.good?.name ?? "") })
+            for item in items {
+                var line = "\(item.good?.name ?? "") \(item.quantityText)"
+                if item.store != nil {
+                    line += " : \(item.store?.name ?? "")"
                 }
-                return result
-            })
-            result += itemsLine
-        } catch {
-        }
+                result += (line + "\n")
+            }
+            return result
+        }) ?? ""
+        result += itemsLine
         return result
     }
 
@@ -92,73 +88,65 @@ public class ShoppingList: NSManagedObject {
 
         result["name"] = self.name
         result["date"] = self.jsonDate
-
-        do {
-            let itemsArray = try CoreStore.perform(synchronous: { transaction -> [[String: Any]] in
-                var resultItems = [[String: Any]]()
-                let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self)))
-                for item in items {
-                    var itemDict = [String: Any]()
-                    itemDict["good"] = item.good?.name ?? ""
-                    itemDict["store"] = item.store?.name ?? ""
-                    itemDict["price"] = item.price
-                    itemDict["purchased"] = item.purchased
-                    itemDict["purchaseDate"] = item.jsonPurchaseDate
-                    itemDict["quantity"] = item.quantity
-                    itemDict["isWeight"] = item.isWeight
-                    itemDict["isCrossListItem"] = item.isCrossListItem
-                    resultItems.append(itemDict)
-                }
-                return resultItems
-            })
-            result["items"] = itemsArray
-        } catch {
-        }
-
+        let itemsArray = DAO.performSync(updates: {[weak self] context -> [[String: Any]] in
+            guard let self = self else { return [] }
+            var resultItems = [[String: Any]]()
+            let items = context.fetchAll(ShoppingListItem.self, predicate: NSPredicate(format: "list = %@", self))
+            for item in items {
+                var itemDict = [String: Any]()
+                itemDict["good"] = item.good?.name ?? ""
+                itemDict["store"] = item.store?.name ?? ""
+                itemDict["price"] = item.price
+                itemDict["purchased"] = item.purchased
+                itemDict["purchaseDate"] = item.jsonPurchaseDate
+                itemDict["quantity"] = item.quantity
+                itemDict["isWeight"] = item.isWeight
+                itemDict["isCrossListItem"] = item.isCrossListItem
+                resultItems.append(itemDict)
+            }
+            return resultItems
+        }) ?? []
+        result["items"] = itemsArray
         return try? JSONSerialization.data(withJSONObject: result, options: [])
     }
     
     class func importShoppingList(fromJsonData jsonData: NSDictionary) -> ShoppingList? {
-        do {
-            let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
-                let list = transaction.create(Into<ShoppingList>())
-                list.name = jsonData["name"] as? String
-                list.jsonDate = (jsonData["date"] as? String) ?? ""
-                if let itemsArray = jsonData["items"] as? [NSDictionary] {
-                    for itemDict in itemsArray {
-                        let shoppingListItem = transaction.create(Into<ShoppingListItem>())
-                        if let goodName = itemDict["good"] as? String, goodName.count > 0 {
-                            if let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", goodName))) {
-                                shoppingListItem.good = good
-                            } else {
-                                let good = transaction.create(Into<Good>())
-                                good.name = goodName
-                                shoppingListItem.good = good
-                            }
+        let list = DAO.performSync(updates: {context -> ShoppingList in
+            let list: ShoppingList = context.create()
+            list.name = jsonData["name"] as? String
+            list.jsonDate = (jsonData["date"] as? String) ?? ""
+            if let itemsArray = jsonData["items"] as? [NSDictionary] {
+                for itemDict in itemsArray {
+                    let shoppingListItem: ShoppingListItem = context.create()
+                    if let goodName = itemDict["good"] as? String, goodName.count > 0 {
+                        if let good = context.fetchOne(Good.self, predicate: NSPredicate(format: "name == %@", goodName)) {
+                            shoppingListItem.good = good
+                        } else {
+                            let good: Good = context.create()
+                            good.name = goodName
+                            shoppingListItem.good = good
                         }
-                        if let storeName = itemDict["store"] as? String, storeName.count > 0 {
-                            if let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
-                                shoppingListItem.store = store
-                            } else {
-                                let store = transaction.create(Into<Store>())
-                                store.name = storeName
-                                shoppingListItem.store = store
-                            }
-                        }
-                        shoppingListItem.purchased = (itemDict["purchased"] as? NSNumber)?.boolValue ?? false
-                        shoppingListItem.price = (itemDict["price"] as? NSNumber)?.floatValue ?? 0
-                        shoppingListItem.quantity = (itemDict["quantity"] as? NSNumber)?.floatValue ?? 0
-                        shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
-                        shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
-                        shoppingListItem.isCrossListItem = (itemDict["isCrossListItem"] as? NSNumber)?.boolValue ?? false
-                        shoppingListItem.list = list
                     }
+                    if let storeName = itemDict["store"] as? String, storeName.count > 0 {
+                        if let store = context.fetchOne(Store.self, predicate: NSPredicate(format: "name == %@", storeName)) {
+                            shoppingListItem.store = store
+                        } else {
+                            let store: Store = context.create()
+                            store.name = storeName
+                            shoppingListItem.store = store
+                        }
+                    }
+                    shoppingListItem.purchased = (itemDict["purchased"] as? NSNumber)?.boolValue ?? false
+                    shoppingListItem.price = (itemDict["price"] as? NSNumber)?.floatValue ?? 0
+                    shoppingListItem.quantity = (itemDict["quantity"] as? NSNumber)?.floatValue ?? 0
+                    shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
+                    shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
+                    shoppingListItem.isCrossListItem = (itemDict["isCrossListItem"] as? NSNumber)?.boolValue ?? false
+                    shoppingListItem.list = list
                 }
-                return list
-            })
-            return CoreStore.fetchExisting(list)
-        } catch {
-            return nil
-        }
+            }
+            return list
+        })
+        return DAO.fetchExisting(list)
     }
 }

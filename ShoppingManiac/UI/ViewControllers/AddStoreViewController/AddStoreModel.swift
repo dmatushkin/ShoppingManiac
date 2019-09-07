@@ -9,7 +9,7 @@
 import Foundation
 import RxSwift
 import RxCocoa
-import CoreStore
+import CoreData
 
 class AddStoreModel {
     
@@ -24,15 +24,15 @@ class AddStoreModel {
     }
     
     private func createItem(withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.create(Into<Store>())
+        DAO.performSync(updates: {context -> Void in
+            let item: Store = context.create()
             item.name = name
         })
     }
     
     private func updateItem(item: Store, withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = transaction.edit(item)
+        DAO.performSync(updates: {context -> Void in
+            let item = context.edit(item)
             item?.name = name
         })
     }

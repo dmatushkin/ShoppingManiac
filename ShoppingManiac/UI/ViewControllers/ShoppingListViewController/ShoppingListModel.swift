@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import CoreStore
 import RxSwift
+import CoreData
 import RxCocoa
 
 class ShoppingListModel {
@@ -37,9 +37,9 @@ class ShoppingListModel {
         self.reloadData()
     }
     
-    private func processData(transaction: AsynchronousDataTransaction) throws {
+    private func processData(context: NSManagedObjectContext) {
         if let list = self.shoppingList {
-            let items: [ShoppingListItem] = try transaction.fetchAll(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", list)))
+            let items: [ShoppingListItem] = context.fetchAll(ShoppingListItem.self, predicate: NSPredicate(format: "(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", list))
             let totalPrice = items.reduce(0.0) { acc, curr in
                 return acc + curr.totalPrice
             }
@@ -60,11 +60,9 @@ class ShoppingListModel {
     }
     
     func reloadData() {
-        CoreStore.perform(asynchronous: {[weak self] transaction in
-            try self?.processData(transaction: transaction)
-        }, completion: { _ in
-            self.onUpdate?()
-        })
+        DAO.performAsync(updates: self.processData).observeOn(MainScheduler.asyncInstance).subscribe(onNext: {[weak self] in
+            self?.onUpdate?()
+        }).disposed(by: self.disposeBag)
     }
     
     private func sortGroups(groups: [ShoppingGroup]) -> [ShoppingGroup] {

@@ -9,7 +9,7 @@
 import Foundation
 import RxSwift
 import RxCocoa
-import CoreStore
+import CoreData
 
 class AddShoppingListItemModel {
     
@@ -27,11 +27,11 @@ class AddShoppingListItemModel {
     let crossListItem = BehaviorRelay<Bool>(value: false)
     
     func listAllGoods() -> [String] {
-        return (try? CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        return DAO.fetchAll(Good.self, sort: [NSSortDescriptor(key: "name", ascending: true)]).compactMap({ $0.name }).filter({ $0.count > 0 })
     }
     
     func listAllStores() -> [String] {
-        return (try? CoreStore.fetchAll(From<Store>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        return DAO.fetchAll(Store.self, sort: [NSSortDescriptor(key: "name", ascending: true)]).compactMap({ $0.name }).filter({ $0.count > 0 })
     }
     
     func applyData() {
@@ -49,30 +49,31 @@ class AddShoppingListItemModel {
     }
     
     func persistData() {
-        try? CoreStore.perform(synchronous: { transaction in
-            let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
-            item?.good = try Good.item(forName: self.itemName.value, inTransaction: transaction)
-            item?.isWeight = self.isWeight.value
-            item?.good?.personalRating = Int16(self.rating.value)
+        DAO.performSync(updates: {[weak self] context -> Void in
+            guard let self = self else { return }
+            let item = context.edit(self.shoppingListItem) ?? context.create()
+            item.good = Good.item(forName: self.itemName.value, inContext: context)
+            item.isWeight = self.isWeight.value
+            item.good?.personalRating = Int16(self.rating.value)
             if self.storeName.value.count > 0 {
-                item?.store = try Store.item(forName: self.storeName.value, inTransaction: transaction)
+                item.store = Store.item(forName: self.storeName.value, inContext: context)
             } else {
-                item?.store = nil
+                item.store = nil
             }
             let amount = self.amountText.value.replacingOccurrences(of: ",", with: ".")
             if amount.count > 0, let value = Float(amount) {
-                item?.quantity = value
+                item.quantity = value
             } else {
-                item?.quantity = 1
+                item.quantity = 1
             }
             let price = self.priceText.value.replacingOccurrences(of: ",", with: ".")
             if price.count > 0, let value = Float(price) {
-                item?.price = value
+                item.price = value
             } else {
-                item?.price = 0
+                item.price = 0
             }
-            item?.isCrossListItem = self.crossListItem.value
-            item?.list = transaction.edit(self.shoppingList)
+            item.isCrossListItem = self.crossListItem.value
+            item.list = context.edit(self.shoppingList)
         })
     }
 }

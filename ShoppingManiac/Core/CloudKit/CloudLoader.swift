@@ -8,7 +8,7 @@
 
 import Foundation
 import CloudKit
-import CoreStore
+import CoreData
 import SwiftyBeaver
 import RxSwift
 
@@ -23,31 +23,21 @@ class CloudLoader {
     }
     
     private class func storeListRecord(recordWrapper: RecordWrapper) -> Observable<ShoppingListWrapper> {
-        return Observable<ShoppingListWrapper>.create { observer in
-            CoreStore.perform(asynchronous: { (transaction) -> ShoppingList in
-                let shoppingList: ShoppingList = try transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", recordWrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
-                shoppingList.recordid = recordWrapper.record.recordID.recordName
-                shoppingList.ownerName = recordWrapper.ownerName
-                shoppingList.name = recordWrapper.record["name"] as? String
-                shoppingList.isRemote = !recordWrapper.localDb
-                shoppingList.isRemoved = recordWrapper.record["isRemoved"] as? Bool ?? false
-                let date = recordWrapper.record["date"] as? Date ?? Date()
-                shoppingList.date = date.timeIntervalSinceReferenceDate
-                SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name") record \(String(describing: recordWrapper.record))")
-                return shoppingList
-            }, completion: {result in
-                switch result {
-                case .success(let list):
-                    let items = recordWrapper.record["items"] as? [CKRecord.Reference] ?? []
-                    observer.onNext(ShoppingListWrapper(localDb: recordWrapper.localDb, record: recordWrapper.record, shoppingList: list, items: items, ownerName: recordWrapper.ownerName))
-                    observer.onCompleted()
-                case .failure(let error):
-                    SwiftyBeaver.debug(error.debugDescription)
-                    observer.onError(error)
-                }
-            })
-            return Disposables.create()
-        }
+        return DAO.performAsync(updates: {context -> ShoppingList in
+            let shoppingList = context.fetchOne(ShoppingList.self, predicate: NSPredicate(format: "recordid == %@", recordWrapper.record.recordID.recordName)) ?? context.create()
+            shoppingList.recordid = recordWrapper.record.recordID.recordName
+            shoppingList.ownerName = recordWrapper.ownerName
+            shoppingList.name = recordWrapper.record["name"] as? String
+            shoppingList.isRemote = !recordWrapper.localDb
+            shoppingList.isRemoved = recordWrapper.record["isRemoved"] as? Bool ?? false
+            let date = recordWrapper.record["date"] as? Date ?? Date()
+            shoppingList.date = date.timeIntervalSinceReferenceDate
+            SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name") record \(String(describing: recordWrapper.record))")
+            return shoppingList
+        }).map({list -> ShoppingListWrapper in
+            let items = recordWrapper.record["items"] as? [CKRecord.Reference] ?? []
+            return ShoppingListWrapper(localDb: recordWrapper.localDb, record: recordWrapper.record, shoppingList: list, items: items, ownerName: recordWrapper.ownerName)
+        })
     }
     
     private class func fetchListItems(wrapper: ShoppingListWrapper) -> Observable<ShoppingListItemsWrapper> {
@@ -56,41 +46,35 @@ class CloudLoader {
     }
 
     private class func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
-        return Observable<ShoppingList>.create { observer in
-            CoreStore.perform(asynchronous: { (transaction)  in
-                for record in wrapper.items {
-                    let item: ShoppingListItem = try transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
-                    SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
-                    item.recordid = record.recordID.recordName
-                    item.list = transaction.edit(wrapper.shoppingList)
-                    item.comment = record["comment"] as? String
-                    if let name = record["goodName"] as? String {
-                        let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
-                        good.name = name
-                        item.good = good
-                    } else {
-                        item.good = nil
-                    }
-                    item.isWeight = record["isWeight"] as? Bool ?? false
-                    item.price = record["price"] as? Float ?? 0
-                    item.purchased = record["purchased"] as? Bool ?? false
-                    item.quantity = record["quantity"] as? Float ?? 1
-                    item.isRemoved = record["isRemoved"] as? Bool ?? false
-                    item.isCrossListItem = record["isCrossListItem"] as? Bool ?? false
-                    if let storeName = record["storeName"] as? String, storeName.count > 0 {
-                        let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
-                        store.name = storeName
-                        item.store = store
-                    } else {
-                        item.store = nil
-                    }
+        return DAO.performAsync(updates: {context -> Void in
+            for record in wrapper.items {
+                let item = context.fetchOne(ShoppingListItem.self, predicate: NSPredicate(format: "recordid == %@", record.recordID.recordName)) ?? context.create()
+                SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
+                item.recordid = record.recordID.recordName
+                item.list = context.edit(wrapper.shoppingList)
+                item.comment = record["comment"] as? String
+                if let name = record["goodName"] as? String {
+                    let good = context.fetchOne(Good.self, predicate: NSPredicate(format: "name == %@", name)) ?? context.create()
+                    good.name = name
+                    item.good = good
+                } else {
+                    item.good = nil
                 }
-            }, completion: {_ in
-                observer.onNext(wrapper.shoppingList)
-                observer.onCompleted()
-            })
-            return Disposables.create()
-        }
+                item.isWeight = record["isWeight"] as? Bool ?? false
+                item.price = record["price"] as? Float ?? 0
+                item.purchased = record["purchased"] as? Bool ?? false
+                item.quantity = record["quantity"] as? Float ?? 1
+                item.isRemoved = record["isRemoved"] as? Bool ?? false
+                item.isCrossListItem = record["isCrossListItem"] as? Bool ?? false
+                if let storeName = record["storeName"] as? String, storeName.count > 0 {
+                    let store = context.fetchOne(Store.self, predicate: NSPredicate(format: "name == %@", storeName)) ?? context.create()
+                    store.name = storeName
+                    item.store = store
+                } else {
+                    item.store = nil
+                }
+            }
+        }).map({ wrapper.shoppingList })
     }
 
     class func fetchChanges(localDb: Bool) -> Observable<Void> {

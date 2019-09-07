@@ -7,24 +7,26 @@
 //
 
 import UIKit
-import CoreStore
+import CoreData
+import RxSwift
 
 class DataSaveSegue: UIStoryboardSegue {
 
     var errorMessage: String?
-    var processBlock: (AsynchronousDataTransaction) -> Bool = {transaction in return true}
+    var processBlock: (NSManagedObjectContext) -> Bool = {transaction in return true}
+    private let disposeBag = DisposeBag()
 
     override func perform() {
-        CoreStore.perform(asynchronous: {transaction->Bool in
-            return self.processBlock(transaction)
-        }, completion: { result in
-            switch result {
-            case .success:
+        DAO.performAsync(updates: {[weak self] context -> Bool in
+            guard let self = self else { return false }
+            return self.processBlock(context)
+        }).observeOn(MainScheduler.asyncInstance).subscribe(onNext: {result in
+            if result {
                 self.realPerform()
-            case .failure:
+            } else {
                 self.showAlert(message: self.errorMessage ?? "Error saving data")
             }
-        })
+        }).disposed(by: self.disposeBag)
     }
 
     private func realPerform() {
