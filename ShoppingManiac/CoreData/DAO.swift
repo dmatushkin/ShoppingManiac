@@ -14,12 +14,7 @@ import RxCocoa
 extension NSManagedObject {
     
     class func className() -> String {
-        let fname = String(validatingUTF8: class_getName(self))!
-        if let delim = fname.range(of: ".")?.upperBound {
-            return String(fname[delim...])
-        } else {
-            return fname
-        }
+        return String(describing: self)
     }
 }
 
