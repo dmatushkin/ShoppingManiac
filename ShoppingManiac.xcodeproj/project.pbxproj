@@ -890,6 +890,7 @@
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5LPE595N4R;
 				INFOPLIST_FILE = "$(SRCROOT)/ShoppingManiac/Resources/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -911,6 +912,7 @@
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5LPE595N4R;
 				INFOPLIST_FILE = "$(SRCROOT)/ShoppingManiac/Resources/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";

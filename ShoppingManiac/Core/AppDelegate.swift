@@ -32,17 +32,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         log.addDestination(FileDestination())
         log.addDestination(ConsoleDestination())
         
-        CloudShare.setupUserPermissions()
+        /*CloudShare.setupUserPermissions()
         CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).subscribe(onCompleted: {
             SwiftyBeaver.debug("loading updates done")
             LocalNotifications.newDataAvailable.post(value: ())
         }).disposed(by: self.disposeBag)
-        CloudSubscriptions.setupSubscriptions()
+        CloudSubscriptions.setupSubscriptions()*/
         return true
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
+        /*if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
             CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).observeOnMain().subscribe(onError: { error in
                 SwiftyBeaver.debug(error.localizedDescription)
@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }).disposed(by: self.disposeBag)
         } else {
             completionHandler(.noData)
-        }
+        }*/
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
@@ -73,7 +73,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
-        let operation = CKAcceptSharesOperation(shareMetadatas: [cloudKitShareMetadata])
+        /*let operation = CKAcceptSharesOperation(shareMetadatas: [cloudKitShareMetadata])
         operation.qualityOfService = .userInteractive
         operation.perShareCompletionBlock = {[weak self] metadata, share, error in
             guard let `self` = self else {return}
@@ -96,7 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }).disposed(by: self.disposeBag)
             }
         }
-        CKContainer.default().add(operation)
+        CKContainer.default().add(operation)*/
     }
 
     func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
