@@ -10,7 +10,7 @@ import UIKit
 import CloudKit
 import SwiftyBeaver
 import RxSwift
-import PKHUD
+import JGProgressHUD
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
