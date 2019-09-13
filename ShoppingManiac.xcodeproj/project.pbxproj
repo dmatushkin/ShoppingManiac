@@ -3,15 +3,24 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
+		561BA786232BF73800381E02 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA785232BF73800381E02 /* SwiftDate */; };
+		561BA789232BF7C600381E02 /* Hero in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA788232BF7C600381E02 /* Hero */; };
+		561BA78F232BF9E100381E02 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA78E232BF9E100381E02 /* SwiftyBeaver */; };
+		561BA792232BFA6F00381E02 /* SWCompression in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA791232BFA6F00381E02 /* SWCompression */; };
+		561BA795232BFB1000381E02 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA794232BFB1000381E02 /* RxSwift */; };
+		561BA799232BFB1000381E02 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA798232BFB1000381E02 /* RxRelay */; };
+		561BA79B232BFB1000381E02 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA79A232BFB1000381E02 /* RxCocoa */; };
+		561BA79D232BFB1000381E02 /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA79C232BFB1000381E02 /* RxBlocking */; };
 		562BAA4F20A60CC30061D654 /* AddShoppingListItemModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */; };
 		562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
 		563E92802086395800933522 /* CloudShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563E927F2086395700933522 /* CloudShare.swift */; };
+		56438BDB232CE1DE005DAC77 /* PKHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 56438BDA232CE1DE005DAC77 /* PKHUD */; };
 		5644D78523239C3E00982D4E /* ListSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5644D78423239C3E00982D4E /* ListSplitViewController.swift */; };
 		56451714208BB46C00295393 /* CloudLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56451713208BB46C00295393 /* CloudLoader.swift */; };
 		5650C1341EDAA3EB00977503 /* AddShoppingItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */; };
@@ -19,6 +28,7 @@
 		5650C1391EDBEF7B00977503 /* GroupItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C1381EDBEF7B00977503 /* GroupItem.swift */; };
 		5650C13B1EDBEFA600977503 /* ShoppingGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5650C13A1EDBEFA600977503 /* ShoppingGroup.swift */; };
 		565A16E520A54E650063F19E /* ShoppingListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565A16E420A54E650063F19E /* ShoppingListModel.swift */; };
+		565BC9DE232CC69E001A90A3 /* CoreStore in Frameworks */ = {isa = PBXBuildFile; productRef = 565BC9DD232CC69E001A90A3 /* CoreStore */; };
 		565C3B7B1ED17D01003D8EE8 /* GoodsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B7A1ED17D01003D8EE8 /* GoodsListViewController.swift */; };
 		565C3B7E1ED17D70003D8EE8 /* StoresListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B7D1ED17D70003D8EE8 /* StoresListViewController.swift */; };
 		565C3B811ED17DB5003D8EE8 /* CategoriesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3B801ED17DB5003D8EE8 /* CategoriesListViewController.swift */; };
@@ -79,11 +89,9 @@
 		B0A4CA4931E7D7CC6A26F983 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B0A4CCDA784A39CB92404B81 /* Main.storyboard */; };
 		B0A4CC3B69D54152E1820094 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B0A4C19BC8CEEF5DDEAA4383 /* LaunchScreen.storyboard */; };
 		B0A4CDE4167BCAEB3B90E9E5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4C1B2B2DCA62C7AAB4488 /* AppDelegate.swift */; };
-		C218C61E3D35B2F25FD68A5A /* Pods_ShoppingManiac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46ED4AFFBD5958695A9B33C1 /* Pods_ShoppingManiac.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		46ED4AFFBD5958695A9B33C1 /* Pods_ShoppingManiac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ShoppingManiac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
 		562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListItemModel.swift; sourceTree = "<group>"; };
 		562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingManiacViewController.swift; sourceTree = "<group>"; };
@@ -163,8 +171,6 @@
 		56D1216920A713800044C486 /* AddCategoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategoryModel.swift; sourceTree = "<group>"; };
 		56D540561F9A73180036C646 /* UIKeyboardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKeyboardInfo.swift; sourceTree = "<group>"; };
 		56EC8F0D1FE84461009C4868 /* ShoppingManiacIconsBundle.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ShoppingManiacIconsBundle.icns; sourceTree = "<group>"; };
-		5923E6ED9D42AB2CD6EFC8E0 /* Pods-ShoppingManiac.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShoppingManiac.debug.xcconfig"; path = "Pods/Target Support Files/Pods-ShoppingManiac/Pods-ShoppingManiac.debug.xcconfig"; sourceTree = "<group>"; };
-		790AB6057243BE1CA7F717C7 /* Pods-ShoppingManiac.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ShoppingManiac.release.xcconfig"; path = "Pods/Target Support Files/Pods-ShoppingManiac/Pods-ShoppingManiac.release.xcconfig"; sourceTree = "<group>"; };
 		B0A4C1B2B2DCA62C7AAB4488 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B0A4C1F406A445E62CBD06C0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B0A4C86CDC1D5225004EA856 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
@@ -177,8 +183,17 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C218C61E3D35B2F25FD68A5A /* Pods_ShoppingManiac.framework in Frameworks */,
+				561BA799232BFB1000381E02 /* RxRelay in Frameworks */,
+				561BA79D232BFB1000381E02 /* RxBlocking in Frameworks */,
+				561BA79B232BFB1000381E02 /* RxCocoa in Frameworks */,
 				567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */,
+				561BA789232BF7C600381E02 /* Hero in Frameworks */,
+				561BA786232BF73800381E02 /* SwiftDate in Frameworks */,
+				561BA792232BFA6F00381E02 /* SWCompression in Frameworks */,
+				561BA795232BFB1000381E02 /* RxSwift in Frameworks */,
+				56438BDB232CE1DE005DAC77 /* PKHUD in Frameworks */,
+				565BC9DE232CC69E001A90A3 /* CoreStore in Frameworks */,
+				561BA78F232BF9E100381E02 /* SwiftyBeaver in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,7 +204,6 @@
 			isa = PBXGroup;
 			children = (
 				567F7321206F915B00B67B5C /* CloudKit.framework */,
-				46ED4AFFBD5958695A9B33C1 /* Pods_ShoppingManiac.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -442,7 +456,6 @@
 			children = (
 				566A7DD61ED1759C005F9D31 /* ShoppingManiac */,
 				566A7DD51ED1759C005F9D31 /* Products */,
-				CD3263757674085D631F1442 /* Pods */,
 				00FC28521D62CDE8F963675C /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -458,7 +471,6 @@
 		566A7DD61ED1759C005F9D31 /* ShoppingManiac */ = {
 			isa = PBXGroup;
 			children = (
-				567F7320206F915700B67B5C /* ShoppingManiac.entitlements */,
 				560E12231ED178A500E2529E /* CoreData */,
 				560E12201ED1786200E2529E /* UI */,
 				566A7DE91ED17758005F9D31 /* Core */,
@@ -494,20 +506,12 @@
 		B0A4C3EBED4164CB3C317529 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				567F7320206F915700B67B5C /* ShoppingManiac.entitlements */,
 				56EC8F0D1FE84461009C4868 /* ShoppingManiacIconsBundle.icns */,
 				B0A4C1F406A445E62CBD06C0 /* Assets.xcassets */,
 				B0A4C86CDC1D5225004EA856 /* Info.plist */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		CD3263757674085D631F1442 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				5923E6ED9D42AB2CD6EFC8E0 /* Pods-ShoppingManiac.debug.xcconfig */,
-				790AB6057243BE1CA7F717C7 /* Pods-ShoppingManiac.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -517,18 +521,28 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 566A7DE61ED1759C005F9D31 /* Build configuration list for PBXNativeTarget "ShoppingManiac" */;
 			buildPhases = (
-				26334849EAA4F42FD414AA8A /* [CP] Check Pods Manifest.lock */,
 				56DE633F2089E62E00E185D3 /* SwiftLint */,
 				566A7DD01ED1759B005F9D31 /* Sources */,
 				566A7DD11ED1759B005F9D31 /* Frameworks */,
 				566A7DD21ED1759B005F9D31 /* Resources */,
-				2A7EB6E9FE7BA0893A668D5C /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = ShoppingManiac;
+			packageProductDependencies = (
+				561BA785232BF73800381E02 /* SwiftDate */,
+				561BA788232BF7C600381E02 /* Hero */,
+				561BA78E232BF9E100381E02 /* SwiftyBeaver */,
+				561BA791232BFA6F00381E02 /* SWCompression */,
+				561BA794232BFB1000381E02 /* RxSwift */,
+				561BA798232BFB1000381E02 /* RxRelay */,
+				561BA79A232BFB1000381E02 /* RxCocoa */,
+				561BA79C232BFB1000381E02 /* RxBlocking */,
+				565BC9DD232CC69E001A90A3 /* CoreStore */,
+				56438BDA232CE1DE005DAC77 /* PKHUD */,
+			);
 			productName = ShoppingManiac;
 			productReference = 566A7DD41ED1759C005F9D31 /* ShoppingManiac.app */;
 			productType = "com.apple.product-type.application";
@@ -563,15 +577,23 @@
 				};
 			};
 			buildConfigurationList = 566A7DCF1ED1759B005F9D31 /* Build configuration list for PBXProject "ShoppingManiac" */;
-			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			compatibilityVersion = "Xcode 10.0";
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 			);
 			mainGroup = 566A7DCB1ED1759B005F9D31;
+			packageReferences = (
+				561BA784232BF73800381E02 /* XCRemoteSwiftPackageReference "SwiftDate" */,
+				561BA787232BF7C600381E02 /* XCRemoteSwiftPackageReference "Hero" */,
+				561BA78D232BF9E000381E02 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
+				561BA790232BFA6F00381E02 /* XCRemoteSwiftPackageReference "SWCompression" */,
+				561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */,
+				565BC9DC232CC69E001A90A3 /* XCRemoteSwiftPackageReference "CoreStore" */,
+				56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */,
+			);
 			productRefGroup = 566A7DD51ED1759C005F9D31 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -596,60 +618,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		26334849EAA4F42FD414AA8A /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ShoppingManiac-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		2A7EB6E9FE7BA0893A668D5C /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-ShoppingManiac/Pods-ShoppingManiac-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/BitByteData/BitByteData.framework",
-				"${BUILT_PRODUCTS_DIR}/EXTView/EXTView.framework",
-				"${BUILT_PRODUCTS_DIR}/Hero/Hero.framework",
-				"${BUILT_PRODUCTS_DIR}/PKHUD/PKHUD.framework",
-				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
-				"${BUILT_PRODUCTS_DIR}/RxRelay/RxRelay.framework",
-				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
-				"${BUILT_PRODUCTS_DIR}/SWCompression/SWCompression.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftDate/SwiftDate.framework",
-				"${BUILT_PRODUCTS_DIR}/SwiftyBeaver/SwiftyBeaver.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/BitByteData.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/EXTView.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Hero.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PKHUD.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxRelay.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SWCompression.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftDate.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyBeaver.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ShoppingManiac/Pods-ShoppingManiac-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		56DE633F2089E62E00E185D3 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -662,7 +630,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/SwiftLint/swiftlint\"";
+			shellScript = "/usr/local/bin/swiftlint\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -813,7 +781,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -867,10 +835,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 4.0;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -878,15 +847,18 @@
 		};
 		566A7DE71ED1759C005F9D31 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5923E6ED9D42AB2CD6EFC8E0 /* Pods-ShoppingManiac.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = ShoppingManiac/ShoppingManiac.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ShoppingManiac/Resources/ShoppingManiac.entitlements;
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5LPE595N4R;
 				INFOPLIST_FILE = "$(SRCROOT)/ShoppingManiac/Resources/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "ShoppingManiac/Core/ShoppingManiac-Bridging-Header.h";
@@ -899,15 +871,18 @@
 		};
 		566A7DE81ED1759C005F9D31 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 790AB6057243BE1CA7F717C7 /* Pods-ShoppingManiac.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = ShoppingManiac/ShoppingManiac.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ShoppingManiac/Resources/ShoppingManiac.entitlements;
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 5LPE595N4R;
 				INFOPLIST_FILE = "$(SRCROOT)/ShoppingManiac/Resources/Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "ShoppingManiac/Core/ShoppingManiac-Bridging-Header.h";
@@ -939,6 +914,118 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		561BA784232BF73800381E02 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/malcommac/SwiftDate";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.0.3;
+			};
+		};
+		561BA787232BF7C600381E02 /* XCRemoteSwiftPackageReference "Hero" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/HeroTransitions/Hero";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.0;
+			};
+		};
+		561BA78D232BF9E000381E02 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyBeaver/SwiftyBeaver";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.7.1;
+			};
+		};
+		561BA790232BFA6F00381E02 /* XCRemoteSwiftPackageReference "SWCompression" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tsolomko/SWCompression";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+		561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
+		56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dmatushkin/PKHUD";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		565BC9DC232CC69E001A90A3 /* XCRemoteSwiftPackageReference "CoreStore" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/JohnEstropia/CoreStore";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.3.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		561BA785232BF73800381E02 /* SwiftDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA784232BF73800381E02 /* XCRemoteSwiftPackageReference "SwiftDate" */;
+			productName = SwiftDate;
+		};
+		561BA788232BF7C600381E02 /* Hero */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA787232BF7C600381E02 /* XCRemoteSwiftPackageReference "Hero" */;
+			productName = Hero;
+		};
+		561BA78E232BF9E100381E02 /* SwiftyBeaver */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA78D232BF9E000381E02 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
+			productName = SwiftyBeaver;
+		};
+		561BA791232BFA6F00381E02 /* SWCompression */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA790232BFA6F00381E02 /* XCRemoteSwiftPackageReference "SWCompression" */;
+			productName = SWCompression;
+		};
+		561BA794232BFB1000381E02 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		561BA798232BFB1000381E02 /* RxRelay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxRelay;
+		};
+		561BA79A232BFB1000381E02 /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
+		};
+		561BA79C232BFB1000381E02 /* RxBlocking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxBlocking;
+		};
+		56438BDA232CE1DE005DAC77 /* PKHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */;
+			productName = PKHUD;
+		};
+		565BC9DD232CC69E001A90A3 /* CoreStore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 565BC9DC232CC69E001A90A3 /* XCRemoteSwiftPackageReference "CoreStore" */;
+			productName = CoreStore;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		565C3B9D1ED1A5D1003D8EE8 /* ShoppingManiac.xcdatamodeld */ = {

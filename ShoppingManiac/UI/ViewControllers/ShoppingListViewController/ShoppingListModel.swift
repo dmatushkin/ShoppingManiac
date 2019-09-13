@@ -8,7 +8,7 @@
 
 import Foundation
 import RxSwift
-import CoreData
+import CoreStore
 import RxCocoa
 
 class ShoppingListModel {
@@ -38,14 +38,14 @@ class ShoppingListModel {
     }
     
     func setLatestList() {
-        if let list = DAO.fetchOne(ShoppingList.self, predicate: NSPredicate(format: "isRemoved == false"), sort: [NSSortDescriptor(key: "date", ascending: false)]) {
+        if let list = try? CoreStore.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date))) {
             self.shoppingList = list
         }
     }
     
-    private func processData(context: NSManagedObjectContext) {
+    private func processData(transaction: AsynchronousDataTransaction) throws {
         if let list = self.shoppingList {
-            let items: [ShoppingListItem] = context.fetchAll(ShoppingListItem.self, predicate: NSPredicate(format: "(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", list))
+            let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", list)))
             let totalPrice = items.reduce(0.0) { acc, curr in
                 return acc + curr.totalPrice
             }
@@ -66,9 +66,9 @@ class ShoppingListModel {
     }
     
     func reloadData() {
-        DAO.performAsync(updates: self.processData).observeOn(MainScheduler.asyncInstance).subscribe(onNext: {[weak self] in
+        CoreStore.perform(asynchronous: self.processData, completion: {[weak self] _ in
             self?.onUpdate?()
-        }).disposed(by: self.disposeBag)
+        })
     }
     
     private func sortGroups(groups: [ShoppingGroup]) -> [ShoppingGroup] {
