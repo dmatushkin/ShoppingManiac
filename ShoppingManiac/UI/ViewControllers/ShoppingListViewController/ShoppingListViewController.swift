@@ -98,7 +98,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
             let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {[weak self] in
                 self?.tableView.isEditing = false
                 item.markRemoved()
-                self?.model.resyncData()
+                self?.model.reloadData()
             }
             self?.present(alertController, animated: true, completion: nil)
         }
@@ -140,7 +140,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     @IBAction private func shoppingList(unwindSegue: UIStoryboardSegue) {
         if unwindSegue.identifier == "addShoppingItemSaveSegue" {
-            self.model.resyncData()
+            self.model.reloadData()
         }
     }
 
@@ -187,7 +187,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     }
 
     private func icloudShare() {
-        let wrapper = CloudShare.shareList(list: self.model.shoppingList)
+        /*let wrapper = CloudShare.shareList(list: self.model.shoppingList)
         let controller = UICloudSharingController {[weak self] (_, onDone) in
             guard let `self` = self else {return}
             CloudShare.createShare(wrapper: wrapper).observeOnMain().subscribe(onNext: { share in
@@ -198,7 +198,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         }
         controller.delegate = self
         controller.availablePermissions = [.allowReadWrite, .allowPublic]
-        self.present(controller, animated: true, completion: nil)
+        self.present(controller, animated: true, completion: nil)*/
     }
     
     // MARK: - Cloud sharing controller delegate

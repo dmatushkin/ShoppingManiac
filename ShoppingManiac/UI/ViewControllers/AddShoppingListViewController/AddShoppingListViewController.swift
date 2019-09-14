@@ -23,7 +23,7 @@ class AddShoppingListViewController: ShoppingManiacViewController {
         self.shoppingNameEditField.becomeFirstResponder()
     }
 
-    @IBAction func addAction(_ sender: Any) {
+    @IBAction private func addAction(_ sender: Any) {
         if let list = self.model.createItem(), let presenter = self.listsViewController {
             self.dismiss(animated: true, completion: {
                 presenter.performSegue(withIdentifier: "shoppingListSegue", sender: list)

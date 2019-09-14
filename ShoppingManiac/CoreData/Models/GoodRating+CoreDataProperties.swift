@@ -2,8 +2,9 @@
 //  GoodRating+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 21/05/2017.
-//  Copyright © 2017 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 9/14/19.
+//  Copyright © 2019 Dmitry Matyushkin. All rights reserved.
+//
 //
 
 import Foundation
@@ -17,7 +18,6 @@ extension GoodRating {
 
     @NSManaged public var date: TimeInterval
     @NSManaged public var rating: Int16
-    @NSManaged public var recordid: String?
     @NSManaged public var good: Good?
 
 }

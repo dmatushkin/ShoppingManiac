@@ -26,17 +26,6 @@ class ShoppingListModel {
         LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.onUpdate ?? {}).disposed(by: self.disposeBag)
     }
     
-    func syncWithCloud() {
-        if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
-            CloudShare.updateList(list: self.shoppingList).subscribe().disposed(by: self.disposeBag)
-        }
-    }
-    
-    func resyncData() {
-        self.syncWithCloud()
-        self.reloadData()
-    }
-    
     func setLatestList() {
         if let list = DAO.fetchOne(ShoppingList.self, predicate: NSPredicate(format: "isRemoved == false"), sort: [NSSortDescriptor(key: "date", ascending: false)]) {
             self.shoppingList = list
@@ -101,7 +90,7 @@ class ShoppingListModel {
     func moveItem(from: IndexPath, toGroup: Int) {
         let item = self.item(forIndexPath: from)
         item.moveTo(group: self.shoppingGroups[toGroup])
-        self.resyncData()
+        self.reloadData()
     }
     
     func togglePurchased(indexPath: IndexPath) {
@@ -109,7 +98,6 @@ class ShoppingListModel {
         let item = group.items[indexPath.row]
         
         item.togglePurchased(list: self.shoppingList)
-        self.syncWithCloud()
         let sortedItems = self.sortItems(items: group.items)
         var itemFound: Bool = false
         for (idx, sortedItem) in sortedItems.enumerated() where item.objectId == sortedItem.objectId {

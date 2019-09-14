@@ -11,15 +11,6 @@ import CoreData
 import SwiftyBeaver
 
 public class ShoppingListItem: NSManagedObject {
-
-    func setRecordId(recordId: String) {
-        DAO.performSync(updates: {[weak self] context -> Void in
-            guard let self = self else { return }
-            if let shoppingListItem = context.edit(self) {
-                shoppingListItem.recordid = recordId
-            }
-        })
-    }
     
     var quantityText: String {
         return self.isWeight ? "\(self.quantity)" : "\(Int(self.quantity))"

@@ -2,12 +2,14 @@
 //  Category+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 21/05/2017.
-//  Copyright © 2017 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 9/14/19.
+//  Copyright © 2019 Dmitry Matyushkin. All rights reserved.
+//
 //
 
 import Foundation
 import CoreData
+
 
 extension Category {
 
@@ -16,7 +18,6 @@ extension Category {
     }
 
     @NSManaged public var name: String?
-    @NSManaged public var recordid: String?
     @NSManaged public var children: NSSet?
     @NSManaged public var goods: NSSet?
     @NSManaged public var parent: Category?

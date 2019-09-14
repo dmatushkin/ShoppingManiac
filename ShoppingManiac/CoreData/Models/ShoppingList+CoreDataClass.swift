@@ -16,15 +16,6 @@ public class ShoppingList: NSManagedObject {
         return (Array(self.items ?? []) as? [ShoppingListItem]) ?? []
     }
 
-    func setRecordId(recordId: String) {
-        DAO.performSync(updates: {[weak self] context -> Void in
-            guard let self = self else { return }
-            if let shoppingList: ShoppingList = context.edit(self) {
-                shoppingList.recordid = recordId
-            }
-        })
-    }
-
     var isPurchased: Bool {
         guard let items = self.items else { return false }
         return items.count > 0 && (items.allObjects as? [ShoppingListItem] ?? []).filter({ $0.purchased == false }).isEmpty

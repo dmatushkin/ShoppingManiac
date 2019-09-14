@@ -31,9 +31,6 @@ class ShoppingListsListModel {
             context.edit(shoppingList)?.isRemoved = true
         }).observeOn(MainScheduler.asyncInstance).subscribe(onNext: {[weak self] in
             guard let self = self else { return }
-            if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
-                CloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
-            }
             self.onUpdate?()
         }).disposed(by: self.disposeBag)
     }
