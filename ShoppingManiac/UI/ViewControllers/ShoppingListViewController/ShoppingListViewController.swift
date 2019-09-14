@@ -27,7 +27,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         if self.model.shoppingList == nil {
             self.model.setLatestList()
         }
-        self.automaticallyAdjustsScrollViewInsets = false
+        self.tableView.contentInsetAdjustmentBehavior = .never
         self.tableView.setBottomInset(inset: 70)
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         self.model.onUpdate = {[weak self] in

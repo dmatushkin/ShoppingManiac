@@ -99,30 +99,21 @@ class CloudShare {
     }
 
     class func getListRecord(list: ShoppingList) -> ShoppingListItemsWrapper {
-        if let recordName = list.recordid {
-            let recordId = CKRecord.ID(recordName: recordName, zoneID: zone(ownerName: list.ownerName).zoneID)
-            let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
-            return updateListRecord(record: record, list: list)
-        } else {
-            let record = CKRecord(recordType: CloudKitUtils.listRecordType, zoneID: zone(ownerName: list.ownerName).zoneID)
-            list.setRecordId(recordId: record.recordID.recordName)
-            return updateListRecord(record: record, list: list)
-        }
+        let recordName = list.recordid ?? CKRecord.ID().recordName
+        let recordId = CKRecord.ID(recordName: recordName, zoneID: zone(ownerName: list.ownerName).zoneID)
+        let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
+        list.setRecordId(recordId: recordName)
+        return updateListRecord(record: record, list: list)
     }
 
     class func getItemRecord(item: ShoppingListItem) -> CKRecord {
         let recordZone = zone(ownerName: item.list?.ownerName)
-        if let recordName = item.recordid {
-            let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone.zoneID)
-            let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
-            updateItemRecord(record: record, item: item)
-            return record
-        } else {
-            let record =  CKRecord(recordType: CloudKitUtils.itemRecordType, zoneID: recordZone.zoneID)
-            item.setRecordId(recordId: record.recordID.recordName)
-            updateItemRecord(record: record, item: item)
-            return record
-        }
+        let recordName = item.recordid ?? CKRecord.ID().recordName
+        let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone.zoneID)
+        let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
+        item.setRecordId(recordId: recordName)
+        updateItemRecord(record: record, item: item)
+        return record
     }
     
     private class func updateRecord(record: ShoppingListItemsWrapper) -> Observable<Void> {

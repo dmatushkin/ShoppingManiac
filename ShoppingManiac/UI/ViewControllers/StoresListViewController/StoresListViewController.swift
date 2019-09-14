@@ -16,7 +16,7 @@ class StoresListViewController: ShoppingManiacViewController, UITableViewDataSou
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.automaticallyAdjustsScrollViewInsets = false
+        self.tableView.contentInsetAdjustmentBehavior = .never
         self.model.onUpdate = {[weak self] in
             self?.tableView.reloadData()
         }

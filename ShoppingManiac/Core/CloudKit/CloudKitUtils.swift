@@ -160,13 +160,13 @@ class CloudKitUtils {
         return Observable<[CKRecord]>.create { observer in
             if zoneIds.count > 0 {
                 var records: [CKRecord] = []
-                var optionsByRecordZoneID = [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneOptions]()
+                var optionsByRecordZoneID = [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration]()
                 for zoneId in zoneIds {
-                    let options = CKFetchRecordZoneChangesOperation.ZoneOptions()
+                    let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
                     options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName)
                     optionsByRecordZoneID[zoneId] = options
-                }
-                let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: zoneIds, optionsByRecordZoneID: optionsByRecordZoneID)
+                }                
+                let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
                 operation.recordChangedBlock = { record in
                     records.append(record)
                 }
