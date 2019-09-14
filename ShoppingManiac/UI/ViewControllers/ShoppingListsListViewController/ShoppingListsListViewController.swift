@@ -15,10 +15,11 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     @IBOutlet private weak var tableView: UITableView!
     
     private let model = ShoppingListsListModel()
+    private var selectedRow: Int = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.automaticallyAdjustsScrollViewInsets = false
+        self.tableView.contentInsetAdjustmentBehavior = .never
         self.model.onUpdate = {[weak self] in
             self?.tableView.reloadData()
         }
@@ -34,8 +35,8 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let item = self.model.getItem(forIndex: indexPath), let cell: ShoppingListsListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
-            cell.setup(withList: item)
+        if let item = self.model.getItem(forIndex: indexPath), let cell: ShoppingListsListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {            
+            cell.setup(withList: item, isSelected: self.selectedRow == indexPath.row)
             return cell
         } else {
             fatalError()
@@ -70,14 +71,18 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let item = self.model.getItem(forIndex: indexPath) {
+            self.selectedRow = indexPath.row
             self.showList(list: item)
         }
     }
     
-    func showList(list: ShoppingList) {
+    func showList(list: ShoppingList, isNew: Bool = false) {
+        if isNew {
+            self.selectedRow = 0
+        }
         self.performSegue(withIdentifier: "shoppingListSegue", sender: list)
     }
-
+        
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

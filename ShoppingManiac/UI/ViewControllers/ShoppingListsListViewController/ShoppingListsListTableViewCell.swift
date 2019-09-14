@@ -14,10 +14,20 @@ class ShoppingListsListTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            self.selectionStyle = .none
+        } else {
+            self.selectionStyle = .gray
+        }
     }
 
-    func setup(withList shoppingList: ShoppingList) {
+    func setup(withList shoppingList: ShoppingList, isSelected: Bool) {
         self.listTitleLabel.text = shoppingList.title
         self.listTitleLabel.textColor = shoppingList.isPurchased ? UIColor.gray : UIColor.black
+        if UIDevice.current.userInterfaceIdiom == .phone || isSelected == false {
+            self.backgroundColor = UIColor.clear
+        } else {
+            self.backgroundColor = UIColor.lightGray.withAlphaComponent(0.5)
+        }
     }
 }
