@@ -18,12 +18,16 @@ class FetchChangesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.activityIndicator.startAnimating()
-        CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).observeOn(MainScheduler.asyncInstance).subscribe(onCompleted: self.proceed).disposed(by: self.disposeBag)
+        CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).observeOn(MainScheduler.asyncInstance).subscribe(onError: self.hasError, onCompleted: self.proceed).disposed(by: self.disposeBag)
     }
     
     private func proceed() {
         self.activityIndicator.stopAnimating()
         self.performSegue(withIdentifier: "proceedSegue", sender: self)
+    }
+    
+    private func hasError(error: Error) {
+        self.proceed()
     }
     
     // MARK: - Navigation
