@@ -62,6 +62,7 @@
 		565C3BC81ED1FCAA003D8EE8 /* ShoppingListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3BC71ED1FCAA003D8EE8 /* ShoppingListViewController.swift */; };
 		565C3BCA1ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3BC91ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift */; };
 		565C3BCC1ED20FF3003D8EE8 /* RoundRectTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565C3BCB1ED20FF3003D8EE8 /* RoundRectTextField.swift */; };
+		565D8F21232E54DC005ED7EF /* FetchChangesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565D8F20232E54DC005ED7EF /* FetchChangesViewController.swift */; };
 		565DA769208C7099005CF8C2 /* RecordsWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA768208C7099005CF8C2 /* RecordsWrapper.swift */; };
 		565DA76B208C70C3005CF8C2 /* ShoppingListWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA76A208C70C3005CF8C2 /* ShoppingListWrapper.swift */; };
 		565DA76D208C71A9005CF8C2 /* RecordWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA76C208C71A9005CF8C2 /* RecordWrapper.swift */; };
@@ -145,6 +146,7 @@
 		565C3BC71ED1FCAA003D8EE8 /* ShoppingListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListViewController.swift; sourceTree = "<group>"; };
 		565C3BC91ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListTableViewCell.swift; sourceTree = "<group>"; };
 		565C3BCB1ED20FF3003D8EE8 /* RoundRectTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundRectTextField.swift; sourceTree = "<group>"; };
+		565D8F20232E54DC005ED7EF /* FetchChangesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchChangesViewController.swift; sourceTree = "<group>"; };
 		565DA768208C7099005CF8C2 /* RecordsWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordsWrapper.swift; sourceTree = "<group>"; };
 		565DA76A208C70C3005CF8C2 /* ShoppingListWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListWrapper.swift; sourceTree = "<group>"; };
 		565DA76C208C71A9005CF8C2 /* RecordWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordWrapper.swift; sourceTree = "<group>"; };
@@ -220,6 +222,7 @@
 		560E12211ED1787400E2529E /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				565D8F1F232E54C5005ED7EF /* FetchChangesViewController */,
 				5644D78323239C2100982D4E /* ListSplitViewController */,
 				562BABAF208C9E860063013A /* ShoppingManiacViewController */,
 				560E122A1ED17B3700E2529E /* ShoppingListsListViewController */,
@@ -443,6 +446,14 @@
 			path = ShoppingListViewController;
 			sourceTree = "<group>";
 		};
+		565D8F1F232E54C5005ED7EF /* FetchChangesViewController */ = {
+			isa = PBXGroup;
+			children = (
+				565D8F20232E54DC005ED7EF /* FetchChangesViewController.swift */,
+			);
+			path = FetchChangesViewController;
+			sourceTree = "<group>";
+		};
 		565DA76F208C72DF005CF8C2 /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -653,6 +664,7 @@
 				565C3B9A1ED19EC5003D8EE8 /* ShoppingListItem+CoreDataProperties.swift in Sources */,
 				565C3B8C1ED19999003D8EE8 /* UITableViewExtension.swift in Sources */,
 				565C3B9C1ED19EC5003D8EE8 /* Good+CoreDataProperties.swift in Sources */,
+				565D8F21232E54DC005ED7EF /* FetchChangesViewController.swift in Sources */,
 				5644D78523239C3E00982D4E /* ListSplitViewController.swift in Sources */,
 				565DA771208C72F2005CF8C2 /* CommonError.swift in Sources */,
 				56D1216A20A713800044C486 /* AddCategoryModel.swift in Sources */,

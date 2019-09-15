@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="p8F-sG-Cnb">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="2Bx-FO-PuE">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -7,10 +7,51 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Fetch Changes View Controller-->
+        <scene sceneID="wYG-oC-4SJ">
+            <objects>
+                <viewController id="PfJ-vS-Zzg" customClass="FetchChangesViewController" customModule="ShoppingManiac" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Xbb-K6-rkH"/>
+                        <viewControllerLayoutGuide type="bottom" id="tyX-OQ-uNJ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="s7z-dC-5zu">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Shopping Maniac" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cXW-CB-oIo">
+                                <rect key="frame" x="102" y="154" width="171" height="25.5"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="21"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="Uqg-4h-48E">
+                                <rect key="frame" x="169" y="315" width="37" height="37"/>
+                            </activityIndicatorView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="Uqg-4h-48E" firstAttribute="centerX" secondItem="s7z-dC-5zu" secondAttribute="centerX" id="9Ze-HL-nxv"/>
+                            <constraint firstItem="Uqg-4h-48E" firstAttribute="centerY" secondItem="s7z-dC-5zu" secondAttribute="centerY" id="L4R-pV-k2M"/>
+                            <constraint firstItem="cXW-CB-oIo" firstAttribute="centerX" secondItem="s7z-dC-5zu" secondAttribute="centerX" id="tWC-jT-4OR"/>
+                            <constraint firstItem="cXW-CB-oIo" firstAttribute="centerY" secondItem="s7z-dC-5zu" secondAttribute="centerY" multiplier="1:2" id="ucW-vA-VK5"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="V4r-Bb-xuS"/>
+                    <connections>
+                        <outlet property="activityIndicator" destination="Uqg-4h-48E" id="Ia2-0D-XjG"/>
+                        <segue destination="p8F-sG-Cnb" kind="show" identifier="proceedSegue" id="W6u-OP-ISx"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="JPG-Pb-DsS" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="23" y="45"/>
+        </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="oQ1-Od-0lj">
             <objects>
                 <tabBarController id="p8F-sG-Cnb" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="ACw-nT-Qvk"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" id="YD5-TB-cZ9">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -26,7 +67,7 @@
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SF6-V2-GeH" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="406" y="47"/>
+            <point key="canvasLocation" x="801" y="45"/>
         </scene>
         <!--Shopping Lists-->
         <scene sceneID="Lv0-HV-fR7">
@@ -627,7 +668,6 @@
             <objects>
                 <navigationController id="R0l-a6-3G6" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="2a5-GK-baB">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -742,7 +782,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AbF-z4-Khq" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2364" y="46"/>
+            <point key="canvasLocation" x="2364" y="45"/>
         </scene>
         <!--Stores list-->
         <scene sceneID="VXB-0w-v2j">
@@ -761,7 +801,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R4J-N8-L5G" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1557.5999999999999" y="45.42728635682159"/>
+            <point key="canvasLocation" x="1564" y="45"/>
         </scene>
         <!--Categories List-->
         <scene sceneID="P60-f3-TsM">
@@ -1334,6 +1374,24 @@
                 <exit id="L6f-r0-K95" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="3129" y="716"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="QZl-ye-cYw">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="2Bx-FO-PuE" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <nil key="simulatedTopBarMetrics"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="aEa-fN-KOw">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="PfJ-vS-Zzg" kind="relationship" relationship="rootViewController" id="hdd-SS-5Gl"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x4C-Oo-2tT" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-714" y="45"/>
         </scene>
     </scenes>
     <resources>

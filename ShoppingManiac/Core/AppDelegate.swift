@@ -36,11 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
         _ = try? CoreStore.addStorageAndWait(store)
-        CloudShare.setupUserPermissions()
-        CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).subscribe(onCompleted: {
-            SwiftyBeaver.debug("loading updates done")
-            LocalNotifications.newDataAvailable.post(value: ())
-        }).disposed(by: self.disposeBag)
+        CloudShare.setupUserPermissions()        
         CloudSubscriptions.setupSubscriptions()
         return true
     }

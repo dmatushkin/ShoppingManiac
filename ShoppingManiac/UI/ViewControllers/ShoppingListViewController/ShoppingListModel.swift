@@ -23,7 +23,11 @@ class ShoppingListModel {
     var shoppingGroups: [ShoppingGroup] = []
     
     init() {
-        LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.onUpdate ?? {}).disposed(by: self.disposeBag)
+        LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.updateNeeded).disposed(by: self.disposeBag)
+    }
+    
+    private func updateNeeded() {
+        self.onUpdate?()
     }
     
     func syncWithCloud() {
