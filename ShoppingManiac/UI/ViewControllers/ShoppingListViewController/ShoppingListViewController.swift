@@ -13,6 +13,7 @@ import SwiftyBeaver
 import CloudKit
 import RxSwift
 import RxCocoa
+import PKHUD
 
 class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate {
 
@@ -189,17 +190,21 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     private func icloudShare() {
         let wrapper = CloudShare.shareList(list: self.model.shoppingList)
-        let controller = UICloudSharingController {[weak self] (_, onDone) in
-            guard let `self` = self else {return}
-            CloudShare.createShare(wrapper: wrapper).observeOnMain().subscribe(onNext: { share in
-                onDone(share, CKContainer.default(), nil)
-            }, onError: {error in
-                onDone(nil, CKContainer.default(), error)
-            }).disposed(by: self.model.disposeBag)
-        }
+        HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
+        CloudShare.createShare(wrapper: wrapper).observeOnMain().subscribe(onNext: self.createSharingController, onError: self.showSharingError).disposed(by: self.model.disposeBag)
+    }
+    
+    private func createSharingController(share: CKShare) {
+        let controller = UICloudSharingController(share: share, container: CKContainer.default())
         controller.delegate = self
         controller.availablePermissions = [.allowReadWrite, .allowPublic]
+        controller.popoverPresentationController?.sourceView = self.view
+        HUD.hide()
         self.present(controller, animated: true, completion: nil)
+    }
+    
+    private func showSharingError(error: Error) {
+        HUD.flash(.labeledError(title: "iCloud sharing error", subtitle: error.localizedDescription), delay: 3)
     }
     
     // MARK: - Cloud sharing controller delegate
