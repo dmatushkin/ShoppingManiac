@@ -127,18 +127,14 @@ class CloudKitUtils {
         }
     }
     
-    class func fetchDatabaseChanges(localDb: Bool) -> Observable<CKRecordZone.ID> {
-        return Observable<CKRecordZone.ID>.create { observer in
+    class func fetchDatabaseChanges(localDb: Bool) -> Observable<ZonesToFetchWrapper> {
+        return Observable<ZonesToFetchWrapper>.create { observer in
             let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: localDb ? UserDefaults.standard.localServerChangeToken : UserDefaults.standard.sharedServerChangeToken)
+            var zoneIds: [CKRecordZone.ID] = []
             operation.recordZoneWithIDChangedBlock = { zoneId in
-                observer.onNext(zoneId)
+                zoneIds.append(zoneId)
             }
             operation.changeTokenUpdatedBlock = { token in
-                if localDb {
-                    UserDefaults.standard.localServerChangeToken = token
-                } else {
-                    UserDefaults.standard.sharedServerChangeToken = token
-                }
             }
             operation.qualityOfService = .utility
             operation.fetchAllChanges = true
@@ -146,9 +142,14 @@ class CloudKitUtils {
                 if let error = error {
                     SwiftyBeaver.debug(error.localizedDescription)
                     observer.onError(error)
-                } else {
+                } else if let token = token {
+                    observer.onNext(ZonesToFetchWrapper(localDb: localDb, token: token, zoneIds: zoneIds))
                     SwiftyBeaver.debug("Update zones request finished")
                     observer.onCompleted()
+                } else {
+                    let error = CommonError(description: "iCloud token is empty")
+                    SwiftyBeaver.debug(error.localizedDescription)
+                    observer.onError(error)
                 }
             }
             CKContainer.default().database(localDb: localDb).add(operation)
@@ -156,26 +157,27 @@ class CloudKitUtils {
         }
     }
     
-    class func fetchZoneChanges(localDb: Bool, zoneIds: [CKRecordZone.ID]) -> Observable<[CKRecord]> {
+    class func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> Observable<[CKRecord]> {
         return Observable<[CKRecord]>.create { observer in
-            if zoneIds.count > 0 {
+            if wrapper.zoneIds.count > 0 {
                 var records: [CKRecord] = []
                 var optionsByRecordZoneID = [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration]()
-                for zoneId in zoneIds {
+                for zoneId in wrapper.zoneIds {
                     let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
-                    options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName)
+                    options.previousServerChangeToken = nil // UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName)
                     optionsByRecordZoneID[zoneId] = options
                 }                
-                let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
+                let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: wrapper.zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
                 operation.recordChangedBlock = { record in
                     records.append(record)
                 }
                 operation.recordZoneChangeTokensUpdatedBlock = {zoneId, token, data in
-                    UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName, token: token)
                 }
                 operation.recordZoneFetchCompletionBlock = { zoneId, changeToken, data, moreComing, error in
                     if let error = error {
                         SwiftyBeaver.debug(error.localizedDescription)
+                    } else if let token = changeToken {
+                        UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName, token: token)
                     }
                 }
                 operation.fetchRecordZoneChangesCompletionBlock = { error in
@@ -183,12 +185,17 @@ class CloudKitUtils {
                         SwiftyBeaver.debug(error.localizedDescription)
                         observer.onError(error)
                     } else {
+                        if wrapper.localDb {
+                            UserDefaults.standard.localServerChangeToken = wrapper.token
+                        } else {
+                            UserDefaults.standard.sharedServerChangeToken = wrapper.token
+                        }
                         SwiftyBeaver.debug("\(records.count) updated records found")
                         observer.onNext(records)
                         observer.onCompleted()
                     }
                 }
-                CKContainer.default().database(localDb: localDb).add(operation)
+                CKContainer.default().database(localDb: wrapper.localDb).add(operation)
             } else {
                 observer.onCompleted()
             }

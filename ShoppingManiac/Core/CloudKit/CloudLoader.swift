@@ -94,10 +94,8 @@ class CloudLoader {
     }
 
     class func fetchChanges(localDb: Bool) -> Observable<Void> {
-        return CloudKitUtils.fetchDatabaseChanges(localDb: localDb).toArray().asObservable()
-            .flatMap({(zoneIds: [CKRecordZone.ID]) -> Observable<[CKRecord]> in
-                CloudKitUtils.fetchZoneChanges(localDb: localDb, zoneIds: zoneIds)
-            }).flatMap({ records in
+        return CloudKitUtils.fetchDatabaseChanges(localDb: localDb)
+            .flatMap(CloudKitUtils.fetchZoneChanges).flatMap({ records in
                 processChangesRecords(records: records, localDb: localDb)
             })
     }

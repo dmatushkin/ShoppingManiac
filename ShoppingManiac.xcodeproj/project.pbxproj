@@ -16,6 +16,7 @@
 		561BA799232BFB1000381E02 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA798232BFB1000381E02 /* RxRelay */; };
 		561BA79B232BFB1000381E02 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA79A232BFB1000381E02 /* RxCocoa */; };
 		561BA79D232BFB1000381E02 /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA79C232BFB1000381E02 /* RxBlocking */; };
+		561ED325233003F10045457B /* ZonesToFetchWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 561ED324233003F10045457B /* ZonesToFetchWrapper.swift */; };
 		562BAA4F20A60CC30061D654 /* AddShoppingListItemModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */; };
 		562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
@@ -94,6 +95,7 @@
 
 /* Begin PBXFileReference section */
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
+		561ED324233003F10045457B /* ZonesToFetchWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZonesToFetchWrapper.swift; sourceTree = "<group>"; };
 		562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListItemModel.swift; sourceTree = "<group>"; };
 		562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingManiacViewController.swift; sourceTree = "<group>"; };
 		56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSaveSegue.swift; sourceTree = "<group>"; };
@@ -316,6 +318,7 @@
 				565DA772208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift */,
 				5666997A20948B700053F39E /* CloudKitUtils.swift */,
 				5666997C2094F7140053F39E /* CloudSubscriptions.swift */,
+				561ED324233003F10045457B /* ZonesToFetchWrapper.swift */,
 			);
 			path = CloudKit;
 			sourceTree = "<group>";
@@ -652,6 +655,7 @@
 			files = (
 				56D1215E20A6FE510044C486 /* GoodsListModel.swift in Sources */,
 				565DA773208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift in Sources */,
+				561ED325233003F10045457B /* ZonesToFetchWrapper.swift in Sources */,
 				565DA76D208C71A9005CF8C2 /* RecordWrapper.swift in Sources */,
 				565C3BB01ED1A61B003D8EE8 /* Picture+CoreDataClass.swift in Sources */,
 				565C3B7E1ED17D70003D8EE8 /* StoresListViewController.swift in Sources */,
