@@ -16,7 +16,7 @@ class ShoppingListModel {
     let totalText = BehaviorRelay<String>(value: "")
     
     let disposeBag = DisposeBag()
-    var onUpdate: (() -> Void)?
+    weak var delegate: UpdateDelegate?
     var moveRow: ((IndexPath, IndexPath) -> Void)?
     
     var shoppingList: ShoppingList!
@@ -27,7 +27,7 @@ class ShoppingListModel {
     }
     
     private func updateNeeded() {
-        self.onUpdate?()
+        self.delegate?.reloadData()
     }
     
     func syncWithCloud() {
@@ -71,7 +71,7 @@ class ShoppingListModel {
     
     func reloadData() {
         CoreStore.perform(asynchronous: self.processData, completion: {[weak self] _ in
-            self?.onUpdate?()
+            self?.delegate?.reloadData()
         })
     }
     
@@ -125,7 +125,7 @@ class ShoppingListModel {
         }
         if itemFound == false {
             group.items = sortedItems
-            self.onUpdate?()
+            self.delegate?.reloadData()
         }
     }
 }

@@ -15,7 +15,7 @@ import RxSwift
 import RxCocoa
 import PKHUD
 
-class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate {
+class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate, UpdateDelegate {
 
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var totalLabel: UILabel!
@@ -31,9 +31,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         self.tableView.contentInsetAdjustmentBehavior = .never
         self.tableView.setBottomInset(inset: 70)
         self.navigationItem.rightBarButtonItem = self.editButtonItem
-        self.model.onUpdate = {[weak self] in
-            self?.tableView.reloadData()
-        }
+        self.model.delegate = self
         self.model.moveRow = {[weak self] fromPath, toPath in
             UIView.animate(withDuration: 0.5, animations: {[weak self] () -> Void in
                 self?.tableView.moveRow(at: fromPath, to: toPath)
@@ -46,6 +44,10 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         if let controllers = self.navigationController?.viewControllers {
             self.navigationController?.viewControllers = controllers.filter({!($0 is AddShoppingListViewController)})
         }
+    }
+    
+    func reloadData() {
+        self.tableView.reloadData()
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {

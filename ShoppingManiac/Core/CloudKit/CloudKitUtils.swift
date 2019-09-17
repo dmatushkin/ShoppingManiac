@@ -157,6 +157,22 @@ class CloudKitUtils {
         }
     }
     
+    private class func clearToken(wrapper: ZonesToFetchWrapper) {
+        if wrapper.localDb {
+            UserDefaults.standard.localServerChangeToken = nil
+        } else {
+            UserDefaults.standard.sharedServerChangeToken = nil
+        }
+    }
+    
+    private class func setToken(wrapper: ZonesToFetchWrapper) {
+        if wrapper.localDb {
+            UserDefaults.standard.localServerChangeToken = wrapper.token
+        } else {
+            UserDefaults.standard.sharedServerChangeToken = wrapper.token
+        }
+    }
+    
     class func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> Observable<[CKRecord]> {
         return Observable<[CKRecord]>.create { observer in
             if wrapper.zoneIds.count > 0 {
@@ -164,7 +180,7 @@ class CloudKitUtils {
                 var optionsByRecordZoneID = [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration]()
                 for zoneId in wrapper.zoneIds {
                     let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
-                    options.previousServerChangeToken = nil // UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName)
+                    options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName)
                     optionsByRecordZoneID[zoneId] = options
                 }                
                 let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: wrapper.zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
@@ -176,6 +192,7 @@ class CloudKitUtils {
                 operation.recordZoneFetchCompletionBlock = { zoneId, changeToken, data, moreComing, error in
                     if let error = error {
                         SwiftyBeaver.debug(error.localizedDescription)
+                        UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName, token: nil)
                     } else if let token = changeToken {
                         UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName, token: token)
                     }
@@ -183,13 +200,10 @@ class CloudKitUtils {
                 operation.fetchRecordZoneChangesCompletionBlock = { error in
                     if let error = error {
                         SwiftyBeaver.debug(error.localizedDescription)
+                        clearToken(wrapper: wrapper)
                         observer.onError(error)
                     } else {
-                        if wrapper.localDb {
-                            UserDefaults.standard.localServerChangeToken = wrapper.token
-                        } else {
-                            UserDefaults.standard.sharedServerChangeToken = wrapper.token
-                        }
+                        setToken(wrapper: wrapper)
                         SwiftyBeaver.debug("\(records.count) updated records found")
                         observer.onNext(records)
                         observer.onCompleted()

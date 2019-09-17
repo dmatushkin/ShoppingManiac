@@ -18,12 +18,11 @@ public class ShoppingList: NSManagedObject {
     }
 
     func setRecordId(recordId: String) {
-        _ = try? CoreStore.perform(synchronous: {[weak self] transaction -> String in
-            guard let `self` = self else { return recordId }
+        _ = try? CoreStore.perform(synchronous: {[weak self] transaction -> Void in
+            guard let self = self else { return }
             if let shoppingList: ShoppingList = transaction.edit(self) {
                 shoppingList.recordid = recordId
             }
-            return recordId
         })
     }
 

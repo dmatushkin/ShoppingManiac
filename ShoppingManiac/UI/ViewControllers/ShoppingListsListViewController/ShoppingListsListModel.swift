@@ -39,7 +39,7 @@ class ShoppingListsListModel {
             let list = transaction.edit(shoppingList)
             list?.isRemoved = true
         }, completion: {[weak self] _ in
-            guard let `self` = self else { return }
+            guard let self = self else { return }
             if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
                 CloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
             }

@@ -87,6 +87,7 @@
 		56D1216A20A713800044C486 /* AddCategoryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D1216920A713800044C486 /* AddCategoryModel.swift */; };
 		56D540571F9A73180036C646 /* UIKeyboardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D540561F9A73180036C646 /* UIKeyboardInfo.swift */; };
 		56EC8F0E1FE84461009C4868 /* ShoppingManiacIconsBundle.icns in Resources */ = {isa = PBXBuildFile; fileRef = 56EC8F0D1FE84461009C4868 /* ShoppingManiacIconsBundle.icns */; };
+		56F51FC6233097DD000055CA /* UpdateDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F51FC5233097DD000055CA /* UpdateDelegate.swift */; };
 		B0A4C727C21324FEACC9686A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A4C1F406A445E62CBD06C0 /* Assets.xcassets */; };
 		B0A4CA4931E7D7CC6A26F983 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B0A4CCDA784A39CB92404B81 /* Main.storyboard */; };
 		B0A4CC3B69D54152E1820094 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B0A4C19BC8CEEF5DDEAA4383 /* LaunchScreen.storyboard */; };
@@ -175,6 +176,7 @@
 		56D1216920A713800044C486 /* AddCategoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategoryModel.swift; sourceTree = "<group>"; };
 		56D540561F9A73180036C646 /* UIKeyboardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKeyboardInfo.swift; sourceTree = "<group>"; };
 		56EC8F0D1FE84461009C4868 /* ShoppingManiacIconsBundle.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ShoppingManiacIconsBundle.icns; sourceTree = "<group>"; };
+		56F51FC5233097DD000055CA /* UpdateDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateDelegate.swift; sourceTree = "<group>"; };
 		B0A4C1B2B2DCA62C7AAB4488 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B0A4C1F406A445E62CBD06C0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B0A4C86CDC1D5225004EA856 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
@@ -461,6 +463,7 @@
 			isa = PBXGroup;
 			children = (
 				565DA770208C72F2005CF8C2 /* CommonError.swift */,
+				56F51FC5233097DD000055CA /* UpdateDelegate.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -694,6 +697,7 @@
 				568ADB2420A2C1260005B14C /* AddShoppingListModel.swift in Sources */,
 				5666997B20948B700053F39E /* CloudKitUtils.swift in Sources */,
 				560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */,
+				56F51FC6233097DD000055CA /* UpdateDelegate.swift in Sources */,
 				565C3BB81ED1B8CE003D8EE8 /* AddGoodViewController.swift in Sources */,
 				565C3BAD1ED1A61B003D8EE8 /* GoodRating+CoreDataProperties.swift in Sources */,
 				5666997F2095B33C0053F39E /* UserDefaultsExtension.swift in Sources */,

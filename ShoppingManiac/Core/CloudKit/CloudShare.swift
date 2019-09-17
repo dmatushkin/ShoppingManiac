@@ -58,15 +58,15 @@ class CloudShare {
     }
 
     class func shareList(list: ShoppingList) -> ShoppingListItemsWrapper {
-        return getListRecord(list: list)
+        return getListWrapper(list: list)
     }
 
     class func updateList(list: ShoppingList) -> Observable<Void> {
-        let listRecord = getListRecord(list: list)
-        return updateRecord(record: listRecord)
+        let listRecord = getListWrapper(list: list)
+        return updateRecord(wrapper: listRecord)
     }
 
-    private class func updateListRecord(record: CKRecord, list: ShoppingList) -> ShoppingListItemsWrapper {
+    private class func updateListWrapper(record: CKRecord, list: ShoppingList) -> ShoppingListItemsWrapper {
         let items = list.listItems.map({getItemRecord(item: $0)})
         for item in items {
             item.setParent(record)
@@ -98,12 +98,12 @@ class CloudShare {
         }
     }
 
-    class func getListRecord(list: ShoppingList) -> ShoppingListItemsWrapper {
+    class func getListWrapper(list: ShoppingList) -> ShoppingListItemsWrapper {
         let recordName = list.recordid ?? CKRecord.ID().recordName
         let recordId = CKRecord.ID(recordName: recordName, zoneID: zone(ownerName: list.ownerName).zoneID)
         let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
         list.setRecordId(recordId: recordName)
-        return updateListRecord(record: record, list: list)
+        return updateListWrapper(record: record, list: list)
     }
 
     class func getItemRecord(item: ShoppingListItem) -> CKRecord {
@@ -116,9 +116,16 @@ class CloudShare {
         return record
     }
     
-    private class func updateRecord(record: ShoppingListItemsWrapper) -> Observable<Void> {
-        return CloudKitUtils.updateRecords(records: [record.record], localDb: record.localDb)
-            .concat(CloudKitUtils.updateRecords(records: record.items, localDb: record.localDb))
+    private class func updateRecord(wrapper: ShoppingListItemsWrapper) -> Observable<Void> {
+        if let shareRef = wrapper.record.share {
+            return CloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb).flatMap({shareRecord in                
+                return CloudKitUtils.updateRecords(records: [wrapper.record, shareRecord], localDb: wrapper.localDb)
+                .concat(CloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
+            })
+        } else {
+            return CloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb)
+            .concat(CloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
+        }
     }
         
     class func createShare(wrapper: ShoppingListItemsWrapper) -> Observable<CKShare> {
@@ -127,6 +134,7 @@ class CloudShare {
             share[CKShare.SystemFieldKey.title] = "Shopping list" as CKRecordValue
             share[CKShare.SystemFieldKey.shareType] = "org.md.ShoppingManiac" as CKRecordValue
             share.publicPermission = .readWrite
+            
             let recordsToUpdate = [wrapper.record, share]
             
             let disposable = CloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true)

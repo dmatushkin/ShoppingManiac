@@ -76,7 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let operation = CKAcceptSharesOperation(shareMetadatas: [cloudKitShareMetadata])
         operation.qualityOfService = .userInteractive
         operation.perShareCompletionBlock = {[weak self] metadata, share, error in
-            guard let `self` = self else {return}
+            guard let self = self else {return}
             if let error = error {
                 SwiftyBeaver.debug("sharing accept error \(error.localizedDescription)")
             } else {
