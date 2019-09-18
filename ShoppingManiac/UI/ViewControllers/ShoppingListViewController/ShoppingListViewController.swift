@@ -32,13 +32,6 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         self.tableView.setBottomInset(inset: 70)
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         self.model.delegate = self
-        self.model.moveRow = {[weak self] fromPath, toPath in
-            UIView.animate(withDuration: 0.5, animations: {[weak self] () -> Void in
-                self?.tableView.moveRow(at: fromPath, to: toPath)
-            }, completion: {[weak self] (_) -> Void in
-                self?.tableView.reloadRows(at: [fromPath, toPath], with: UITableView.RowAnimation.none)
-            })
-        }
         self.model.totalText.asObservable().observeOnMain().bind(to: self.totalLabel.rx.text).disposed(by: self.model.disposeBag)
         self.model.reloadData()
         if let controllers = self.navigationController?.viewControllers {
@@ -48,6 +41,14 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     
     func reloadData() {
         self.tableView.reloadData()
+    }
+    
+    func moveRow(from: IndexPath, to: IndexPath) {
+        UIView.animate(withDuration: 0.5, animations: {[weak self] () -> Void in
+            self?.tableView.moveRow(at: from, to: to)
+        }, completion: {[weak self] (_) -> Void in
+            self?.tableView.reloadRows(at: [from, to], with: UITableView.RowAnimation.none)
+        })
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -191,9 +192,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     }
 
     private func icloudShare() {
-        let wrapper = CloudShare.shareList(list: self.model.shoppingList)
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
-        CloudShare.createShare(wrapper: wrapper).observeOnMain().subscribe(onNext: self.createSharingController, onError: self.showSharingError).disposed(by: self.model.disposeBag)
+        CloudShare.shareList(list: self.model.shoppingList).flatMap(CloudShare.createShare).observeOnMain().subscribe(onNext: self.createSharingController, onError: self.showSharingError).disposed(by: self.model.disposeBag)
     }
     
     private func createSharingController(share: CKShare) {

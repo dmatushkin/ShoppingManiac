@@ -13,6 +13,8 @@ import SwiftyBeaver
 import RxSwift
 
 class CloudShare {
+    
+    private init() {}
 
     private class func createZone() {
         let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
@@ -57,25 +59,25 @@ class CloudShare {
         }
     }
 
-    class func shareList(list: ShoppingList) -> ShoppingListItemsWrapper {
+    class func shareList(list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
         return getListWrapper(list: list)
     }
 
     class func updateList(list: ShoppingList) -> Observable<Void> {
-        let listRecord = getListWrapper(list: list)
-        return updateRecord(wrapper: listRecord)
+        return getListWrapper(list: list).flatMap(updateRecord)
     }
 
-    private class func updateListWrapper(record: CKRecord, list: ShoppingList) -> ShoppingListItemsWrapper {
-        let items = list.listItems.map({getItemRecord(item: $0)})
-        for item in items {
-            item.setParent(record)
-        }
-        record["name"] = (list.name ?? "") as CKRecordValue
-        record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
-        record["isRemoved"] = list.isRemoved as CKRecordValue
-        record["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
-        return ShoppingListItemsWrapper(localDb: !list.isRemote, shoppingList: list, record: record, items: items, ownerName: list.ownerName)
+    private class func updateListWrapper(record: CKRecord, list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
+        return Observable.from(list.listItems.map({getItemRecord(item: $0)})).merge().toArray().asObservable().map({items in
+            for item in items {
+                item.setParent(record)
+            }
+            record["name"] = (list.name ?? "") as CKRecordValue
+            record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
+            record["isRemoved"] = list.isRemoved as CKRecordValue
+            record["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
+            return ShoppingListItemsWrapper(localDb: !list.isRemote, shoppingList: list, record: record, items: items, ownerName: list.ownerName)
+        })
     }
 
     private class func updateItemRecord(record: CKRecord, item: ShoppingListItem) {
@@ -98,22 +100,38 @@ class CloudShare {
         }
     }
 
-    class func getListWrapper(list: ShoppingList) -> ShoppingListItemsWrapper {
-        let recordName = list.recordid ?? CKRecord.ID().recordName
-        let recordId = CKRecord.ID(recordName: recordName, zoneID: zone(ownerName: list.ownerName).zoneID)
-        let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
-        list.setRecordId(recordId: recordName)
-        return updateListWrapper(record: record, list: list)
+    class func getListWrapper(list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
+        let recordZone = zone(ownerName: list.ownerName).zoneID
+        if let recordName = list.recordid {
+            let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
+            return CloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).flatMap({record in
+                return updateListWrapper(record: record, list: list)
+            })
+        } else {
+            let recordName = CKRecord.ID().recordName
+            let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
+            let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
+            list.setRecordId(recordId: recordName)
+            return updateListWrapper(record: record, list: list)
+        }
     }
 
-    class func getItemRecord(item: ShoppingListItem) -> CKRecord {
-        let recordZone = zone(ownerName: item.list?.ownerName)
-        let recordName = item.recordid ?? CKRecord.ID().recordName
-        let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone.zoneID)
-        let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
-        item.setRecordId(recordId: recordName)
-        updateItemRecord(record: record, item: item)
-        return record
+    class func getItemRecord(item: ShoppingListItem) -> Observable<CKRecord> {
+        let recordZone = zone(ownerName: item.list?.ownerName).zoneID
+        if let recordName = item.recordid {
+            let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
+            return CloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !(item.list?.isRemote ?? false)).map({record in
+                updateItemRecord(record: record, item: item)
+                return record
+            })
+        } else {
+            let recordName = CKRecord.ID().recordName
+            let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
+            let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
+            item.setRecordId(recordId: recordName)
+            updateItemRecord(record: record, item: item)
+            return Observable.just(record)
+        }
     }
     
     private class func updateRecord(wrapper: ShoppingListItemsWrapper) -> Observable<Void> {

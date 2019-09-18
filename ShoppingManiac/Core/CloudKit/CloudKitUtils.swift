@@ -17,6 +17,8 @@ class CloudKitUtils {
     static let listRecordType = "ShoppingList"
     static let itemRecordType = "ShoppingListItem"
     
+    private init() {}
+    
     class func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> Observable<CKRecord> {
         return Observable<CKRecord>.create { observer in
             let operation = CKFetchRecordsOperation(recordIDs: recordIds)
@@ -86,7 +88,7 @@ class CloudKitUtils {
     
     class func fetchRecordsQuery(recordType: String, localDb: Bool) -> Observable<[CKRecord]> {
         return Observable<[CKRecord]>.create { observer in
-            let query = CKQuery(recordType: recordType, predicate: NSPredicate(format: "TRUEPREDICATE", argumentArray: nil))
+            let query = CKQuery(recordType: recordType, predicate: NSPredicate(value: true))
             let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
             CKContainer.default().database(localDb: localDb).perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
                 if let records = records, error == nil {
@@ -180,7 +182,7 @@ class CloudKitUtils {
                 var optionsByRecordZoneID = [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration]()
                 for zoneId in wrapper.zoneIds {
                     let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
-                    options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName)
+                    options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName + (wrapper.localDb ? "local" : "remote"))
                     optionsByRecordZoneID[zoneId] = options
                 }                
                 let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: wrapper.zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
@@ -192,9 +194,9 @@ class CloudKitUtils {
                 operation.recordZoneFetchCompletionBlock = { zoneId, changeToken, data, moreComing, error in
                     if let error = error {
                         SwiftyBeaver.debug(error.localizedDescription)
-                        UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName, token: nil)
+                        UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName + (wrapper.localDb ? "local" : "remote"), token: nil)
                     } else if let token = changeToken {
-                        UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName, token: token)
+                        UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName + (wrapper.localDb ? "local" : "remote"), token: token)
                     }
                 }
                 operation.fetchRecordZoneChangesCompletionBlock = { error in

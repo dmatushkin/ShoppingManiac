@@ -12,6 +12,8 @@ import RxSwift
 
 class CloudSubscriptions {
     
+    private init() {}
+    
     private static let subscriptionsKey = "cloudKitSubscriptionsDone"
     private static let subscriptionID = "cloudKitSharedDataSubscription"
     private static let sharedSubscriptionID = "cloudKitRemoteSharedDataSubscription"
@@ -44,6 +46,7 @@ class CloudSubscriptions {
         let notificationInfo = CKSubscription.NotificationInfo()
         notificationInfo.shouldSendContentAvailable = true
         subscription.notificationInfo = notificationInfo
+        subscription.zoneID = CKRecordZone(zoneName: CloudKitUtils.zoneName).zoneID
         return subscription
     }
 }

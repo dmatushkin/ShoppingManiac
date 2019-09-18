@@ -17,7 +17,6 @@ class ShoppingListModel {
     
     let disposeBag = DisposeBag()
     weak var delegate: UpdateDelegate?
-    var moveRow: ((IndexPath, IndexPath) -> Void)?
     
     var shoppingList: ShoppingList!
     var shoppingGroups: [ShoppingGroup] = []
@@ -27,7 +26,7 @@ class ShoppingListModel {
     }
     
     private func updateNeeded() {
-        self.delegate?.reloadData()
+        self.reloadData()
     }
     
     func syncWithCloud() {
@@ -120,7 +119,7 @@ class ShoppingListModel {
             let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
             itemFound = true
             group.items = sortedItems
-            self.moveRow?(indexPath, sortedIndexPath)
+            self.delegate?.moveRow(from: indexPath, to: sortedIndexPath)
             break
         }
         if itemFound == false {
