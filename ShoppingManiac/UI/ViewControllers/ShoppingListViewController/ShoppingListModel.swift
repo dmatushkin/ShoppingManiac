@@ -22,13 +22,11 @@ class ShoppingListModel {
     var shoppingGroups: [ShoppingGroup] = []
     
     init() {
-        LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.updateNeeded).disposed(by: self.disposeBag)
+        LocalNotifications.newDataAvailable.listen().subscribe(onNext: {[weak self] in
+            self?.reloadData()
+        }).disposed(by: self.disposeBag)
     }
-    
-    private func updateNeeded() {
-        self.reloadData()
-    }
-    
+        
     func syncWithCloud() {
         if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
             CloudShare.updateList(list: self.shoppingList).subscribe().disposed(by: self.disposeBag)
