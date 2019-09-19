@@ -43,11 +43,11 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         self.tableView.reloadData()
     }
     
-    func moveRow(from: IndexPath, to: IndexPath) {
+    func moveRow(fromPath: IndexPath, toPath: IndexPath) {
         UIView.animate(withDuration: 0.5, animations: {[weak self] () -> Void in
-            self?.tableView.moveRow(at: from, to: to)
+            self?.tableView.moveRow(at: fromPath, to: toPath)
         }, completion: {[weak self] (_) -> Void in
-            self?.tableView.reloadRows(at: [from, to], with: UITableView.RowAnimation.none)
+            self?.tableView.reloadRows(at: [fromPath, toPath], with: UITableView.RowAnimation.none)
         })
     }
     

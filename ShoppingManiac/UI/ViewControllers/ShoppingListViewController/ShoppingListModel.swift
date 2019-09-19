@@ -117,7 +117,7 @@ class ShoppingListModel {
             let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
             itemFound = true
             group.items = sortedItems
-            self.delegate?.moveRow(from: indexPath, to: sortedIndexPath)
+            self.delegate?.moveRow(fromPath: indexPath, toPath: sortedIndexPath)
             break
         }
         if itemFound == false {

@@ -11,7 +11,8 @@ import UIKit
 class ShoppingListsListTableViewCell: UITableViewCell {
 
     @IBOutlet private weak var listTitleLabel: UILabel!
-
+    @IBOutlet private weak var cloudIconView: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         if UIDevice.current.userInterfaceIdiom == .phone {
@@ -23,6 +24,7 @@ class ShoppingListsListTableViewCell: UITableViewCell {
 
     func setup(withList shoppingList: ShoppingList, isSelected: Bool) {
         self.listTitleLabel.text = shoppingList.title
+        self.cloudIconView.isHidden = !shoppingList.isRemote
         self.listTitleLabel.textColor = shoppingList.isPurchased ? UIColor.gray : UIColor.black
         if UIDevice.current.userInterfaceIdiom == .phone || isSelected == false {
             self.backgroundColor = UIColor.clear

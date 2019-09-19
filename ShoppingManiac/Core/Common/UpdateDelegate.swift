@@ -10,5 +10,5 @@ import Foundation
 
 protocol UpdateDelegate: class {
     func reloadData()
-    func moveRow(from: IndexPath, to: IndexPath)
+    func moveRow(fromPath: IndexPath, toPath: IndexPath)
 }
