@@ -872,6 +872,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ShoppingManiac/Resources/ShoppingManiac.entitlements;
 				CURRENT_PROJECT_VERSION = 2;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 5LPE595N4R;
 				INFOPLIST_FILE = "$(SRCROOT)/ShoppingManiac/Resources/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
@@ -882,6 +883,7 @@
 				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "ShoppingManiac/Core/ShoppingManiac-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -897,6 +899,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ShoppingManiac/Resources/ShoppingManiac.entitlements;
 				CURRENT_PROJECT_VERSION = 2;
+				DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER = YES;
 				DEVELOPMENT_TEAM = 5LPE595N4R;
 				INFOPLIST_FILE = "$(SRCROOT)/ShoppingManiac/Resources/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
@@ -907,6 +910,7 @@
 				MARKETING_VERSION = 1.3.4;
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "ShoppingManiac/Core/ShoppingManiac-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -974,8 +978,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ReactiveX/RxSwift";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.1;
+				branch = master;
+				kind = branch;
 			};
 		};
 		56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */ = {
