@@ -172,7 +172,7 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textField>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Yd-aB-ucG">
-                                <rect key="frame" x="16" y="136" width="343" height="40"/>
+                                <rect key="frame" x="195" y="136" width="164" height="40"/>
                                 <color key="backgroundColor" red="0.00011924203043256216" green="0.77639204634285963" blue="0.087933219238703994" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="NcH-Am-o6r"/>
@@ -189,15 +189,37 @@
                                     <action selector="addAction:" destination="cu4-vJ-2Ay" eventType="touchUpInside" id="1AB-Hg-GWZ"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SSd-C3-23m">
+                                <rect key="frame" x="16" y="136" width="164" height="40"/>
+                                <color key="backgroundColor" red="0.88235294119999996" green="0.0" blue="0.1058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="HaN-2B-HTD"/>
+                                </constraints>
+                                <state key="normal" title="Cancel">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="20"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="cancelAction:" destination="cu4-vJ-2Ay" eventType="touchUpInside" id="2gG-cl-QHg"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="0.80000000000000004" green="1" blue="0.8980392157" alpha="0.94999999999999996" colorSpace="calibratedRGB"/>
                         <constraints>
+                            <constraint firstItem="SSd-C3-23m" firstAttribute="bottom" secondItem="3Yd-aB-ucG" secondAttribute="bottom" id="3Fd-GR-PKy"/>
+                            <constraint firstItem="3Yd-aB-ucG" firstAttribute="leading" secondItem="SSd-C3-23m" secondAttribute="trailing" constant="15" id="4ab-tj-UlJ"/>
+                            <constraint firstItem="SSd-C3-23m" firstAttribute="width" secondItem="3Yd-aB-ucG" secondAttribute="width" id="60a-uj-F2s"/>
                             <constraint firstItem="mCb-qb-Y0h" firstAttribute="leading" secondItem="0vD-DF-hYI" secondAttribute="leadingMargin" id="86Z-4Z-1Z9"/>
                             <constraint firstItem="3Yd-aB-ucG" firstAttribute="top" secondItem="mCb-qb-Y0h" secondAttribute="bottom" constant="20" id="D3N-Ur-ajb"/>
                             <constraint firstItem="3Yd-aB-ucG" firstAttribute="trailing" secondItem="mCb-qb-Y0h" secondAttribute="trailing" id="KxQ-I2-a2G"/>
-                            <constraint firstItem="3Yd-aB-ucG" firstAttribute="leading" secondItem="mCb-qb-Y0h" secondAttribute="leading" id="NXT-1b-Ff5"/>
                             <constraint firstAttribute="trailingMargin" secondItem="mCb-qb-Y0h" secondAttribute="trailing" id="aWx-tg-TEv"/>
                             <constraint firstItem="mCb-qb-Y0h" firstAttribute="top" secondItem="I8t-RF-T4H" secondAttribute="bottom" constant="20" id="eea-WC-s9C"/>
+                            <constraint firstItem="SSd-C3-23m" firstAttribute="top" secondItem="3Yd-aB-ucG" secondAttribute="top" id="gMd-yH-LHh"/>
+                            <constraint firstItem="SSd-C3-23m" firstAttribute="leading" secondItem="mCb-qb-Y0h" secondAttribute="leading" id="oR9-Gc-tOH"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Add shopping list" id="d7m-qS-U2b">
@@ -396,7 +418,7 @@
                             </textField>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="66a-2C-s7A">
                                 <rect key="frame" x="16" y="306" width="164" height="40"/>
-                                <color key="backgroundColor" red="0.88311565390000002" green="0.0" blue="0.1048702245" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" red="0.88235294117647056" green="0.0" blue="0.10588235294117647" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="txO-pc-c54"/>
                                 </constraints>

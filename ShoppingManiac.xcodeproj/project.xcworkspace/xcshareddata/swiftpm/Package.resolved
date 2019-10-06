@@ -1,0 +1,79 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "BitByteData",
+        "repositoryURL": "https://github.com/tsolomko/BitByteData",
+        "state": {
+          "branch": null,
+          "revision": "e7516072dfc33cad98db8db28e97d573d9e540aa",
+          "version": "1.4.1"
+        }
+      },
+      {
+        "package": "CoreStore",
+        "repositoryURL": "https://github.com/JohnEstropia/CoreStore",
+        "state": {
+          "branch": null,
+          "revision": "1740d168c8c974c6d4feba3aaddc829778abf298",
+          "version": "6.3.2"
+        }
+      },
+      {
+        "package": "Hero",
+        "repositoryURL": "https://github.com/HeroTransitions/Hero",
+        "state": {
+          "branch": null,
+          "revision": "7d541ecbf8f53edc87bf51c54ab207bddc39e4cb",
+          "version": "1.4.0"
+        }
+      },
+      {
+        "package": "PKHUD",
+        "repositoryURL": "https://github.com/dmatushkin/PKHUD",
+        "state": {
+          "branch": "master",
+          "revision": "e42abe54de142b70da9d0fa53150e32b7bf1ab8a",
+          "version": null
+        }
+      },
+      {
+        "package": "RxSwift",
+        "repositoryURL": "https://github.com/ReactiveX/RxSwift",
+        "state": {
+          "branch": "master",
+          "revision": "9b31a15520306b073cb9d46456f64826c1d6dcab",
+          "version": null
+        }
+      },
+      {
+        "package": "SWCompression",
+        "repositoryURL": "https://github.com/tsolomko/SWCompression",
+        "state": {
+          "branch": null,
+          "revision": "f007e40cade39b1371f6c8c8ab72c5328485d87a",
+          "version": "4.5.2"
+        }
+      },
+      {
+        "package": "SwiftDate",
+        "repositoryURL": "https://github.com/malcommac/SwiftDate",
+        "state": {
+          "branch": null,
+          "revision": "700dde1b3417fd4a7fd2bec9f5bc8ab2de1b96b4",
+          "version": "6.1.0"
+        }
+      },
+      {
+        "package": "SwiftyBeaver",
+        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver",
+        "state": {
+          "branch": null,
+          "revision": "d215a5c97ff9695f4de18a114e760a63a19eb80a",
+          "version": "1.8.2"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
