@@ -19,6 +19,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var totalLabel: UILabel!
+    @IBOutlet private weak var shareButton: UIButton!
     
     let model = ShoppingListModel()
 
@@ -164,6 +165,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
             controller.addAction(smsAction)
             controller.addAction(icloudAction)
             controller.addAction(cancelAction)
+            controller.popoverPresentationController?.sourceView = self.shareButton
+            controller.popoverPresentationController?.sourceRect = self.shareButton.frame
             self.present(controller, animated: true, completion: nil)
         } else {
             self.smsShare()
@@ -200,7 +203,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         let controller = UICloudSharingController(share: share, container: CKContainer.default())
         controller.delegate = self
         controller.availablePermissions = [.allowReadWrite, .allowPublic]
-        controller.popoverPresentationController?.sourceView = self.view
+        controller.popoverPresentationController?.sourceView = self.shareButton
+        controller.popoverPresentationController?.sourceRect = self.shareButton.frame
         HUD.hide()
         self.present(controller, animated: true, completion: nil)
     }

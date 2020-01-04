@@ -387,6 +387,7 @@
                     <navigationItem key="navigationItem" title="Shopping list" id="9GV-DD-hvM"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics"/>
                     <connections>
+                        <outlet property="shareButton" destination="Mdm-xs-5Ne" id="lRi-pO-aNe"/>
                         <outlet property="tableView" destination="BXI-LZ-CeD" id="cXa-WX-Tpw"/>
                         <outlet property="totalLabel" destination="wH0-fc-Iyl" id="2fa-cE-Qrl"/>
                         <segue destination="YIa-9X-Crd" kind="presentation" identifier="editShoppingListItemSegue" id="9g7-tp-mJE"/>
