@@ -18,7 +18,7 @@ public class ShoppingList: NSManagedObject {
     }
 
     func setRecordId(recordId: String) {
-        _ = try? CoreStore.perform(synchronous: {[weak self] transaction -> Void in
+        _ = try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction -> Void in
             guard let self = self else { return }
             if let shoppingList: ShoppingList = transaction.edit(self) {
                 shoppingList.recordid = recordId
@@ -68,7 +68,7 @@ public class ShoppingList: NSManagedObject {
     func textData() -> String {
         var result = self.title + "\n"
         do {
-            let itemsLine = try CoreStore.perform(synchronous: { transaction -> String in
+            let itemsLine = try CoreStoreDefaults.dataStack.perform(synchronous: { transaction -> String in
                 var result = ""
                 let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self))).sorted( by: {item1, item2 in (item1.good?.name ?? "") < (item2.good?.name ?? "") })
                 for item in items {
@@ -93,7 +93,7 @@ public class ShoppingList: NSManagedObject {
         result["date"] = self.jsonDate
 
         do {
-            let itemsArray = try CoreStore.perform(synchronous: { transaction -> [[String: Any]] in
+            let itemsArray = try CoreStoreDefaults.dataStack.perform(synchronous: { transaction -> [[String: Any]] in
                 var resultItems = [[String: Any]]()
                 let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self)))
                 for item in items {
@@ -119,7 +119,7 @@ public class ShoppingList: NSManagedObject {
     
     class func importShoppingList(fromJsonData jsonData: NSDictionary) -> ShoppingList? {
         do {
-            let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
+            let list: ShoppingList = try CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
                 let list = transaction.create(Into<ShoppingList>())
                 list.name = jsonData["name"] as? String
                 list.jsonDate = (jsonData["date"] as? String) ?? ""
@@ -155,7 +155,7 @@ public class ShoppingList: NSManagedObject {
                 }
                 return list
             })
-            return CoreStore.fetchExisting(list)
+            return CoreStoreDefaults.dataStack.fetchExisting(list)
         } catch {
             return nil
         }

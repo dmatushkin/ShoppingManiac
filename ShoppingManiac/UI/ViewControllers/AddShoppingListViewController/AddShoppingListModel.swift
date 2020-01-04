@@ -17,13 +17,13 @@ class AddShoppingListModel {
     
     func createItem() -> ShoppingList? {
         do {
-            let list: ShoppingList = try CoreStore.perform(synchronous: { transaction in
+            let list: ShoppingList = try CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
                 let item = transaction.create(Into<ShoppingList>())
                 item.name = self.listTitle.value
                 item.date = Date().timeIntervalSinceReferenceDate
                 return item
             })
-            return CoreStore.fetchExisting(list)
+            return CoreStoreDefaults.dataStack.fetchExisting(list)
         } catch {
             return nil
         }

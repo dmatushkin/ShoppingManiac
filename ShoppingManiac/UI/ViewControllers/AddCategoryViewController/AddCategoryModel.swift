@@ -24,14 +24,14 @@ class AddCategoryModel {
     }
     
     private func createItem(withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
+        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
             let item = transaction.create(Into<Category>())
             item.name = name
         })
     }
     
     private func updateItem(item: Category, withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
+        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
             let item = transaction.edit(item)
             item?.name = name
         })

@@ -15,7 +15,7 @@ class DataSaveSegue: UIStoryboardSegue {
     var processBlock: (AsynchronousDataTransaction) -> Bool = {transaction in return true}
 
     override func perform() {
-        CoreStore.perform(asynchronous: {transaction->Bool in
+        CoreStoreDefaults.dataStack.perform(asynchronous: {transaction->Bool in
             return self.processBlock(transaction)
         }, completion: { result in
             switch result {

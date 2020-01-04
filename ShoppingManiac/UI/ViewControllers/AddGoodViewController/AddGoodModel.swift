@@ -42,7 +42,7 @@ class AddGoodModel {
     }
     
     private func createItem(withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
+        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
             let item = transaction.create(Into<Good>())
             item.name = name
             item.category = transaction.edit(self.category)
@@ -51,7 +51,7 @@ class AddGoodModel {
     }
     
     private func updateItem(item: Good, withName name: String) {
-        try? CoreStore.perform(synchronous: { transaction in
+        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
             let item = transaction.edit(item)
             item?.name = name
             item?.category = transaction.edit(self.category)
@@ -60,11 +60,11 @@ class AddGoodModel {
     }
     
     func categoriesCount() -> Int {
-        return (try? CoreStore.fetchCount(From<Category>(), [])) ?? 0
+        return (try? CoreStoreDefaults.dataStack.fetchCount(From<Category>(), [])) ?? 0
     }
     
     func getCategoryItem(forIndex: IndexPath) -> Category? {
-        return try? CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
+        return try? CoreStoreDefaults.dataStack.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))

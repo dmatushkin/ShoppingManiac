@@ -35,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
-        _ = try? CoreStore.addStorageAndWait(store)
+        _ = try? CoreStoreDefaults.dataStack.addStorageAndWait(store)
         CloudShare.setupUserPermissions()        
         CloudSubscriptions.setupSubscriptions()
         return true
@@ -86,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
                 CloudLoader.loadShare(metadata: metadata).observeOnMain().subscribe(onNext: {[weak self] list in
                     HUD.hide()
-                    guard let list = CoreStore.fetchExisting(list) else { return }
+                    guard let list = CoreStoreDefaults.dataStack.fetchExisting(list) else { return }
                     self?.showList(list: list)
                 }, onError: {error in
                     HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)

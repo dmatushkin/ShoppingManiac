@@ -27,11 +27,11 @@ class AddShoppingListItemModel {
     let crossListItem = BehaviorRelay<Bool>(value: false)
     
     func listAllGoods() -> [String] {
-        return (try? CoreStore.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        return (try? CoreStoreDefaults.dataStack.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
     }
     
     func listAllStores() -> [String] {
-        return (try? CoreStore.fetchAll(From<Store>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        return (try? CoreStoreDefaults.dataStack.fetchAll(From<Store>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
     }
     
     func applyData() {
@@ -49,7 +49,7 @@ class AddShoppingListItemModel {
     }
     
     func persistData() {
-        try? CoreStore.perform(synchronous: { transaction in
+        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
             let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
             item?.good = try Good.item(forName: self.itemName.value, inTransaction: transaction)
             item?.isWeight = self.isWeight.value

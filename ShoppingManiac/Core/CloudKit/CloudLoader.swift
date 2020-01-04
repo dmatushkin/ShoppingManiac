@@ -24,7 +24,7 @@ class CloudLoader {
     
     private class func storeListRecord(recordWrapper: RecordWrapper) -> Observable<ShoppingListWrapper> {
         return Observable<ShoppingListWrapper>.create { observer in
-            CoreStore.perform(asynchronous: { (transaction) -> ShoppingList in
+            CoreStoreDefaults.dataStack.perform(asynchronous: { (transaction) -> ShoppingList in
                 let shoppingList: ShoppingList = try transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", recordWrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
                 shoppingList.recordid = recordWrapper.record.recordID.recordName
                 shoppingList.ownerName = recordWrapper.ownerName
@@ -57,7 +57,7 @@ class CloudLoader {
 
     private class func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
         return Observable<ShoppingList>.create { observer in
-            CoreStore.perform(asynchronous: { (transaction)  in
+            CoreStoreDefaults.dataStack.perform(asynchronous: { (transaction)  in
                 for record in wrapper.items {
                     let item: ShoppingListItem = try transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
                     SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")

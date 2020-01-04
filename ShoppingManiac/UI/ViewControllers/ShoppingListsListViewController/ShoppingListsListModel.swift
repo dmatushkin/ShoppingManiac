@@ -24,18 +24,18 @@ class ShoppingListsListModel {
     }
     
     func itemsCount() -> Int {
-        return (try? CoreStore.fetchCount(From<ShoppingList>().where(Where("isRemoved == false")))) ?? 0
+        return (try? CoreStoreDefaults.dataStack.fetchCount(From<ShoppingList>().where(Where("isRemoved == false")))) ?? 0
     }
     
     func getItem(forIndex: IndexPath) -> ShoppingList? {
-        return try? CoreStore.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)).tweak({ fetchRequest in
+        return try? CoreStoreDefaults.dataStack.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))
     }
     
     func deleteItem(shoppingList: ShoppingList) {
-        CoreStore.perform(asynchronous: { transaction in
+        CoreStoreDefaults.dataStack.perform(asynchronous: { transaction in
             let list = transaction.edit(shoppingList)
             list?.isRemoved = true
         }, completion: {[weak self] _ in

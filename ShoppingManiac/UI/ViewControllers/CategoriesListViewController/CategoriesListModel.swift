@@ -25,18 +25,18 @@ class CategoriesListModel {
     }
     
     func itemsCount() -> Int {
-        return (try? CoreStore.fetchCount(From<Category>(), [])) ?? 0
+        return (try? CoreStoreDefaults.dataStack.fetchCount(From<Category>(), [])) ?? 0
     }
     
     func getItem(forIndex: IndexPath) -> Category? {
-        return try? CoreStore.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
+        return try? CoreStoreDefaults.dataStack.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
             fetchRequest.fetchOffset = forIndex.row
             fetchRequest.fetchLimit = 1
         }))
     }
     
     func deleteItem(item: Category) {
-        CoreStore.perform(asynchronous: { transaction in
+        CoreStoreDefaults.dataStack.perform(asynchronous: { transaction in
             transaction.delete(item)
         }, completion: {[weak self] _ in
             self?.onUpdate?()

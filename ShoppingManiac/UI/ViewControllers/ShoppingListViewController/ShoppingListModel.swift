@@ -39,7 +39,7 @@ class ShoppingListModel {
     }
     
     func setLatestList() {
-        if let list = try? CoreStore.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date))) {
+        if let list = try? CoreStoreDefaults.dataStack.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date))) {
             self.shoppingList = list
         }
     }
@@ -67,7 +67,7 @@ class ShoppingListModel {
     }
     
     func reloadData() {
-        CoreStore.perform(asynchronous: self.processData, completion: {[weak self] _ in
+        CoreStoreDefaults.dataStack.perform(asynchronous: self.processData, completion: {[weak self] _ in
             self?.delegate?.reloadData()
         })
     }

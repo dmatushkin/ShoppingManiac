@@ -37,7 +37,7 @@ class GroupItem {
     
     func togglePurchased(list: ShoppingList) {
         self.purchased = !self.purchased
-        try? CoreStore.perform(synchronous: {[weak self] transaction in
+        try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction in
             guard let self = self else { return }
             if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId), let shoppingList: ShoppingList = transaction.edit(list) {
                 shoppingListItem.purchased = self.purchased
@@ -47,7 +47,7 @@ class GroupItem {
     }
     
     func markRemoved() {
-        try? CoreStore.perform(synchronous: {[weak self] transaction in
+        try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction in
             guard let self = self else { return }
             if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
                 shoppingListItem.isRemoved = true
@@ -56,7 +56,7 @@ class GroupItem {
     }
     
     func moveTo(group: ShoppingGroup) {
-        try? CoreStore.perform(synchronous: {[weak self] transaction in
+        try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction in
             guard let self = self else { return }
             if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
                 if let storeObjectId = group.objectId {

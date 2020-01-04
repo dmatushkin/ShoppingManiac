@@ -14,7 +14,7 @@ import SwiftyBeaver
 public class ShoppingListItem: NSManagedObject {
 
     func setRecordId(recordId: String) {
-        _ = try? CoreStore.perform(synchronous: {[weak self] transaction -> Void in
+        _ = try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction -> Void in
             guard let self = self else { return }
             if let shoppingListItem: ShoppingListItem = transaction.edit(self) {
                 shoppingListItem.recordid = recordId
