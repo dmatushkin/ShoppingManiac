@@ -16,6 +16,7 @@ class GroupItem {
     let itemCategoryName: String?
     let itemQuantityString: String
     var purchased: Bool = false
+    let isCrossListItem: Bool
 
     init(shoppingListItem: ShoppingListItem) {
         self.objectId = shoppingListItem.objectID
@@ -23,6 +24,7 @@ class GroupItem {
         self.itemCategoryName = shoppingListItem.good?.category?.name
         self.itemQuantityString = shoppingListItem.quantityText
         self.purchased = shoppingListItem.purchased
+        self.isCrossListItem = shoppingListItem.isCrossListItem
     }
 
     func lessThan(item: GroupItem) -> Bool {

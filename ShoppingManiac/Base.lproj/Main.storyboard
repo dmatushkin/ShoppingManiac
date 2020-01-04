@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="2Bx-FO-PuE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15702" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="2Bx-FO-PuE">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15704"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -273,6 +273,10 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FoW-Zv-hOx">
+                                                    <rect key="frame" x="5" y="5" width="365" height="34"/>
+                                                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                                </view>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="checkbox_unmarked" translatesAutoresizingMaskIntoConstraints="NO" id="WDh-hV-UjT">
                                                     <rect key="frame" x="15" y="12" width="20" height="20"/>
                                                 </imageView>
@@ -298,7 +302,10 @@
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <constraints>
                                                 <constraint firstItem="LHi-o0-bpn" firstAttribute="leading" secondItem="85D-hB-501" secondAttribute="trailing" constant="7" id="2q9-Jf-3ij"/>
+                                                <constraint firstAttribute="trailing" secondItem="FoW-Zv-hOx" secondAttribute="trailing" constant="5" id="53X-Gq-ykw"/>
                                                 <constraint firstItem="WDh-hV-UjT" firstAttribute="leading" secondItem="hQN-kh-tvE" secondAttribute="leading" constant="15" id="5jk-KX-zJS"/>
+                                                <constraint firstItem="FoW-Zv-hOx" firstAttribute="leading" secondItem="hQN-kh-tvE" secondAttribute="leading" constant="5" id="K5q-tn-Xb3"/>
+                                                <constraint firstAttribute="bottom" secondItem="FoW-Zv-hOx" secondAttribute="bottom" constant="5" id="Lz2-p4-V5X"/>
                                                 <constraint firstItem="tTd-6n-IKS" firstAttribute="leading" secondItem="LHi-o0-bpn" secondAttribute="trailing" constant="8" id="T15-JH-soU"/>
                                                 <constraint firstItem="85D-hB-501" firstAttribute="leading" secondItem="WDh-hV-UjT" secondAttribute="trailing" constant="15" id="UYg-1f-dbI"/>
                                                 <constraint firstItem="WDh-hV-UjT" firstAttribute="centerY" secondItem="hQN-kh-tvE" secondAttribute="centerY" id="ZyT-aA-Dta"/>
@@ -306,10 +313,12 @@
                                                 <constraint firstAttribute="trailing" secondItem="tTd-6n-IKS" secondAttribute="trailing" constant="15" id="ePi-uW-g5E"/>
                                                 <constraint firstItem="LHi-o0-bpn" firstAttribute="centerY" secondItem="tTd-6n-IKS" secondAttribute="centerY" id="m3e-0H-zjU"/>
                                                 <constraint firstItem="tTd-6n-IKS" firstAttribute="centerY" secondItem="hQN-kh-tvE" secondAttribute="centerY" id="mrh-Pv-iie"/>
+                                                <constraint firstItem="FoW-Zv-hOx" firstAttribute="top" secondItem="hQN-kh-tvE" secondAttribute="top" constant="5" id="o0a-w7-pN4"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <connections>
+                                            <outlet property="backView" destination="FoW-Zv-hOx" id="aU9-Tm-EaS"/>
                                             <outlet property="productQuantityLabel" destination="tTd-6n-IKS" id="jGr-qa-Fzx"/>
                                             <outlet property="productTitleLabel" destination="85D-hB-501" id="IVJ-nV-yvu"/>
                                             <outlet property="statusImageView" destination="WDh-hV-UjT" id="qxw-eN-QhY"/>
