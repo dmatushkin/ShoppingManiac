@@ -77,30 +77,7 @@ class CloudKitUtils {
             return Disposables.create()
         }
     }
-    
-    class func deleteRecords(recordIds: [CKRecord.ID], localDb: Bool) -> Observable<Void> {
-        return Observable<Void>.create { observer in
-            let modifyOperation = CKModifyRecordsOperation(recordsToSave: nil, recordIDsToDelete: recordIds)
-            modifyOperation.savePolicy = .allKeys
-            modifyOperation.perRecordCompletionBlock = {record, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error while deleting records \(error.localizedDescription)")
-                } else {
-                    SwiftyBeaver.debug("Successfully deleted record \(record.recordID.recordName)")
-                }
-            }
-            modifyOperation.modifyRecordsCompletionBlock = { records, recordIds, error in
-                if let error = error {
-                    SwiftyBeaver.debug("Error when deleting records \(error.localizedDescription)")
-                }
-                observer.onCompleted()
-            }
-            CKContainer.default().database(localDb: localDb).add(modifyOperation)
-            
-            return Disposables.create()
-        }
-    }
-    
+        
     class func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> Observable<Void> {
         return Observable<Void>.create { observer in
             let operation = CKModifySubscriptionsOperation(subscriptionsToSave: subscriptions, subscriptionIDsToDelete: [])
@@ -119,25 +96,7 @@ class CloudKitUtils {
             return Disposables.create()
         }
     }
-    
-    class func fetchRecordsQuery(recordType: String, localDb: Bool) -> Observable<[CKRecord]> {
-        return Observable<[CKRecord]>.create { observer in
-            let query = CKQuery(recordType: recordType, predicate: NSPredicate(value: true))
-            let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
-            CKContainer.default().database(localDb: localDb).perform(query, inZoneWith: recordZone.zoneID, completionHandler: { (records, error) in
-                if let records = records, error == nil {
-                    SwiftyBeaver.debug("\(records.count) list records found")
-                    observer.onNext(records)
-                    observer.onCompleted()
-                } else {
-                    SwiftyBeaver.debug("no list records found")
-                    observer.onCompleted()
-                }
-            })
-            return Disposables.create()
-        }
-    }
-	
+    	
 	private class func createUpdateRecordsOperation(records: [CKRecord], localDb: Bool, observer: AnyObserver<Void>) -> CKModifyRecordsOperation {
 		let modifyOperation = CKModifyRecordsOperation(recordsToSave: records, recordIDsToDelete: nil)
 		modifyOperation.savePolicy = .allKeys
@@ -241,35 +200,40 @@ class CloudKitUtils {
             UserDefaults.standard.sharedServerChangeToken = token
         }
     }
+	
+	private class func zoneTokenDefaultsKey(zoneId: CKRecordZone.ID, localDb: Bool) -> String {
+		return zoneId.zoneName + (localDb ? "local" : "remote")
+	}
+	
+	private class func zoneIdFetchOption(zoneId: CKRecordZone.ID, localDb: Bool) -> CKFetchRecordZoneChangesOperation.ZoneConfiguration {
+		let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
+		options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneTokenDefaultsKey(zoneId: zoneId, localDb: localDb))
+		return options
+	}
     
 	private class func createFetchZoneChangesOperation(loadedRecords: [CKRecord], wrapper: ZonesToFetchWrapper, observer: AnyObserver<[CKRecord]>) -> CKFetchRecordZoneChangesOperation {
 		var records: [CKRecord] = loadedRecords
 		var moreComingFlag: Bool = false
-		var optionsByRecordZoneID = [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration]()
-		for zoneId in wrapper.zoneIds {
-			let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
-			options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneId.zoneName + (wrapper.localDb ? "local" : "remote"))
-			optionsByRecordZoneID[zoneId] = options
-		}
+		let optionsByRecordZoneID = wrapper.zoneIds.reduce(into: [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration](), { $0[$1] = zoneIdFetchOption(zoneId: $1, localDb: wrapper.localDb) })
 		let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: wrapper.zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
 		operation.fetchAllChanges = true
 		operation.recordChangedBlock = { record in
 			records.append(record)
 		}
 		operation.recordZoneChangeTokensUpdatedBlock = {zoneId, token, data in
-			UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName + (wrapper.localDb ? "local" : "remote"), token: token)
+			UserDefaults.standard.setZoneChangeToken(zoneName: zoneTokenDefaultsKey(zoneId: zoneId, localDb: wrapper.localDb), token: token)
 		}
 		operation.recordZoneFetchCompletionBlock = { zoneId, changeToken, data, moreComing, error in
 			if let error = error {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .tokenReset:
-					UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName + (wrapper.localDb ? "local" : "remote"), token: nil)
+					UserDefaults.standard.setZoneChangeToken(zoneName: zoneTokenDefaultsKey(zoneId: zoneId, localDb: wrapper.localDb), token: nil)
 				default:
 					break
 				}
 				SwiftyBeaver.debug(error.localizedDescription)
 			} else if let token = changeToken {
-				UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName + (wrapper.localDb ? "local" : "remote"), token: token)
+				UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName + zoneTokenDefaultsKey(zoneId: zoneId, localDb: wrapper.localDb), token: token)
 			}
 			if moreComing {
 				moreComingFlag = true
