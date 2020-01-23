@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4521D1D923D9D85B00775CC5 /* CloudKitOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */; };
 		4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */; };
+		4521D1DD23D9DFB300775CC5 /* CloudKitErrorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */; };
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
 		561BA786232BF73800381E02 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA785232BF73800381E02 /* SwiftDate */; };
 		561BA789232BF7C600381E02 /* Hero in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA788232BF7C600381E02 /* Hero */; };
@@ -99,6 +100,7 @@
 /* Begin PBXFileReference section */
 		4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitOperations.swift; sourceTree = "<group>"; };
 		4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitTokenStorage.swift; sourceTree = "<group>"; };
+		4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorType.swift; sourceTree = "<group>"; };
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
 		561ED324233003F10045457B /* ZonesToFetchWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZonesToFetchWrapper.swift; sourceTree = "<group>"; };
 		562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListItemModel.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 				561ED324233003F10045457B /* ZonesToFetchWrapper.swift */,
 				4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */,
 				4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */,
+				4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */,
 			);
 			path = CloudKit;
 			sourceTree = "<group>";
@@ -697,6 +700,7 @@
 				56D540571F9A73180036C646 /* UIKeyboardInfo.swift in Sources */,
 				563E92802086395800933522 /* CloudShare.swift in Sources */,
 				565C3BC21ED1E04A003D8EE8 /* StoresListTableViewCell.swift in Sources */,
+				4521D1DD23D9DFB300775CC5 /* CloudKitErrorType.swift in Sources */,
 				565C3B961ED19EC5003D8EE8 /* ShoppingList+CoreDataProperties.swift in Sources */,
 				565C3B891ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift in Sources */,
 				565C3B9B1ED19EC5003D8EE8 /* Good+CoreDataClass.swift in Sources */,
