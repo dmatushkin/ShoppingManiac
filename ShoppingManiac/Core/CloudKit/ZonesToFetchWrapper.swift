@@ -12,12 +12,10 @@ import CloudKit
 class ZonesToFetchWrapper {
     
     let localDb: Bool
-    let token: CKServerChangeToken
     let zoneIds: [CKRecordZone.ID]
     
-    init(localDb: Bool, token: CKServerChangeToken, zoneIds: [CKRecordZone.ID]) {
+    init(localDb: Bool, zoneIds: [CKRecordZone.ID]) {
         self.localDb = localDb
-        self.token = token
         self.zoneIds = zoneIds
     }
 }
