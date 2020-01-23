@@ -58,7 +58,7 @@ class CloudKitUtils {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .retry(let timeout):
 					DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-						CKContainer.default().database(localDb: localDb).add(createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer))
+						CloudKitOperations.run(operation: createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer), localDb: localDb)
 					}
 				default:
 					observer.onError(error)
@@ -73,7 +73,7 @@ class CloudKitUtils {
     
     class func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> Observable<CKRecord> {
         return Observable<CKRecord>.create { observer in
-            CKContainer.default().database(localDb: localDb).add(createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer))
+			CloudKitOperations.run(operation: createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer), localDb: localDb)
             return Disposables.create()
         }
     }
@@ -91,8 +91,7 @@ class CloudKitUtils {
                 }
             }
             operation.qualityOfService = .utility
-            CKContainer.default().database(localDb: localDb).add(operation)
-            
+			CloudKitOperations.run(operation: operation, localDb: localDb)
             return Disposables.create()
         }
     }
@@ -113,7 +112,7 @@ class CloudKitUtils {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .retry(let timeout):
 					DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-						CKContainer.default().database(localDb: localDb).add(createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer))
+						CloudKitOperations.run(operation: createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer), localDb: localDb)
 					}
 				default:
 					observer.onError(error)
@@ -128,20 +127,20 @@ class CloudKitUtils {
     
     class func updateRecords(records: [CKRecord], localDb: Bool) -> Observable<Void> {
         return Observable<Void>.create { observer in
-            CKContainer.default().database(localDb: localDb).add(createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer))
+			CloudKitOperations.run(operation: createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer), localDb: localDb)
             return Disposables.create()
         }
     }
 	
 	private class func createFetchDatabaseChangesOperation(loadedZoneIds: [CKRecordZone.ID], localDb: Bool, observer: AnyObserver<ZonesToFetchWrapper>) -> CKFetchDatabaseChangesOperation {
-		let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: localDb ? UserDefaults.standard.localServerChangeToken : UserDefaults.standard.sharedServerChangeToken)
+		let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: CloudKitTokenStorage.getDbToken(localDb: localDb))
 		operation.fetchAllChanges = true
 		var zoneIds: [CKRecordZone.ID] = loadedZoneIds
 		operation.recordZoneWithIDChangedBlock = { zoneId in
 			zoneIds.append(zoneId)
 		}
 		operation.changeTokenUpdatedBlock = { token in
-			setToken(localDb: localDb, token: token)
+			CloudKitTokenStorage.setDbToken(localDb: localDb, token: token)
 		}
 		operation.qualityOfService = .utility
 		operation.fetchAllChanges = true
@@ -151,19 +150,19 @@ class CloudKitUtils {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .retry(let timeout):
 					DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-						CKContainer.default().database(localDb: localDb).add(createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer))
+						CloudKitOperations.run(operation: createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer), localDb: localDb)
 					}
 				case .tokenReset:
-					clearToken(localDb: localDb)
-					CKContainer.default().database(localDb: localDb).add(createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer))
+					CloudKitTokenStorage.setDbToken(localDb: localDb, token: nil)
+					CloudKitOperations.run(operation: createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer), localDb: localDb)
 				default:
-					clearToken(localDb: localDb)
+					CloudKitTokenStorage.setDbToken(localDb: localDb, token: nil)
 					observer.onError(error)
 				}
 			} else if let token = token {
-				setToken(localDb: localDb, token: token)
+				CloudKitTokenStorage.setDbToken(localDb: localDb, token: token)
 				if moreComing {
-					CKContainer.default().database(localDb: localDb).add(createFetchDatabaseChangesOperation(loadedZoneIds: zoneIds, localDb: localDb, observer: observer))
+					CloudKitOperations.run(operation: createFetchDatabaseChangesOperation(loadedZoneIds: zoneIds, localDb: localDb, observer: observer), localDb: localDb)
 				} else {
 					observer.onNext(ZonesToFetchWrapper(localDb: localDb, zoneIds: zoneIds))
 					SwiftyBeaver.debug("Update zones request finished")
@@ -180,34 +179,14 @@ class CloudKitUtils {
     
     class func fetchDatabaseChanges(localDb: Bool) -> Observable<ZonesToFetchWrapper> {
         return Observable<ZonesToFetchWrapper>.create { observer in
-            CKContainer.default().database(localDb: localDb).add(createFetchDatabaseChangesOperation(loadedZoneIds: [], localDb: localDb, observer: observer))
+			CloudKitOperations.run(operation: createFetchDatabaseChangesOperation(loadedZoneIds: [], localDb: localDb, observer: observer), localDb: localDb)
             return Disposables.create()
         }
     }
-    
-    private class func clearToken(localDb: Bool) {
-        if localDb {
-            UserDefaults.standard.localServerChangeToken = nil
-        } else {
-            UserDefaults.standard.sharedServerChangeToken = nil
-        }
-    }
-    
-	private class func setToken(localDb: Bool, token: CKServerChangeToken) {
-        if localDb {
-            UserDefaults.standard.localServerChangeToken = token
-        } else {
-            UserDefaults.standard.sharedServerChangeToken = token
-        }
-    }
-	
-	private class func zoneTokenDefaultsKey(zoneId: CKRecordZone.ID, localDb: Bool) -> String {
-		return zoneId.zoneName + (localDb ? "local" : "remote")
-	}
-	
+    	
 	private class func zoneIdFetchOption(zoneId: CKRecordZone.ID, localDb: Bool) -> CKFetchRecordZoneChangesOperation.ZoneConfiguration {
 		let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
-		options.previousServerChangeToken = UserDefaults.standard.getZoneChangedToken(zoneName: zoneTokenDefaultsKey(zoneId: zoneId, localDb: localDb))
+		options.previousServerChangeToken = CloudKitTokenStorage.getZoneToken(zoneId: zoneId, localDb: localDb)
 		return options
 	}
     
@@ -221,19 +200,19 @@ class CloudKitUtils {
 			records.append(record)
 		}
 		operation.recordZoneChangeTokensUpdatedBlock = {zoneId, token, data in
-			UserDefaults.standard.setZoneChangeToken(zoneName: zoneTokenDefaultsKey(zoneId: zoneId, localDb: wrapper.localDb), token: token)
+			CloudKitTokenStorage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: token)
 		}
 		operation.recordZoneFetchCompletionBlock = { zoneId, changeToken, data, moreComing, error in
 			if let error = error {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .tokenReset:
-					UserDefaults.standard.setZoneChangeToken(zoneName: zoneTokenDefaultsKey(zoneId: zoneId, localDb: wrapper.localDb), token: nil)
+					CloudKitTokenStorage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: nil)
 				default:
 					break
 				}
 				SwiftyBeaver.debug(error.localizedDescription)
 			} else if let token = changeToken {
-				UserDefaults.standard.setZoneChangeToken(zoneName: zoneId.zoneName + zoneTokenDefaultsKey(zoneId: zoneId, localDb: wrapper.localDb), token: token)
+				CloudKitTokenStorage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: token)
 			}
 			if moreComing {
 				moreComingFlag = true
@@ -245,16 +224,16 @@ class CloudKitUtils {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .retry(let timeout):
 					DispatchQueue.main.asyncAfter(deadline: .now() + timeout) {
-						CKContainer.default().database(localDb: wrapper.localDb).add(createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer))
+						CloudKitOperations.run(operation: createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer), localDb: wrapper.localDb)
 					}
 				case .tokenReset:
-					CKContainer.default().database(localDb: wrapper.localDb).add(createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer))
+					CloudKitOperations.run(operation: createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer), localDb: wrapper.localDb)
 				default:
 					observer.onError(error)
 				}
 			} else {
 				if moreComingFlag {
-					CKContainer.default().database(localDb: wrapper.localDb).add(createFetchZoneChangesOperation(loadedRecords: records, wrapper: wrapper, observer: observer))
+					CloudKitOperations.run(operation: createFetchZoneChangesOperation(loadedRecords: records, wrapper: wrapper, observer: observer), localDb: wrapper.localDb)
 				} else {
 					SwiftyBeaver.debug("\(records.count) updated records found")
 					observer.onNext(records)
@@ -268,7 +247,7 @@ class CloudKitUtils {
     class func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> Observable<[CKRecord]> {
         return Observable<[CKRecord]>.create { observer in
             if wrapper.zoneIds.count > 0 {
-				CKContainer.default().database(localDb: wrapper.localDb).add(createFetchZoneChangesOperation(loadedRecords: [], wrapper: wrapper, observer: observer))
+				CloudKitOperations.run(operation: createFetchZoneChangesOperation(loadedRecords: [], wrapper: wrapper, observer: observer), localDb: wrapper.localDb)
             } else {
                 observer.onCompleted()
             }

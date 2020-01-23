@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4521D1D923D9D85B00775CC5 /* CloudKitOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */; };
+		4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */; };
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
 		561BA786232BF73800381E02 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA785232BF73800381E02 /* SwiftDate */; };
 		561BA789232BF7C600381E02 /* Hero in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA788232BF7C600381E02 /* Hero */; };
@@ -95,6 +97,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitOperations.swift; sourceTree = "<group>"; };
+		4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitTokenStorage.swift; sourceTree = "<group>"; };
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
 		561ED324233003F10045457B /* ZonesToFetchWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZonesToFetchWrapper.swift; sourceTree = "<group>"; };
 		562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListItemModel.swift; sourceTree = "<group>"; };
@@ -321,6 +325,8 @@
 				5666997A20948B700053F39E /* CloudKitUtils.swift */,
 				5666997C2094F7140053F39E /* CloudSubscriptions.swift */,
 				561ED324233003F10045457B /* ZonesToFetchWrapper.swift */,
+				4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */,
+				4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */,
 			);
 			path = CloudKit;
 			sourceTree = "<group>";
@@ -658,6 +664,7 @@
 			files = (
 				56D1215E20A6FE510044C486 /* GoodsListModel.swift in Sources */,
 				565DA773208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift in Sources */,
+				4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */,
 				561ED325233003F10045457B /* ZonesToFetchWrapper.swift in Sources */,
 				565DA76D208C71A9005CF8C2 /* RecordWrapper.swift in Sources */,
 				565C3BB01ED1A61B003D8EE8 /* Picture+CoreDataClass.swift in Sources */,
@@ -700,6 +707,7 @@
 				56F51FC6233097DD000055CA /* UpdateDelegate.swift in Sources */,
 				565C3BB81ED1B8CE003D8EE8 /* AddGoodViewController.swift in Sources */,
 				565C3BAD1ED1A61B003D8EE8 /* GoodRating+CoreDataProperties.swift in Sources */,
+				4521D1D923D9D85B00775CC5 /* CloudKitOperations.swift in Sources */,
 				5666997F2095B33C0053F39E /* UserDefaultsExtension.swift in Sources */,
 				565C3BAE1ED1A61B003D8EE8 /* Category+CoreDataClass.swift in Sources */,
 				565C3BAF1ED1A61B003D8EE8 /* Category+CoreDataProperties.swift in Sources */,
