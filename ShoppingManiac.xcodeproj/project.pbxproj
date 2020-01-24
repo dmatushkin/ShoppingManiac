@@ -91,7 +91,6 @@
 		56D540571F9A73180036C646 /* UIKeyboardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D540561F9A73180036C646 /* UIKeyboardInfo.swift */; };
 		56E798AE23DACB2700461F96 /* ShoppingManiacUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E798AD23DACB2700461F96 /* ShoppingManiacUnitTests.swift */; };
 		56E798B623DACB8C00461F96 /* CloudKitUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E798B523DACB8C00461F96 /* CloudKitUtilsTests.swift */; };
-		56E798B723DACB9800461F96 /* CloudKitUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5666997A20948B700053F39E /* CloudKitUtils.swift */; };
 		56E798BA23DACBA100461F96 /* RecordsWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA768208C7099005CF8C2 /* RecordsWrapper.swift */; };
 		56E798BB23DACBA100461F96 /* ShoppingListWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA76A208C70C3005CF8C2 /* ShoppingListWrapper.swift */; };
 		56E798BC23DACBA100461F96 /* RecordWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA76C208C71A9005CF8C2 /* RecordWrapper.swift */; };
@@ -123,6 +122,7 @@
 		56E798E123DADB1000461F96 /* ErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E798E023DADB1000461F96 /* ErrorExtension.swift */; };
 		56E798E323DADB4D00461F96 /* ErrorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E798E223DADB4D00461F96 /* ErrorExtension.swift */; };
 		56E798E523DAEF4700461F96 /* TestServerChangeToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E798E423DAEF4700461F96 /* TestServerChangeToken.swift */; };
+		56E798E923DB28BB00461F96 /* CloudKitUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5666997A20948B700053F39E /* CloudKitUtils.swift */; };
 		56EC8F0E1FE84461009C4868 /* ShoppingManiacIconsBundle.icns in Resources */ = {isa = PBXBuildFile; fileRef = 56EC8F0D1FE84461009C4868 /* ShoppingManiacIconsBundle.icns */; };
 		56F51FC6233097DD000055CA /* UpdateDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56F51FC5233097DD000055CA /* UpdateDelegate.swift */; };
 		B0A4C727C21324FEACC9686A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A4C1F406A445E62CBD06C0 /* Assets.xcassets */; };
@@ -380,20 +380,9 @@
 		563E927E2086393C00933522 /* CloudKit */ = {
 			isa = PBXGroup;
 			children = (
-				563E927F2086395700933522 /* CloudShare.swift */,
-				56451713208BB46C00295393 /* CloudLoader.swift */,
-				565DA768208C7099005CF8C2 /* RecordsWrapper.swift */,
-				565DA76A208C70C3005CF8C2 /* ShoppingListWrapper.swift */,
-				565DA76C208C71A9005CF8C2 /* RecordWrapper.swift */,
-				565DA772208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift */,
-				5666997A20948B700053F39E /* CloudKitUtils.swift */,
-				5666997C2094F7140053F39E /* CloudSubscriptions.swift */,
-				561ED324233003F10045457B /* ZonesToFetchWrapper.swift */,
-				56E798DA23DAD97600461F96 /* CloudKitOperationsProtocol.swift */,
-				4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */,
-				4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */,
-				4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */,
-				56E798DD23DAD9AB00461F96 /* CloudKitTokenStorgeProtocol.swift */,
+				56E798E823DB284300461F96 /* Utils */,
+				56E798E723DB282C00461F96 /* Services */,
+				56E798E623DB27C100461F96 /* Models */,
 			);
 			path = CloudKit;
 			sourceTree = "<group>";
@@ -599,6 +588,41 @@
 				56E798E423DAEF4700461F96 /* TestServerChangeToken.swift */,
 			);
 			path = ShoppingManiacUnitTests;
+			sourceTree = "<group>";
+		};
+		56E798E623DB27C100461F96 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */,
+				565DA768208C7099005CF8C2 /* RecordsWrapper.swift */,
+				565DA76A208C70C3005CF8C2 /* ShoppingListWrapper.swift */,
+				565DA76C208C71A9005CF8C2 /* RecordWrapper.swift */,
+				565DA772208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift */,
+				561ED324233003F10045457B /* ZonesToFetchWrapper.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		56E798E723DB282C00461F96 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				563E927F2086395700933522 /* CloudShare.swift */,
+				56451713208BB46C00295393 /* CloudLoader.swift */,
+				5666997A20948B700053F39E /* CloudKitUtils.swift */,
+				5666997C2094F7140053F39E /* CloudSubscriptions.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		56E798E823DB284300461F96 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				56E798DA23DAD97600461F96 /* CloudKitOperationsProtocol.swift */,
+				4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */,
+				4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */,
+				56E798DD23DAD9AB00461F96 /* CloudKitTokenStorgeProtocol.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 		B0A4C1B3AA3FCD200CB8241B /* Storyboards */ = {
@@ -871,7 +895,6 @@
 				56E798CD23DAD75F00461F96 /* Picture+CoreDataProperties.swift in Sources */,
 				56E798C223DACBA100461F96 /* CloudKitErrorType.swift in Sources */,
 				56E798D023DAD75F00461F96 /* Store+CoreDataClass.swift in Sources */,
-				56E798B723DACB9800461F96 /* CloudKitUtils.swift in Sources */,
 				56E798DF23DAD9AB00461F96 /* CloudKitTokenStorgeProtocol.swift in Sources */,
 				56E798BD23DACBA100461F96 /* ShoppingListItemsWrapper.swift in Sources */,
 				56E798CE23DAD75F00461F96 /* ShoppingList+CoreDataClass.swift in Sources */,
@@ -886,6 +909,7 @@
 				56E798D223DAD75F00461F96 /* ShoppingListItem+CoreDataClass.swift in Sources */,
 				56E798D423DAD75F00461F96 /* Good+CoreDataClass.swift in Sources */,
 				56E798D123DAD75F00461F96 /* Store+CoreDataProperties.swift in Sources */,
+				56E798E923DB28BB00461F96 /* CloudKitUtils.swift in Sources */,
 				56E798C923DAD75F00461F96 /* GoodRating+CoreDataProperties.swift in Sources */,
 				56E798C623DACDE300461F96 /* CloudKitTestTokenStorage.swift in Sources */,
 				56E798E523DAEF4700461F96 /* TestServerChangeToken.swift in Sources */,
