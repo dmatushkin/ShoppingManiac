@@ -27,7 +27,7 @@ class CloudKitUtils {
         self.storage = storage
     }
 	
-	private func createFetchRecordsOperation(recordIds: [CKRecord.ID], localDb: Bool, observer: AnyObserver<CKRecord>) -> CKFetchRecordsOperation {
+	private func createFetchRecordsOperation(recordIds: [CKRecord.ID], localDb: Bool, observer: AnyObserver<CKRecord>) {
 		let operation = CKFetchRecordsOperation(recordIDs: recordIds)
 		operation.perRecordCompletionBlock = { record, recordid, error in
 			if let error = error {
@@ -42,8 +42,7 @@ class CloudKitUtils {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .retry(let timeout):
 					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-                        guard let self = self else { return }
-                        self.operations.run(operation: self.createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer), localDb: localDb)
+                        self?.createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer)
 					}
 				default:
 					observer.onError(error)
@@ -53,13 +52,12 @@ class CloudKitUtils {
 			}
 		}
 		operation.qualityOfService = .utility
-		return operation
+        self.operations.run(operation: operation, localDb: localDb)
 	}
     
     func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> Observable<CKRecord> {
         return Observable<CKRecord>.create {[weak self] observer in
-            guard let self = self else { return Disposables.create() }
-            self.operations.run(operation: self.createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer), localDb: localDb)
+            self?.createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer)
             return Disposables.create()
         }
     }
@@ -82,7 +80,7 @@ class CloudKitUtils {
         }
     }
     	
-	private func createUpdateRecordsOperation(records: [CKRecord], localDb: Bool, observer: AnyObserver<Void>) -> CKModifyRecordsOperation {
+	private func createUpdateRecordsOperation(records: [CKRecord], localDb: Bool, observer: AnyObserver<Void>) {
 		let modifyOperation = CKModifyRecordsOperation(recordsToSave: records, recordIDsToDelete: nil)
 		modifyOperation.savePolicy = .allKeys
 		modifyOperation.perRecordCompletionBlock = {record, error in
@@ -98,8 +96,7 @@ class CloudKitUtils {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .retry(let timeout):
 					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-                        guard let self = self else { return }
-                        self.operations.run(operation: self.createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer), localDb: localDb)
+                        self?.createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer)
 					}
 				default:
 					observer.onError(error)
@@ -109,18 +106,17 @@ class CloudKitUtils {
 				observer.onCompleted()
 			}
 		}
-		return modifyOperation
+        self.operations.run(operation: modifyOperation, localDb: localDb)
 	}
     
     func updateRecords(records: [CKRecord], localDb: Bool) -> Observable<Void> {
         return Observable<Void>.create {[weak self] observer in
-            guard let self = self else { return Disposables.create() }
-            self.operations.run(operation: self.createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer), localDb: localDb)
+            self?.createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer)
             return Disposables.create()
         }
     }
 	
-	private func createFetchDatabaseChangesOperation(loadedZoneIds: [CKRecordZone.ID], localDb: Bool, observer: AnyObserver<ZonesToFetchWrapper>) -> CKFetchDatabaseChangesOperation {
+	private func createFetchDatabaseChangesOperation(loadedZoneIds: [CKRecordZone.ID], localDb: Bool, observer: AnyObserver<ZonesToFetchWrapper>) {
 		let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: self.storage.getDbToken(localDb: localDb))
 		operation.fetchAllChanges = true
 		var zoneIds: [CKRecordZone.ID] = loadedZoneIds
@@ -139,12 +135,11 @@ class CloudKitUtils {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .retry(let timeout):
 					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-                        guard let self = self else { return }
-                        self.operations.run(operation: self.createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer), localDb: localDb)
+                        self?.createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer)
 					}
 				case .tokenReset:
 					self.storage.setDbToken(localDb: localDb, token: nil)
-                    self.operations.run(operation: self.createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer), localDb: localDb)
+                    self.createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer)
 				default:
 					self.storage.setDbToken(localDb: localDb, token: nil)
 					observer.onError(error)
@@ -152,7 +147,7 @@ class CloudKitUtils {
 			} else if let token = token {
 				self.storage.setDbToken(localDb: localDb, token: token)
 				if moreComing {
-                    self.operations.run(operation: self.createFetchDatabaseChangesOperation(loadedZoneIds: zoneIds, localDb: localDb, observer: observer), localDb: localDb)
+                    self.createFetchDatabaseChangesOperation(loadedZoneIds: zoneIds, localDb: localDb, observer: observer)
 				} else {
 					observer.onNext(ZonesToFetchWrapper(localDb: localDb, zoneIds: zoneIds))
 					SwiftyBeaver.debug("Update zones request finished")
@@ -164,13 +159,12 @@ class CloudKitUtils {
 				observer.onError(error)
 			}
 		}
-		return operation
+        self.operations.run(operation: operation, localDb: localDb)
 	}
     
     func fetchDatabaseChanges(localDb: Bool) -> Observable<ZonesToFetchWrapper> {
         return Observable<ZonesToFetchWrapper>.create {[weak self] observer in
-            guard let self = self else { return Disposables.create() }
-            self.operations.run(operation: self.createFetchDatabaseChangesOperation(loadedZoneIds: [], localDb: localDb, observer: observer), localDb: localDb)
+            self?.createFetchDatabaseChangesOperation(loadedZoneIds: [], localDb: localDb, observer: observer)
             return Disposables.create()
         }
     }
@@ -181,18 +175,14 @@ class CloudKitUtils {
 		return options
 	}
     
-	private func createFetchZoneChangesOperation(loadedRecords: [CKRecord], wrapper: ZonesToFetchWrapper, observer: AnyObserver<[CKRecord]>) -> CKFetchRecordZoneChangesOperation {
+	private func createFetchZoneChangesOperation(loadedRecords: [CKRecord], wrapper: ZonesToFetchWrapper, observer: AnyObserver<[CKRecord]>) {
 		var records: [CKRecord] = loadedRecords
 		var moreComingFlag: Bool = false
 		let optionsByRecordZoneID = wrapper.zoneIds.reduce(into: [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration](), { $0[$1] = zoneIdFetchOption(zoneId: $1, localDb: wrapper.localDb) })
 		let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: wrapper.zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
 		operation.fetchAllChanges = true
-		operation.recordChangedBlock = { record in
-			records.append(record)
-		}
-		operation.recordZoneChangeTokensUpdatedBlock = {[weak self] zoneId, token, data in
-			self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: token)
-		}
+		operation.recordChangedBlock = { record in records.append(record) }
+		operation.recordZoneChangeTokensUpdatedBlock = {[weak self] zoneId, token, data in self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: token) }
 		operation.recordZoneFetchCompletionBlock = {[weak self] zoneId, changeToken, data, moreComing, error in
 			if let error = error {
 				switch CloudKitErrorType.errorType(forError: error) {
@@ -216,17 +206,16 @@ class CloudKitUtils {
 				switch CloudKitErrorType.errorType(forError: error) {
 				case .retry(let timeout):
 					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-                        guard let self = self else { return }
-                        self.operations.run(operation: self.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer), localDb: wrapper.localDb)
+                        self?.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer)
 					}
 				case .tokenReset:
-                    self.operations.run(operation: self.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer), localDb: wrapper.localDb)
+                    self.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer)
 				default:
 					observer.onError(error)
 				}
 			} else {
 				if moreComingFlag {
-                    self.operations.run(operation: self.createFetchZoneChangesOperation(loadedRecords: records, wrapper: wrapper, observer: observer), localDb: wrapper.localDb)
+                    self.createFetchZoneChangesOperation(loadedRecords: records, wrapper: wrapper, observer: observer)
 				} else {
 					SwiftyBeaver.debug("\(records.count) updated records found")
 					observer.onNext(records)
@@ -234,14 +223,13 @@ class CloudKitUtils {
 				}
 			}
 		}
-		return operation
+        self.operations.run(operation: operation, localDb: wrapper.localDb)
 	}
 	
     func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> Observable<[CKRecord]> {
         return Observable<[CKRecord]>.create {[weak self] observer in
-            guard let self = self else { return Disposables.create() }
             if wrapper.zoneIds.count > 0 {
-                self.operations.run(operation: self.createFetchZoneChangesOperation(loadedRecords: [], wrapper: wrapper, observer: observer), localDb: wrapper.localDb)
+                self?.createFetchZoneChangesOperation(loadedRecords: [], wrapper: wrapper, observer: observer)
             } else {
                 observer.onCompleted()
             }

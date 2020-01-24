@@ -196,7 +196,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     private func icloudShare() {
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
-        CloudShare.shareList(list: self.model.shoppingList).flatMap(CloudShare.createShare).observeOnMain().subscribe(onNext: self.createSharingController, onError: self.showSharingError).disposed(by: self.model.disposeBag)
+        CloudShare.shareList(list: self.model.shoppingList).observeOnMain().subscribe(onNext: self.createSharingController, onError: self.showSharingError).disposed(by: self.model.disposeBag)
     }
     
     private func createSharingController(share: CKShare) {

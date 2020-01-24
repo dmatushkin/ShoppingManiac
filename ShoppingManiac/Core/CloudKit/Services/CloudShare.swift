@@ -18,15 +18,6 @@ class CloudShare {
     
     private init() {}
 
-    private class func createZone() {
-        let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
-        CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
-            if let error = error {
-                SwiftyBeaver.debug("Error saving zone \(error.localizedDescription)")
-            }
-        }
-    }
-
     class func setupUserPermissions() {
         CKContainer.default().accountStatus { (status, error) in
             if let error = error {
@@ -61,12 +52,44 @@ class CloudShare {
         }
     }
 
-    class func shareList(list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
-        return getListWrapper(list: list)
+    class func shareList(list: ShoppingList) -> Observable<CKShare> {
+        return getListWrapper(list: list).flatMap(createShare)
     }
 
     class func updateList(list: ShoppingList) -> Observable<Void> {
         return getListWrapper(list: list).flatMap(updateRecord)
+    }
+    
+    private class func createShare(wrapper: ShoppingListItemsWrapper) -> Observable<CKShare> {
+        return Observable<CKShare>.create { observer in
+            let share = CKShare(rootRecord: wrapper.record)
+            share[CKShare.SystemFieldKey.title] = "Shopping list" as CKRecordValue
+            share[CKShare.SystemFieldKey.shareType] = "org.md.ShoppingManiac" as CKRecordValue
+            share.publicPermission = .readWrite
+            
+            let recordsToUpdate = [wrapper.record, share]
+            
+            let disposable = cloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true)
+                .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: true))
+                .subscribe(onError: {error in
+                    observer.onError(error)
+            }, onCompleted: {
+                observer.onNext(share)
+                observer.onCompleted()
+            })
+            return Disposables.create {
+                disposable.dispose()
+            }
+        }
+    }
+    
+    private class func createZone() {
+        let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
+        CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
+            if let error = error {
+                SwiftyBeaver.debug("Error saving zone \(error.localizedDescription)")
+            }
+        }
     }
 
     private class func updateListWrapper(record: CKRecord, list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
@@ -94,7 +117,7 @@ class CloudShare {
         record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
     }
     
-    class func zone(ownerName: String?) -> CKRecordZone {
+    private class func zone(ownerName: String?) -> CKRecordZone {
         if let ownerName = ownerName {
             return CKRecordZone(zoneID: CKRecordZone.ID(zoneName: CloudKitUtils.zoneName, ownerName: ownerName))
         } else {
@@ -102,7 +125,7 @@ class CloudShare {
         }
     }
 
-    class func getListWrapper(list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
+    private class func getListWrapper(list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
         let recordZone = zone(ownerName: list.ownerName).zoneID
         if let recordName = list.recordid {
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
@@ -118,7 +141,7 @@ class CloudShare {
         }
     }
 
-    class func getItemRecord(item: ShoppingListItem) -> Observable<CKRecord> {
+    private class func getItemRecord(item: ShoppingListItem) -> Observable<CKRecord> {
         let recordZone = zone(ownerName: item.list?.ownerName).zoneID
         if let recordName = item.recordid {
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
@@ -145,29 +168,6 @@ class CloudShare {
         } else {
             return cloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb)
             .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
-        }
-    }
-        
-    class func createShare(wrapper: ShoppingListItemsWrapper) -> Observable<CKShare> {
-        return Observable<CKShare>.create { observer in
-            let share = CKShare(rootRecord: wrapper.record)
-            share[CKShare.SystemFieldKey.title] = "Shopping list" as CKRecordValue
-            share[CKShare.SystemFieldKey.shareType] = "org.md.ShoppingManiac" as CKRecordValue
-            share.publicPermission = .readWrite
-            
-            let recordsToUpdate = [wrapper.record, share]
-            
-            let disposable = cloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true)
-                .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: true))
-                .subscribe(onError: {error in
-                    observer.onError(error)
-            }, onCompleted: {
-                observer.onNext(share)
-                observer.onCompleted()
-            })
-            return Disposables.create {
-                disposable.dispose()
-            }
         }
     }
 }
