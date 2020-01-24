@@ -9,23 +9,21 @@
 import Foundation
 import CloudKit
 
-class CloudKitTokenStorage {
-
-	private init() {}
+class CloudKitTokenStorage: CloudKitTokenStorgeProtocol {
 	
-	private class func zoneTokenDefaultsKey(zoneId: CKRecordZone.ID, localDb: Bool) -> String {
+	private func zoneTokenDefaultsKey(zoneId: CKRecordZone.ID, localDb: Bool) -> String {
 		return zoneId.zoneName + (localDb ? "local" : "remote")
 	}
 	
-	class func getZoneToken(zoneId: CKRecordZone.ID, localDb: Bool) -> CKServerChangeToken? {
+	func getZoneToken(zoneId: CKRecordZone.ID, localDb: Bool) -> CKServerChangeToken? {
 		return UserDefaults.standard.getZoneChangedToken(zoneName: zoneTokenDefaultsKey(zoneId: zoneId, localDb: localDb))
 	}
 	
-	class func setZoneToken(zoneId: CKRecordZone.ID, localDb: Bool, token: CKServerChangeToken?) {
+	func setZoneToken(zoneId: CKRecordZone.ID, localDb: Bool, token: CKServerChangeToken?) {
 		UserDefaults.standard.setZoneChangeToken(zoneName: zoneTokenDefaultsKey(zoneId: zoneId, localDb: localDb), token: token)
 	}
 	
-	class func getDbToken(localDb: Bool) -> CKServerChangeToken? {
+	func getDbToken(localDb: Bool) -> CKServerChangeToken? {
 		if localDb {
             return UserDefaults.standard.localServerChangeToken
         } else {
@@ -33,7 +31,7 @@ class CloudKitTokenStorage {
         }
 	}
 	
-	class func setDbToken(localDb: Bool, token: CKServerChangeToken?) {
+	func setDbToken(localDb: Bool, token: CKServerChangeToken?) {
 		if localDb {
             UserDefaults.standard.localServerChangeToken = token
         } else {

@@ -18,5 +18,5 @@ class CommonError: LocalizedError {
     
     var errorDescription: String? {
         return self.description
-    }
+    }    
 }

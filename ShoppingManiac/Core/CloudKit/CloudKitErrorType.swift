@@ -15,6 +15,9 @@ enum CloudKitErrorType {
 	case tokenReset
 	
 	static func errorType(forError error: Error) -> CloudKitErrorType {
+        if let localError = error as? CommonError {
+            return testErrorType(forError: localError)
+        }
 		guard let ckError = error as? CKError else {
 			return .failure(error: error)
 		}
@@ -31,4 +34,14 @@ enum CloudKitErrorType {
 			return .failure(error: error)
 		}
 	}
+    
+    private static func testErrorType(forError error: CommonError) -> CloudKitErrorType {
+        if error.errorDescription == "retry" {
+            return .retry(timeout: 1)
+        } else if error.errorDescription == "token" {
+            return .tokenReset
+        } else {
+            return .failure(error: error)
+        }
+    }
 }

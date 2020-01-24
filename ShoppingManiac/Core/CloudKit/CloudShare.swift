@@ -14,6 +14,8 @@ import RxSwift
 
 class CloudShare {
     
+    private static let cloudKitUtils = CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage())
+    
     private init() {}
 
     private class func createZone() {
@@ -104,7 +106,7 @@ class CloudShare {
         let recordZone = zone(ownerName: list.ownerName).zoneID
         if let recordName = list.recordid {
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-            return CloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).flatMap({record in
+            return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).flatMap({record in
                 return updateListWrapper(record: record, list: list)
             })
         } else {
@@ -120,7 +122,7 @@ class CloudShare {
         let recordZone = zone(ownerName: item.list?.ownerName).zoneID
         if let recordName = item.recordid {
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-            return CloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !(item.list?.isRemote ?? false)).map({record in
+            return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !(item.list?.isRemote ?? false)).map({record in
                 updateItemRecord(record: record, item: item)
                 return record
             })
@@ -136,13 +138,13 @@ class CloudShare {
     
     private class func updateRecord(wrapper: ShoppingListItemsWrapper) -> Observable<Void> {
         if let shareRef = wrapper.record.share {
-            return CloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb).flatMap({shareRecord in                
-                return CloudKitUtils.updateRecords(records: [wrapper.record, shareRecord], localDb: wrapper.localDb)
-                .concat(CloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
+            return cloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb).flatMap({shareRecord in
+                return cloudKitUtils.updateRecords(records: [wrapper.record, shareRecord], localDb: wrapper.localDb)
+                .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
             })
         } else {
-            return CloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb)
-            .concat(CloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
+            return cloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb)
+            .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
         }
     }
         
@@ -155,8 +157,8 @@ class CloudShare {
             
             let recordsToUpdate = [wrapper.record, share]
             
-            let disposable = CloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true)
-                .concat(CloudKitUtils.updateRecords(records: wrapper.items, localDb: true))
+            let disposable = cloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true)
+                .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: true))
                 .subscribe(onError: {error in
                     observer.onError(error)
             }, onCompleted: {

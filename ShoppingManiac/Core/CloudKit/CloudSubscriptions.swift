@@ -12,6 +12,8 @@ import RxSwift
 
 class CloudSubscriptions {
     
+    private static let cloudKitUtils = CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage())
+    
     private init() {}
     
     private static let subscriptionsKey = "cloudKitSubscriptionsDone"
@@ -31,13 +33,13 @@ class CloudSubscriptions {
         let notificationInfo = CKSubscription.NotificationInfo()
         notificationInfo.shouldSendContentAvailable = true
         subscription.notificationInfo = notificationInfo
-        return CloudKitUtils.updateSubscriptions(subscriptions: [subscription], localDb: false)
+        return cloudKitUtils.updateSubscriptions(subscriptions: [subscription], localDb: false)
     }
     
     private class func setupLocalSubscriptions() -> Observable<Void> {
         let listsSubscription = createSubscription(forType: CloudKitUtils.listRecordType)
         let itemsSubscription = createSubscription(forType: CloudKitUtils.itemRecordType)
-        return CloudKitUtils.updateSubscriptions(subscriptions: [listsSubscription, itemsSubscription], localDb: true)
+        return cloudKitUtils.updateSubscriptions(subscriptions: [listsSubscription, itemsSubscription], localDb: true)
     }
     
     private class func createSubscription(forType type: String) -> CKQuerySubscription {

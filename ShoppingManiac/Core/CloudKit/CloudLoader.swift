@@ -14,8 +14,10 @@ import RxSwift
 
 class CloudLoader {
     
+    private static let cloudKitUtils = CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage())
+    
     class func loadShare(metadata: CKShare.Metadata) -> Observable<ShoppingList> {
-        return CloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
+        return cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
             .map({RecordWrapper(record: $0, localDb: false, ownerName: metadata.rootRecordID.zoneID.ownerName)})
             .flatMap(storeListRecord)
             .flatMap(fetchListItems)
@@ -51,7 +53,7 @@ class CloudLoader {
     }
     
     private class func fetchListItems(wrapper: ShoppingListWrapper) -> Observable<ShoppingListItemsWrapper> {
-        return CloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray().asObservable()
+        return cloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray().asObservable()
             .map({ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: $0, ownerName: wrapper.ownerName)})
     }
 
@@ -94,8 +96,8 @@ class CloudLoader {
     }
 
     class func fetchChanges(localDb: Bool) -> Observable<Void> {
-        return CloudKitUtils.fetchDatabaseChanges(localDb: localDb)
-            .flatMap(CloudKitUtils.fetchZoneChanges).flatMap({ records in
+        return cloudKitUtils.fetchDatabaseChanges(localDb: localDb)
+            .flatMap(cloudKitUtils.fetchZoneChanges).flatMap({ records in
                 processChangesRecords(records: records, localDb: localDb)
             })
     }
