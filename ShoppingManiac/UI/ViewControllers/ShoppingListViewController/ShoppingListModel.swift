@@ -13,6 +13,7 @@ import RxCocoa
 
 class ShoppingListModel {
     
+    private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
     let totalText = BehaviorRelay<String>(value: "")
     
     let disposeBag = DisposeBag()
@@ -29,7 +30,7 @@ class ShoppingListModel {
         
     func syncWithCloud() {
         if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
-            CloudShare.updateList(list: self.shoppingList).subscribe().disposed(by: self.disposeBag)
+            self.cloudShare.updateList(list: self.shoppingList).subscribe().disposed(by: self.disposeBag)
         }
     }
     

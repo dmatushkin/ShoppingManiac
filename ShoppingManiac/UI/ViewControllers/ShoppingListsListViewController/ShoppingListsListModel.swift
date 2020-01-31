@@ -14,6 +14,7 @@ class ShoppingListsListModel {
     
     let disposeBag = DisposeBag()
     var onUpdate: (() -> Void)?
+    private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
     
     init() {
         LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.updateNeeded).disposed(by: self.disposeBag)
@@ -41,7 +42,7 @@ class ShoppingListsListModel {
         }, completion: {[weak self] _ in
             guard let self = self else { return }
             if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
-                CloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
+                self.cloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
             }
             self.onUpdate?()
         })

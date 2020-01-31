@@ -14,29 +14,31 @@ import RxSwift
 
 class CloudShare {
     
-    private static let cloudKitUtils = CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage())
+    private let cloudKitUtils: CloudKitUtilsProtocol
     
-    private init() {}
+    init(cloudKitUtils: CloudKitUtilsProtocol) {
+        self.cloudKitUtils = cloudKitUtils
+    }
 
-    class func setupUserPermissions() {
+    func setupUserPermissions() {
         CKContainer.default().accountStatus { (status, error) in
             if let error = error {
                 SwiftyBeaver.debug("CloudKit account error \(error)")
             } else if status == .available {
-                CKContainer.default().status(forApplicationPermission: .userDiscoverability, completionHandler: { (status, error) in
+                CKContainer.default().status(forApplicationPermission: .userDiscoverability, completionHandler: {[weak self] (status, error) in
                     if let error = error {
                         SwiftyBeaver.debug("CloudKit discoverability status error \(error)")
                     } else if status == .granted {
                         AppDelegate.discoverabilityStatus = true
-                        createZone()
+                        self?.createZone()
                         SwiftyBeaver.debug("CloudKit discoverability status ok")
                     } else if status == .initialState {
-                        CKContainer.default().requestApplicationPermission(.userDiscoverability, completionHandler: { (status, error) in
+                        CKContainer.default().requestApplicationPermission(.userDiscoverability, completionHandler: {[weak self] (status, error) in
                             if let error = error {
                                 SwiftyBeaver.debug("CloudKit discoverability status error \(error)")
                             } else if status == .granted {
                                 AppDelegate.discoverabilityStatus = true
-                                createZone()
+                                self?.createZone()
                                 SwiftyBeaver.debug("CloudKit discoverability status ok")
                             } else {
                                 SwiftyBeaver.debug("CloudKit discoverability status incorrect")
@@ -52,16 +54,17 @@ class CloudShare {
         }
     }
 
-    class func shareList(list: ShoppingList) -> Observable<CKShare> {
+    func shareList(list: ShoppingList) -> Observable<CKShare> {
         return getListWrapper(list: list).flatMap(createShare)
     }
 
-    class func updateList(list: ShoppingList) -> Observable<Void> {
+    func updateList(list: ShoppingList) -> Observable<Void> {
         return getListWrapper(list: list).flatMap(updateRecord)
     }
     
-    private class func createShare(wrapper: ShoppingListItemsWrapper) -> Observable<CKShare> {
-        return Observable<CKShare>.create { observer in
+    private func createShare(wrapper: ShoppingListItemsWrapper) -> Observable<CKShare> {
+        return Observable<CKShare>.create {[weak self] observer in
+            guard let self = self else { return Disposables.create() }
             let share = CKShare(rootRecord: wrapper.record)
             share[CKShare.SystemFieldKey.title] = "Shopping list" as CKRecordValue
             share[CKShare.SystemFieldKey.shareType] = "org.md.ShoppingManiac" as CKRecordValue
@@ -69,9 +72,10 @@ class CloudShare {
             
             let recordsToUpdate = [wrapper.record, share]
             
-            let disposable = cloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true)
-                .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: true))
-                .subscribe(onError: {error in
+            let disposable = self.cloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true).flatMap({[weak self] _ -> Observable<Void> in
+                guard let self = self else { fatalError() }
+                return self.cloudKitUtils.updateRecords(records: wrapper.items, localDb: true)
+            }).subscribe(onError: {error in
                     observer.onError(error)
             }, onCompleted: {
                 observer.onNext(share)
@@ -83,7 +87,7 @@ class CloudShare {
         }
     }
     
-    private class func createZone() {
+    private func createZone() {
         let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
         CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
             if let error = error {
@@ -92,32 +96,33 @@ class CloudShare {
         }
     }
 
-    private class func updateListWrapper(record: CKRecord, list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
-        return Observable.from(list.listItems.map({getItemRecord(item: $0)})).merge().toArray().asObservable().map({items in
+    private func updateListWrapper(tuple: (CKRecord, ShoppingList)) -> Observable<ShoppingListItemsWrapper> {
+        return Observable.from(tuple.1.listItems.map({getItemRecord(item: $0)})).merge().toArray().asObservable().map({items in
             for item in items {
-                item.setParent(record)
+                item.setParent(tuple.0)
             }
-            record["name"] = (list.name ?? "") as CKRecordValue
-            record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
-            record["isRemoved"] = list.isRemoved as CKRecordValue
-            record["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
-            return ShoppingListItemsWrapper(localDb: !list.isRemote, shoppingList: list, record: record, items: items, ownerName: list.ownerName)
+            tuple.0["name"] = (tuple.1.name ?? "") as CKRecordValue
+            tuple.0["date"] = Date(timeIntervalSinceReferenceDate: tuple.1.date) as CKRecordValue
+            tuple.0["isRemoved"] = tuple.1.isRemoved as CKRecordValue
+            tuple.0["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
+            return ShoppingListItemsWrapper(localDb: !tuple.1.isRemote, shoppingList: tuple.1, record: tuple.0, items: items, ownerName: tuple.1.ownerName)
         })
     }
 
-    private class func updateItemRecord(record: CKRecord, item: ShoppingListItem) {
-        record["comment"] = (item.comment ?? "") as CKRecordValue
-        record["goodName"] = (item.good?.name ?? "") as CKRecordValue
-        record["isWeight"] = item.isWeight as CKRecordValue
-        record["price"] = item.price as CKRecordValue
-        record["purchased"] = item.purchased as CKRecordValue
-        record["quantity"] = item.quantity as CKRecordValue
-        record["storeName"] = (item.store?.name ?? "") as CKRecordValue
-        record["isRemoved"] = item.isRemoved as CKRecordValue
-        record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
+    private func updateItemRecord(tuple: (CKRecord, ShoppingListItem)) -> CKRecord {
+        tuple.0["comment"] = (tuple.1.comment ?? "") as CKRecordValue
+        tuple.0["goodName"] = (tuple.1.good?.name ?? "") as CKRecordValue
+        tuple.0["isWeight"] = tuple.1.isWeight as CKRecordValue
+        tuple.0["price"] = tuple.1.price as CKRecordValue
+        tuple.0["purchased"] = tuple.1.purchased as CKRecordValue
+        tuple.0["quantity"] = tuple.1.quantity as CKRecordValue
+        tuple.0["storeName"] = (tuple.1.store?.name ?? "") as CKRecordValue
+        tuple.0["isRemoved"] = tuple.1.isRemoved as CKRecordValue
+        tuple.0["isCrossListItem"] = tuple.1.isCrossListItem as CKRecordValue
+        return tuple.0
     }
     
-    private class func zone(ownerName: String?) -> CKRecordZone {
+    private func zone(ownerName: String?) -> CKRecordZone {
         if let ownerName = ownerName {
             return CKRecordZone(zoneID: CKRecordZone.ID(zoneName: CloudKitUtils.zoneName, ownerName: ownerName))
         } else {
@@ -125,49 +130,48 @@ class CloudShare {
         }
     }
 
-    private class func getListWrapper(list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
+    private func getListWrapper(list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
         let recordZone = zone(ownerName: list.ownerName).zoneID
         if let recordName = list.recordid {
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-            return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).flatMap({record in
-                return updateListWrapper(record: record, list: list)
-            })
+            return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).map({($0, list)}).flatMap(self.updateListWrapper)
         } else {
             let recordName = CKRecord.ID().recordName
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
             let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
             list.setRecordId(recordId: recordName)
-            return updateListWrapper(record: record, list: list)
+            return updateListWrapper(tuple: (record, list))
         }
     }
 
-    private class func getItemRecord(item: ShoppingListItem) -> Observable<CKRecord> {
+    private func getItemRecord(item: ShoppingListItem) -> Observable<CKRecord> {
         let recordZone = zone(ownerName: item.list?.ownerName).zoneID
         if let recordName = item.recordid {
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-            return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !(item.list?.isRemote ?? false)).map({record in
-                updateItemRecord(record: record, item: item)
-                return record
-            })
+            return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !(item.list?.isRemote ?? false)).map({($0, item)}).map(self.updateItemRecord)
         } else {
             let recordName = CKRecord.ID().recordName
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
             let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
             item.setRecordId(recordId: recordName)
-            updateItemRecord(record: record, item: item)
-            return Observable.just(record)
+            return Observable.just(updateItemRecord(tuple: (record, item)))
         }
     }
     
-    private class func updateRecord(wrapper: ShoppingListItemsWrapper) -> Observable<Void> {
+    private func updateRecord(wrapper: ShoppingListItemsWrapper) -> Observable<Void> {
         if let shareRef = wrapper.record.share {
-            return cloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb).flatMap({shareRecord in
-                return cloudKitUtils.updateRecords(records: [wrapper.record, shareRecord], localDb: wrapper.localDb)
-                .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
+            return cloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb).flatMap({[weak self] shareRecord -> Observable<Void> in
+                guard let self = self else { fatalError() }
+                return self.cloudKitUtils.updateRecords(records: [wrapper.record, shareRecord], localDb: wrapper.localDb).flatMap({[weak self] _ -> Observable<Void> in
+                    guard let self = self else { fatalError() }
+                    return self.cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb)
+                })
             })
         } else {
-            return cloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb)
-            .concat(cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb))
+            return cloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb).flatMap({[weak self] _ -> Observable<Void> in
+                guard let self = self else { fatalError() }
+                return self.cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb)
+            })
         }
     }
 }

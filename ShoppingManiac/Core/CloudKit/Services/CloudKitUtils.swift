@@ -11,7 +11,15 @@ import CloudKit
 import SwiftyBeaver
 import RxSwift
 
-class CloudKitUtils {
+protocol CloudKitUtilsProtocol {
+    func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> Observable<CKRecord>
+    func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> Observable<Void>
+    func updateRecords(records: [CKRecord], localDb: Bool) -> Observable<Void>
+    func fetchDatabaseChanges(localDb: Bool) -> Observable<ZonesToFetchWrapper>
+    func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> Observable<[CKRecord]>
+}
+
+class CloudKitUtils: CloudKitUtilsProtocol {
     
     private static let retryQueue = DispatchQueue(label: "CloudKitUtils.retryQueue", attributes: .concurrent)
     

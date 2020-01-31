@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
     
     private let disposeBag = DisposeBag()
+    private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.registerForRemoteNotifications()
@@ -36,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
         _ = try? CoreStoreDefaults.dataStack.addStorageAndWait(store)
-        CloudShare.setupUserPermissions()        
+        self.cloudShare.setupUserPermissions()        
         CloudSubscriptions.setupSubscriptions()
         return true
     }

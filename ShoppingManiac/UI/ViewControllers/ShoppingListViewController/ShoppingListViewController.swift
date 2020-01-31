@@ -22,7 +22,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     @IBOutlet private weak var shareButton: UIButton!
     
     let model = ShoppingListModel()
-
+    private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -196,7 +197,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     private func icloudShare() {
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
-        CloudShare.shareList(list: self.model.shoppingList).observeOnMain().subscribe(onNext: self.createSharingController, onError: self.showSharingError).disposed(by: self.model.disposeBag)
+        self.cloudShare.shareList(list: self.model.shoppingList).observeOnMain().subscribe(onNext: self.createSharingController, onError: self.showSharingError).disposed(by: self.model.disposeBag)
     }
     
     private func createSharingController(share: CKShare) {
