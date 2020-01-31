@@ -16,37 +16,18 @@ import CloudKit
 class CloudShareUnitTests: XCTestCase {
 
     private let utilsStub = CloudKitUtilsStub()
-    private var cloudShare: CloudShare!
-    private let stack: DataStack = {
-        let stack = DataStack(xcodeModelName: "ShoppingManiac", bundle: Bundle(for: CloudShareUnitTests.self))
-        do {
-            try stack.addStorageAndWait(InMemoryStore())
-        } catch {
-            XCTFail("Cannot set up database storage: \(error)")
-        }
-        return stack
-    }()
+    private var cloudShare: CloudShare!    
     
     override func setUp() {
-        CoreStoreDefaults.dataStack = self.stack
         self.cloudShare = CloudShare(cloudKitUtils: self.utilsStub)
         self.utilsStub.cleanup()
+        TestDbWrapper.setup()
     }
 
     override func tearDown() {
         self.cloudShare = nil
         self.utilsStub.cleanup()
-        do {
-            _ = try CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-                try transaction.deleteAll(From<ShoppingList>())
-                try transaction.deleteAll(From<Store>())
-                try transaction.deleteAll(From<Good>())
-                try transaction.deleteAll(From<Category>())
-                try transaction.deleteAll(From<ShoppingListItem>())
-            })
-        } catch {
-            print(error.localizedDescription)
-        }
+        TestDbWrapper.cleanup()
     }
 
     func testShareLocalShoppingList() throws {
