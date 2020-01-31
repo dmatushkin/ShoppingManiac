@@ -89,6 +89,7 @@
 		569114CC23E46DA1003B0419 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 569114CB23E46DA1003B0419 /* RxSwift */; };
 		569114CE23E46DA1003B0419 /* RxTest in Frameworks */ = {isa = PBXBuildFile; productRef = 569114CD23E46DA1003B0419 /* RxTest */; };
 		569114D023E46DA1003B0419 /* CoreStore in Frameworks */ = {isa = PBXBuildFile; productRef = 569114CF23E46DA1003B0419 /* CoreStore */; };
+		569114D223E4A1C3003B0419 /* SharedRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 569114D123E4A1C3003B0419 /* SharedRecord.swift */; };
 		56C7334C208EF05800E085FF /* CKContainerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C7334B208EF05800E085FF /* CKContainerExtension.swift */; };
 		56CFDBAF20A010BA00C299AA /* ObservableTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */; };
 		56D1215E20A6FE510044C486 /* GoodsListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D1215D20A6FE510044C486 /* GoodsListModel.swift */; };
@@ -226,6 +227,7 @@
 		567F7321206F915B00B67B5C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListsListModel.swift; sourceTree = "<group>"; };
 		568ADB2320A2C1260005B14C /* AddShoppingListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListModel.swift; sourceTree = "<group>"; };
+		569114D123E4A1C3003B0419 /* SharedRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedRecord.swift; sourceTree = "<group>"; };
 		56C7334B208EF05800E085FF /* CKContainerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKContainerExtension.swift; sourceTree = "<group>"; };
 		56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableTypeExtension.swift; sourceTree = "<group>"; };
 		56D1215D20A6FE510044C486 /* GoodsListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodsListModel.swift; sourceTree = "<group>"; };
@@ -605,6 +607,7 @@
 				56E798E223DADB4D00461F96 /* ErrorExtension.swift */,
 				56E798E423DAEF4700461F96 /* TestServerChangeToken.swift */,
 				564FA22123E4343400E4B1CB /* CloudKitUtilsStub.swift */,
+				569114D123E4A1C3003B0419 /* SharedRecord.swift */,
 			);
 			path = ShoppingManiacUnitTests;
 			sourceTree = "<group>";
@@ -921,6 +924,7 @@
 				564FA22023E433A500E4B1CB /* CloudShareUnitTests.swift in Sources */,
 				56E798CB23DAD75F00461F96 /* Category+CoreDataProperties.swift in Sources */,
 				56E798CD23DAD75F00461F96 /* Picture+CoreDataProperties.swift in Sources */,
+				569114D223E4A1C3003B0419 /* SharedRecord.swift in Sources */,
 				56E798C223DACBA100461F96 /* CloudKitErrorType.swift in Sources */,
 				56E798D023DAD75F00461F96 /* Store+CoreDataClass.swift in Sources */,
 				56E798DF23DAD9AB00461F96 /* CloudKitTokenStorgeProtocol.swift in Sources */,

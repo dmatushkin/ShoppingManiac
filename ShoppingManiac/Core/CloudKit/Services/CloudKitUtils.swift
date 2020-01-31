@@ -183,6 +183,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		return options
 	}
     
+    //swiftlint:disable cyclomatic_complexity
 	private func createFetchZoneChangesOperation(loadedRecords: [CKRecord], wrapper: ZonesToFetchWrapper, observer: AnyObserver<[CKRecord]>) {
 		var records: [CKRecord] = loadedRecords
 		var moreComingFlag: Bool = false
