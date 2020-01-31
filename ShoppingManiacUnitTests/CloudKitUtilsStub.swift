@@ -14,7 +14,7 @@ class CloudKitUtilsStub: CloudKitUtilsProtocol {
     
     private let operationsQueue = DispatchQueue(label: "CloudKitUtilsStub.operationsQueue", attributes: .concurrent)
     
-    var onFetchRecords: (([CKRecord.ID], Bool) -> CKRecord)?
+    var onFetchRecords: (([CKRecord.ID], Bool) -> [CKRecord])?
     var onUpdateRecords: (([CKRecord], Bool) -> Void)?
     var onUpdateSubscriptions: (([CKSubscription], Bool) -> Void)?
     var onFetchDatabaseChanges: ((Bool) -> ZonesToFetchWrapper)?
@@ -34,7 +34,9 @@ class CloudKitUtilsStub: CloudKitUtilsProtocol {
             self.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
                 if let result = self.onFetchRecords?(recordIds, localDb) {
-                    observer.onNext(result)
+                    for record in result {
+                        observer.onNext(record)
+                    }
                     observer.onCompleted()
                 } else {
                     observer.onError(CommonError(description: "No result"))

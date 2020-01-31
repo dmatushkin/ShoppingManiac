@@ -97,7 +97,7 @@ class CloudShare {
     }
 
     private func updateListWrapper(tuple: (CKRecord, ShoppingList)) -> Observable<ShoppingListItemsWrapper> {
-        return Observable.from(tuple.1.listItems.map({getItemRecord(item: $0)})).merge().toArray().asObservable().map({items in
+        return getItemsRecords(items: tuple.1.listItems).toArray().asObservable().map({items in
             for item in items {
                 item.setParent(tuple.0)
             }
@@ -109,17 +109,17 @@ class CloudShare {
         })
     }
 
-    private func updateItemRecord(tuple: (CKRecord, ShoppingListItem)) -> CKRecord {
-        tuple.0["comment"] = (tuple.1.comment ?? "") as CKRecordValue
-        tuple.0["goodName"] = (tuple.1.good?.name ?? "") as CKRecordValue
-        tuple.0["isWeight"] = tuple.1.isWeight as CKRecordValue
-        tuple.0["price"] = tuple.1.price as CKRecordValue
-        tuple.0["purchased"] = tuple.1.purchased as CKRecordValue
-        tuple.0["quantity"] = tuple.1.quantity as CKRecordValue
-        tuple.0["storeName"] = (tuple.1.store?.name ?? "") as CKRecordValue
-        tuple.0["isRemoved"] = tuple.1.isRemoved as CKRecordValue
-        tuple.0["isCrossListItem"] = tuple.1.isCrossListItem as CKRecordValue
-        return tuple.0
+    private func updateItemRecord(record: CKRecord, item: ShoppingListItem) -> CKRecord {
+        record["comment"] = (item.comment ?? "") as CKRecordValue
+        record["goodName"] = (item.good?.name ?? "") as CKRecordValue
+        record["isWeight"] = item.isWeight as CKRecordValue
+        record["price"] = item.price as CKRecordValue
+        record["purchased"] = item.purchased as CKRecordValue
+        record["quantity"] = item.quantity as CKRecordValue
+        record["storeName"] = (item.store?.name ?? "") as CKRecordValue
+        record["isRemoved"] = item.isRemoved as CKRecordValue
+        record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
+        return record
     }
     
     private func zone(ownerName: String?) -> CKRecordZone {
@@ -143,18 +143,38 @@ class CloudShare {
             return updateListWrapper(tuple: (record, list))
         }
     }
-
-    private func getItemRecord(item: ShoppingListItem) -> Observable<CKRecord> {
-        let recordZone = zone(ownerName: item.list?.ownerName).zoneID
-        if let recordName = item.recordid {
-            let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-            return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !(item.list?.isRemote ?? false)).map({($0, item)}).map(self.updateItemRecord)
-        } else {
-            let recordName = CKRecord.ID().recordName
-            let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-            let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
-            item.setRecordId(recordId: recordName)
-            return Observable.just(updateItemRecord(tuple: (record, item)))
+    
+    private func getItemsRecords(items: [ShoppingListItem]) -> Observable<CKRecord> {
+        return Observable<CKRecord>.create {[weak self] observer in
+            guard let self = self else { fatalError() }
+            let locals = items.filter({$0.recordid == nil})
+            let shares = items.filter({$0.recordid != nil})
+            let listIsRemote = items.first?.list?.isRemote ?? false
+            let recordZone = self.zone(ownerName: items.first?.list?.ownerName).zoneID
+            for local in locals {
+                let recordName = CKRecord.ID().recordName
+                let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
+                let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
+                local.setRecordId(recordId: recordName)
+                observer.onNext(self.updateItemRecord(record: record, item: local))
+            }
+            if shares.count > 0 {
+                let disposable = self.cloudKitUtils.fetchRecords(recordIds: shares.compactMap({$0.recordid}).map({CKRecord.ID(recordName: $0, zoneID: recordZone)}), localDb: !listIsRemote).subscribe(onNext: {record in
+                    if let item = shares.first(where: {$0.recordid == record.recordID.recordName}) {
+                        observer.onNext(self.updateItemRecord(record: record, item: item))
+                    }
+                }, onError: {error in
+                    observer.onError(error)
+                }, onCompleted: {
+                    observer.onCompleted()
+                })
+                return Disposables.create {
+                    disposable.dispose()
+                }
+            } else {
+                observer.onCompleted()
+                return Disposables.create()
+            }            
         }
     }
     
