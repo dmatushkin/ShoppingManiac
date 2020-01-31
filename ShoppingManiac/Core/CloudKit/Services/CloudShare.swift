@@ -97,7 +97,7 @@ class CloudShare {
     }
 
     private func updateListWrapper(tuple: (CKRecord, ShoppingList)) -> Observable<ShoppingListItemsWrapper> {
-        return getItemsRecords(items: tuple.1.listItems).toArray().asObservable().map({items in
+        return getItemsRecords(list: tuple.1).toArray().asObservable().map({items in
             for item in items {
                 item.setParent(tuple.0)
             }
@@ -144,13 +144,18 @@ class CloudShare {
         }
     }
     
-    private func getItemsRecords(items: [ShoppingListItem]) -> Observable<CKRecord> {
+    private func getItemsRecords(list: ShoppingList) -> Observable<CKRecord> {
         return Observable<CKRecord>.create {[weak self] observer in
             guard let self = self else { fatalError() }
+            let items = list.listItems
             let locals = items.filter({$0.recordid == nil})
-            let shares = items.filter({$0.recordid != nil})
-            let listIsRemote = items.first?.list?.isRemote ?? false
-            let recordZone = self.zone(ownerName: items.first?.list?.ownerName).zoneID
+            let shares = items.filter({$0.recordid != nil}).reduce(into: [String: ShoppingListItem](), {result, item in
+                if let recordId = item.recordid {
+                    result[recordId] = item
+                }
+            })
+            let listIsRemote = list.isRemote
+            let recordZone = self.zone(ownerName: list.ownerName).zoneID
             for local in locals {
                 let recordName = CKRecord.ID().recordName
                 let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
@@ -159,8 +164,9 @@ class CloudShare {
                 observer.onNext(self.updateItemRecord(record: record, item: local))
             }
             if shares.count > 0 {
-                let disposable = self.cloudKitUtils.fetchRecords(recordIds: shares.compactMap({$0.recordid}).map({CKRecord.ID(recordName: $0, zoneID: recordZone)}), localDb: !listIsRemote).subscribe(onNext: {record in
-                    if let item = shares.first(where: {$0.recordid == record.recordID.recordName}) {
+                let disposable = self.cloudKitUtils.fetchRecords(recordIds: shares.keys.map({CKRecord.ID(recordName: $0, zoneID: recordZone)}), localDb: !listIsRemote)
+                    .subscribe(onNext: {record in
+                    if let item = shares[record.recordID.recordName] {
                         observer.onNext(self.updateItemRecord(record: record, item: item))
                     }
                 }, onError: {error in
