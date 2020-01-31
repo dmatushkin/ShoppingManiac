@@ -77,11 +77,18 @@ class CloudShareUnitTests: XCTestCase {
                 XCTAssert(records.count == 2)
                 XCTAssert(localDb)
                 XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[0]["goodName"] as? String == "good1" || records[0]["goodName"] as? String == "good2")
-                XCTAssert(records[0]["storeName"] as? String == "store1" || records[0]["storeName"] as? String == "store2")
                 XCTAssert(records[1].recordType == "ShoppingListItem")
-                XCTAssert(records[1]["goodName"] as? String == "good2" || records[1]["goodName"] as? String == "good1")
-                XCTAssert(records[1]["storeName"] as? String == "store2" || records[1]["storeName"] as? String == "store1")
+                if records[0]["goodName"] as? String == "good1" {
+                    XCTAssert(records[0]["goodName"] as? String == "good1")
+                    XCTAssert(records[0]["storeName"] as? String == "store1")
+                    XCTAssert(records[1]["goodName"] as? String == "good2")
+                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                } else {
+                    XCTAssert(records[0]["goodName"] as? String == "good2")
+                    XCTAssert(records[0]["storeName"] as? String == "store2")
+                    XCTAssert(records[1]["goodName"] as? String == "good1")
+                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                }
             } else {
                 XCTAssert(false)
             }
