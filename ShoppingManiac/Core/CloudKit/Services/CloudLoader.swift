@@ -14,9 +14,13 @@ import RxSwift
 
 class CloudLoader {
     
-    private static let cloudKitUtils = CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage())
+    private let cloudKitUtils: CloudKitUtilsProtocol
     
-    class func loadShare(metadata: CKShare.Metadata) -> Observable<ShoppingList> {
+    init(cloudKitUtils: CloudKitUtilsProtocol) {
+        self.cloudKitUtils = cloudKitUtils
+    }
+    
+    func loadShare(metadata: CKShare.Metadata) -> Observable<ShoppingList> {
         return cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
             .map({RecordWrapper(record: $0, localDb: false, ownerName: metadata.rootRecordID.zoneID.ownerName)})
             .flatMap(storeListRecord)
@@ -24,7 +28,7 @@ class CloudLoader {
             .flatMap(storeListItems)
     }
     
-    private class func storeListRecord(recordWrapper: RecordWrapper) -> Observable<ShoppingListWrapper> {
+    private func storeListRecord(recordWrapper: RecordWrapper) -> Observable<ShoppingListWrapper> {
         return Observable<ShoppingListWrapper>.create { observer in
             CoreStoreDefaults.dataStack.perform(asynchronous: { (transaction) -> ShoppingList in
                 let shoppingList: ShoppingList = try transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", recordWrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
@@ -52,12 +56,12 @@ class CloudLoader {
         }
     }
     
-    private class func fetchListItems(wrapper: ShoppingListWrapper) -> Observable<ShoppingListItemsWrapper> {
+    private func fetchListItems(wrapper: ShoppingListWrapper) -> Observable<ShoppingListItemsWrapper> {
         return cloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray().asObservable()
             .map({ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: $0, ownerName: wrapper.ownerName)})
     }
 
-    private class func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
+    private func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
         return Observable<ShoppingList>.create { observer in
             CoreStoreDefaults.dataStack.perform(asynchronous: { (transaction)  in
                 for record in wrapper.items {
@@ -95,14 +99,15 @@ class CloudLoader {
         }
     }
 
-    class func fetchChanges(localDb: Bool) -> Observable<Void> {
+    func fetchChanges(localDb: Bool) -> Observable<Void> {
         return cloudKitUtils.fetchDatabaseChanges(localDb: localDb)
-            .flatMap(cloudKitUtils.fetchZoneChanges).flatMap({ records in
-                processChangesRecords(records: records, localDb: localDb)
+            .flatMap(cloudKitUtils.fetchZoneChanges).flatMap({[weak self] records -> Observable<Void> in
+                guard let self = self else { fatalError() }
+                return self.processChangesRecords(records: records, localDb: localDb)
             })
     }
     
-    private class func processChangesRecords(records: [CKRecord], localDb: Bool) -> Observable<Void> {
+    private func processChangesRecords(records: [CKRecord], localDb: Bool) -> Observable<Void> {
         if records.count > 0 {
             let lists = records.filter({$0.recordType == CloudKitUtils.listRecordType}).map({processChangesList(listRecord: $0, allRecords: records, localDb: localDb)})
             return Observable.merge(lists)
@@ -111,7 +116,7 @@ class CloudLoader {
         }
     }
     
-    private class func processChangesList(listRecord: CKRecord, allRecords: [CKRecord], localDb: Bool) -> Observable<Void> {
+    private func processChangesList(listRecord: CKRecord, allRecords: [CKRecord], localDb: Bool) -> Observable<Void> {
         let items = allRecords.filter({$0.recordType == CloudKitUtils.itemRecordType && $0.parent?.recordID.recordName == listRecord.recordID.recordName})
         let ownerName = listRecord.recordID.zoneID.ownerName
         let wrapper = RecordWrapper(record: listRecord, localDb: localDb, ownerName: ownerName)

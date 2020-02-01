@@ -26,7 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     private let disposeBag = DisposeBag()
     private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
-
+    private let cloudLoader = CloudLoader(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.registerForRemoteNotifications()
         
@@ -45,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-            CloudLoader.fetchChanges(localDb: false).concat(CloudLoader.fetchChanges(localDb: true)).observeOnMain().subscribe(onError: { error in
+            self.cloudLoader.fetchChanges(localDb: false).concat(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().subscribe(onError: { error in
                 SwiftyBeaver.debug(error.localizedDescription)
                 completionHandler(.noData)
             }, onCompleted: {
@@ -85,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 DispatchQueue.main.async {
                     HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
                 }
-                CloudLoader.loadShare(metadata: metadata).observeOnMain().subscribe(onNext: {[weak self] list in
+                self.cloudLoader.loadShare(metadata: metadata).observeOnMain().subscribe(onNext: {[weak self] list in
                     HUD.hide()
                     guard let list = CoreStoreDefaults.dataStack.fetchExisting(list) else { return }
                     self?.showList(list: list)

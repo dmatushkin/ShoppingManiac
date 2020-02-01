@@ -80,6 +80,8 @@
 		5666997D2094F7140053F39E /* CloudSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5666997C2094F7140053F39E /* CloudSubscriptions.swift */; };
 		5666997F2095B33C0053F39E /* UserDefaultsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5666997E2095B33C0053F39E /* UserDefaultsExtension.swift */; };
 		567D065723E4CDCE008DB00D /* TestDbWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567D065623E4CDCE008DB00D /* TestDbWrapper.swift */; };
+		567D065923E4D09B008DB00D /* CloudLoaderUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567D065823E4D09B008DB00D /* CloudLoaderUnitTests.swift */; };
+		567D065A23E55288008DB00D /* CloudLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56451713208BB46C00295393 /* CloudLoader.swift */; };
 		567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F7321206F915B00B67B5C /* CloudKit.framework */; };
 		568ADB2220A2B4930005B14C /* ShoppingListsListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */; };
 		568ADB2420A2C1260005B14C /* AddShoppingListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568ADB2320A2C1260005B14C /* AddShoppingListModel.swift */; };
@@ -225,6 +227,7 @@
 		566A7DD41ED1759C005F9D31 /* ShoppingManiac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShoppingManiac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5671386A22CCDAAB0055423D /* ShoppingManiac 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ShoppingManiac 9.xcdatamodel"; sourceTree = "<group>"; };
 		567D065623E4CDCE008DB00D /* TestDbWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDbWrapper.swift; sourceTree = "<group>"; };
+		567D065823E4D09B008DB00D /* CloudLoaderUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLoaderUnitTests.swift; sourceTree = "<group>"; };
 		567F7320206F915700B67B5C /* ShoppingManiac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShoppingManiac.entitlements; sourceTree = "<group>"; };
 		567F7321206F915B00B67B5C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListsListModel.swift; sourceTree = "<group>"; };
@@ -603,6 +606,7 @@
 				56E798AD23DACB2700461F96 /* ShoppingManiacUnitTests.swift */,
 				56E798B523DACB8C00461F96 /* CloudKitUtilsTests.swift */,
 				564FA21F23E433A500E4B1CB /* CloudShareUnitTests.swift */,
+				567D065823E4D09B008DB00D /* CloudLoaderUnitTests.swift */,
 				56E798AF23DACB2700461F96 /* Info.plist */,
 				56E798C323DACD2100461F96 /* CloudKitTestOperations.swift */,
 				56E798C523DACDE300461F96 /* CloudKitTestTokenStorage.swift */,
@@ -922,9 +926,11 @@
 				56E798B623DACB8C00461F96 /* CloudKitUtilsTests.swift in Sources */,
 				56E798D623DAD76800461F96 /* ShoppingManiac.xcdatamodeld in Sources */,
 				56E798C723DAD72A00461F96 /* CommonError.swift in Sources */,
+				567D065A23E55288008DB00D /* CloudLoader.swift in Sources */,
 				56E798C423DACD2100461F96 /* CloudKitTestOperations.swift in Sources */,
 				56E798AE23DACB2700461F96 /* ShoppingManiacUnitTests.swift in Sources */,
 				564FA22023E433A500E4B1CB /* CloudShareUnitTests.swift in Sources */,
+				567D065923E4D09B008DB00D /* CloudLoaderUnitTests.swift in Sources */,
 				56E798CB23DAD75F00461F96 /* Category+CoreDataProperties.swift in Sources */,
 				56E798CD23DAD75F00461F96 /* Picture+CoreDataProperties.swift in Sources */,
 				569114D223E4A1C3003B0419 /* SharedRecord.swift in Sources */,
