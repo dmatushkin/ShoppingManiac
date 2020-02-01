@@ -82,6 +82,7 @@
 		567D065723E4CDCE008DB00D /* TestDbWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567D065623E4CDCE008DB00D /* TestDbWrapper.swift */; };
 		567D065923E4D09B008DB00D /* CloudLoaderUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567D065823E4D09B008DB00D /* CloudLoaderUnitTests.swift */; };
 		567D065A23E55288008DB00D /* CloudLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56451713208BB46C00295393 /* CloudLoader.swift */; };
+		567D065C23E557A4008DB00D /* TestShareMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 567D065B23E557A4008DB00D /* TestShareMetadata.swift */; };
 		567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 567F7321206F915B00B67B5C /* CloudKit.framework */; };
 		568ADB2220A2B4930005B14C /* ShoppingListsListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */; };
 		568ADB2420A2C1260005B14C /* AddShoppingListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568ADB2320A2C1260005B14C /* AddShoppingListModel.swift */; };
@@ -228,6 +229,7 @@
 		5671386A22CCDAAB0055423D /* ShoppingManiac 9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ShoppingManiac 9.xcdatamodel"; sourceTree = "<group>"; };
 		567D065623E4CDCE008DB00D /* TestDbWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDbWrapper.swift; sourceTree = "<group>"; };
 		567D065823E4D09B008DB00D /* CloudLoaderUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLoaderUnitTests.swift; sourceTree = "<group>"; };
+		567D065B23E557A4008DB00D /* TestShareMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestShareMetadata.swift; sourceTree = "<group>"; };
 		567F7320206F915700B67B5C /* ShoppingManiac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShoppingManiac.entitlements; sourceTree = "<group>"; };
 		567F7321206F915B00B67B5C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListsListModel.swift; sourceTree = "<group>"; };
@@ -615,6 +617,7 @@
 				564FA22123E4343400E4B1CB /* CloudKitUtilsStub.swift */,
 				569114D123E4A1C3003B0419 /* SharedRecord.swift */,
 				567D065623E4CDCE008DB00D /* TestDbWrapper.swift */,
+				567D065B23E557A4008DB00D /* TestShareMetadata.swift */,
 			);
 			path = ShoppingManiacUnitTests;
 			sourceTree = "<group>";
@@ -938,6 +941,7 @@
 				56E798D023DAD75F00461F96 /* Store+CoreDataClass.swift in Sources */,
 				56E798DF23DAD9AB00461F96 /* CloudKitTokenStorgeProtocol.swift in Sources */,
 				56E798BD23DACBA100461F96 /* ShoppingListItemsWrapper.swift in Sources */,
+				567D065C23E557A4008DB00D /* TestShareMetadata.swift in Sources */,
 				56E798CE23DAD75F00461F96 /* ShoppingList+CoreDataClass.swift in Sources */,
 				567D065723E4CDCE008DB00D /* TestDbWrapper.swift in Sources */,
 				56E798E323DADB4D00461F96 /* ErrorExtension.swift in Sources */,
