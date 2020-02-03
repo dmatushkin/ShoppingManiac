@@ -69,21 +69,25 @@ class CloudKitUtils: CloudKitUtilsProtocol {
             return Disposables.create()
         }
     }
+	
+	private func createUpdateSubscriptionsOperation(subscriptions: [CKSubscription], localDb: Bool, observer: AnyObserver<Void>) {
+		let operation = CKModifySubscriptionsOperation(subscriptionsToSave: subscriptions, subscriptionIDsToDelete: [])
+		operation.modifySubscriptionsCompletionBlock = { (_, _, error) in
+			if let error = error {
+				SwiftyBeaver.error(error.localizedDescription)
+				observer.onCompleted()
+				//observer.onError(error)
+			} else {
+				observer.onCompleted()
+			}
+		}
+		operation.qualityOfService = .utility
+		self.operations.run(operation: operation, localDb: localDb)
+	}
         
     func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> Observable<Void> {
         return Observable<Void>.create {[weak self] observer in
-            let operation = CKModifySubscriptionsOperation(subscriptionsToSave: subscriptions, subscriptionIDsToDelete: [])
-            operation.modifySubscriptionsCompletionBlock = { (_, _, error) in
-                if let error = error {
-                    SwiftyBeaver.error(error.localizedDescription)
-                    observer.onCompleted()
-                    //observer.onError(error)
-                } else {
-                    observer.onCompleted()
-                }
-            }
-            operation.qualityOfService = .utility
-			self?.operations.run(operation: operation, localDb: localDb)
+			self?.createUpdateSubscriptionsOperation(subscriptions: subscriptions, localDb: localDb, observer: observer)
             return Disposables.create()
         }
     }
