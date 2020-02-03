@@ -5,6 +5,7 @@ excluded:
 disabled_rules:
   - line_length
   - trailing_whitespace
+  - function_parameter_count
 
 custom_rules:
   private_outlets:
