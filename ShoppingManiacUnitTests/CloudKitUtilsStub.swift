@@ -9,6 +9,7 @@
 import Foundation
 import RxSwift
 import CloudKit
+import SwiftyBeaver
 
 class CloudKitUtilsStub: CloudKitUtilsProtocol {
     
@@ -33,6 +34,7 @@ class CloudKitUtilsStub: CloudKitUtilsProtocol {
             guard let self = self else { fatalError() }
             self.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
+                SwiftyBeaver.debug("about to fetch records \(recordIds)")
                 if let result = self.onFetchRecords?(recordIds, localDb) {
                     for record in result {
                         observer.onNext(record)
@@ -51,6 +53,7 @@ class CloudKitUtilsStub: CloudKitUtilsProtocol {
             guard let self = self else { fatalError() }
             self.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
+                SwiftyBeaver.debug("about to update subscriptions \(subscriptions)")
                 if let result = self.onUpdateSubscriptions?(subscriptions, localDb) {
                     observer.onNext(result)
                     observer.onCompleted()
@@ -67,6 +70,7 @@ class CloudKitUtilsStub: CloudKitUtilsProtocol {
             guard let self = self else { fatalError() }
             self.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
+                SwiftyBeaver.debug("about to update records \(records)")
                 if let result = self.onUpdateRecords?(records, localDb) {
                     observer.onNext(result)
                     observer.onCompleted()
@@ -83,6 +87,7 @@ class CloudKitUtilsStub: CloudKitUtilsProtocol {
             guard let self = self else { fatalError() }
             self.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
+                SwiftyBeaver.debug("about to fetch database changes")
                 if let result = self.onFetchDatabaseChanges?(localDb) {
                     observer.onNext(result)
                     observer.onCompleted()
@@ -99,6 +104,7 @@ class CloudKitUtilsStub: CloudKitUtilsProtocol {
             guard let self = self else { fatalError() }
             self.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
+                SwiftyBeaver.debug("about to fetch zone changes \(wrapper.zoneIds)")
                 if let result = self.onFetchZoneChanges?(wrapper) {
                     observer.onNext(result)
                     observer.onCompleted()

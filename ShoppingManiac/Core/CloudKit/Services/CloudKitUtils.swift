@@ -76,6 +76,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 				observer.onCompleted()
 				//observer.onError(error)
 			} else {
+                observer.onNext(())
 				observer.onCompleted()
 			}
 		}
@@ -95,7 +96,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		modifyOperation.savePolicy = .allKeys
 		modifyOperation.perRecordCompletionBlock = {record, error in
 			if let error = error {
-				SwiftyBeaver.debug("Error while saving records \(error.localizedDescription)")
+                error.log()
 			} else {
 				SwiftyBeaver.debug("Successfully saved record \(record.recordID.recordName)")
 			}
@@ -109,6 +110,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 				}
 			case .noError:
 				SwiftyBeaver.debug("Records modification done successfully")
+                observer.onNext(())
 				observer.onCompleted()
 			default:
 				error?.showError(title: "Sharing error")
@@ -160,7 +162,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 					}
 				} else {
 					let error = CommonError(description: "iCloud token is empty")
-					SwiftyBeaver.debug(error.localizedDescription)
+                    error.log()
 					observer.onError(error)
 				}
 			default:

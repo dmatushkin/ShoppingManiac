@@ -81,6 +81,7 @@ class CloudShareUnitTests: XCTestCase {
         let share = try self.cloudShare.shareList(list: shoppingList).toBlocking().first()!
         XCTAssert(share[CKShare.SystemFieldKey.title] as? String == "Shopping list")
         XCTAssert(share[CKShare.SystemFieldKey.shareType] as? String == "org.md.ShoppingManiac")
+        XCTAssert(recordsUpdateIteration == 2)
     }
     
     func testUpdateLocalShoppingList() throws {
@@ -131,6 +132,7 @@ class CloudShareUnitTests: XCTestCase {
         }
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        XCTAssert(recordsUpdateIteration == 2)
     }
 
     func testUpdateRemoteShoppingListNoShare() throws {
@@ -216,6 +218,8 @@ class CloudShareUnitTests: XCTestCase {
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        XCTAssert(recordsUpdateIteration == 2)
+        XCTAssert(recordsFetchIteration == 2)
     }
     
     func testUpdateRemoteShoppingListWithShare() throws {
@@ -306,5 +310,7 @@ class CloudShareUnitTests: XCTestCase {
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        XCTAssert(recordsUpdateIteration == 2)
+        XCTAssert(recordsFetchIteration == 3)
     }
 }
