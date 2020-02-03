@@ -181,8 +181,28 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		options.previousServerChangeToken = self.storage.getZoneToken(zoneId: zoneId, localDb: localDb)
 		return options
 	}
+	
+	private func handleFetchZoneChangesDone(origRecords: [CKRecord], finalRecords: [CKRecord], wrapper: ZonesToFetchWrapper, moreComingFlag: Bool, observer: AnyObserver<[CKRecord]>, error: Error?) {
+		switch CloudKitErrorType.errorType(forError: error) {
+		case .retry(let timeout):
+			CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+				self?.createFetchZoneChangesOperation(loadedRecords: origRecords, wrapper: wrapper, observer: observer)
+			}
+		case .tokenReset:
+			self.createFetchZoneChangesOperation(loadedRecords: origRecords, wrapper: wrapper, observer: observer)
+		case .noError:
+			if moreComingFlag {
+				self.createFetchZoneChangesOperation(loadedRecords: finalRecords, wrapper: wrapper, observer: observer)
+			} else {
+				SwiftyBeaver.debug("\(finalRecords.count) updated records found")
+				observer.onNext(finalRecords)
+				observer.onCompleted()
+			}
+		default:
+			observer.onError(error!)
+		}
+	}
     
-    //swiftlint:disable cyclomatic_complexity
 	private func createFetchZoneChangesOperation(loadedRecords: [CKRecord], wrapper: ZonesToFetchWrapper, observer: AnyObserver<[CKRecord]>) {
 		var records: [CKRecord] = loadedRecords
 		var moreComingFlag: Bool = false
@@ -207,25 +227,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 			}
 		}
 		operation.fetchRecordZoneChangesCompletionBlock = {[weak self] error in
-            guard let self = self else { return }
-			switch CloudKitErrorType.errorType(forError: error) {
-			case .retry(let timeout):
-				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-					self?.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer)
-				}
-			case .tokenReset:
-				self.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer)
-			case .noError:
-				if moreComingFlag {
-                    self.createFetchZoneChangesOperation(loadedRecords: records, wrapper: wrapper, observer: observer)
-				} else {
-					SwiftyBeaver.debug("\(records.count) updated records found")
-					observer.onNext(records)
-					observer.onCompleted()
-				}
-			default:
-				observer.onError(error!)
-			}
+			self?.handleFetchZoneChangesDone(origRecords: loadedRecords, finalRecords: records, wrapper: wrapper, moreComingFlag: moreComingFlag, observer: observer, error: error)
 		}
         self.operations.run(operation: operation, localDb: wrapper.localDb)
 	}
