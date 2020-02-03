@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import SwiftyBeaver
 
 extension Error {
     
     func showError(title: String) {
         print("Error \(title)\n\(self.localizedDescription)")
-    }
+    }        
 }

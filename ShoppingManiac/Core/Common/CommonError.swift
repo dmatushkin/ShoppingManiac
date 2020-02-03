@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftyBeaver
 
 class CommonError: LocalizedError {
     
@@ -19,4 +20,11 @@ class CommonError: LocalizedError {
     var errorDescription: String? {
         return self.description
     }    
+}
+
+extension Error {
+    
+    func log() {
+        SwiftyBeaver.error(self.localizedDescription)
+    }
 }

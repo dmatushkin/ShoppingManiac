@@ -38,14 +38,14 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 	private func createFetchRecordsOperation(recordIds: [CKRecord.ID], localDb: Bool, observer: AnyObserver<CKRecord>) {
 		let operation = CKFetchRecordsOperation(recordIDs: recordIds)
 		operation.perRecordCompletionBlock = { record, recordid, error in
-			if let error = error {
-				SwiftyBeaver.debug(error.localizedDescription)
-			} else if let record = record {
+            error?.log()
+			if let record = record {
 				SwiftyBeaver.debug("Successfully loaded record \(recordid?.recordName ?? "no record name")")
 				observer.onNext(record)
 			}
 		}
 		operation.fetchRecordsCompletionBlock = { _, error in
+            error?.log()
 			switch CloudKitErrorType.errorType(forError: error) {
 			case .retry(let timeout):
 				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
@@ -72,7 +72,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		let operation = CKModifySubscriptionsOperation(subscriptionsToSave: subscriptions, subscriptionIDsToDelete: [])
 		operation.modifySubscriptionsCompletionBlock = { (_, _, error) in
 			if let error = error {
-				SwiftyBeaver.error(error.localizedDescription)
+                error.log()
 				observer.onCompleted()
 				//observer.onError(error)
 			} else {
@@ -101,6 +101,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 			}
 		}
 		modifyOperation.modifyRecordsCompletionBlock = { _, recordIds, error in
+            error?.log()
 			switch CloudKitErrorType.errorType(forError: error) {
 			case .retry(let timeout):
 				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
@@ -138,6 +139,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		operation.fetchAllChanges = true
 		operation.fetchDatabaseChangesCompletionBlock = {[weak self] token, moreComing, error in
             guard let self = self else { return }
+            error?.log()
 			switch CloudKitErrorType.errorType(forError: error) {
 			case .retry(let timeout):
 				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
@@ -183,6 +185,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 	}
 	
 	private func handleFetchZoneChangesDone(origRecords: [CKRecord], finalRecords: [CKRecord], wrapper: ZonesToFetchWrapper, moreComingFlag: Bool, observer: AnyObserver<[CKRecord]>, error: Error?) {
+        error?.log()
 		switch CloudKitErrorType.errorType(forError: error) {
 		case .retry(let timeout):
 			CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
@@ -212,6 +215,7 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		operation.recordChangedBlock = { record in records.append(record) }
 		operation.recordZoneChangeTokensUpdatedBlock = {[weak self] zoneId, token, data in self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: token) }
 		operation.recordZoneFetchCompletionBlock = {[weak self] zoneId, changeToken, data, moreComing, error in
+            error?.log()
 			switch CloudKitErrorType.errorType(forError: error) {
 			case .tokenReset:
 				self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: nil)
