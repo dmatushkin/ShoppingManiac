@@ -46,17 +46,15 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 			}
 		}
 		operation.fetchRecordsCompletionBlock = { _, error in
-			if let error = error {
-				switch CloudKitErrorType.errorType(forError: error) {
-				case .retry(let timeout):
-					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-                        self?.createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer)
-					}
-				default:
-					observer.onError(error)
+			switch CloudKitErrorType.errorType(forError: error) {
+			case .retry(let timeout):
+				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+					self?.createFetchRecordsOperation(recordIds: recordIds, localDb: localDb, observer: observer)
 				}
-			} else {
+			case .noError:
 				observer.onCompleted()
+			default:
+				observer.onError(error!)
 			}
 		}
 		operation.qualityOfService = .utility
@@ -103,19 +101,17 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 			}
 		}
 		modifyOperation.modifyRecordsCompletionBlock = { _, recordIds, error in
-			if let error = error {
-                error.showError(title: "Sharing error")
-				switch CloudKitErrorType.errorType(forError: error) {
-				case .retry(let timeout):
-					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-                        self?.createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer)
-					}
-				default:
-					observer.onError(error)
+			switch CloudKitErrorType.errorType(forError: error) {
+			case .retry(let timeout):
+				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+					self?.createUpdateRecordsOperation(records: records, localDb: localDb, observer: observer)
 				}
-			} else {
+			case .noError:
 				SwiftyBeaver.debug("Records modification done successfully")
 				observer.onCompleted()
+			default:
+				error?.showError(title: "Sharing error")
+				observer.onError(error!)
 			}
 		}
         self.operations.run(operation: modifyOperation, localDb: localDb)
@@ -142,33 +138,32 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		operation.fetchAllChanges = true
 		operation.fetchDatabaseChangesCompletionBlock = {[weak self] token, moreComing, error in
             guard let self = self else { return }
-			if let error = error {
-				SwiftyBeaver.debug(error.localizedDescription)
-				switch CloudKitErrorType.errorType(forError: error) {
-				case .retry(let timeout):
-					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-                        self?.createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer)
+			switch CloudKitErrorType.errorType(forError: error) {
+			case .retry(let timeout):
+				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+					self?.createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer)
+				}
+			case .tokenReset:
+				self.storage.setDbToken(localDb: localDb, token: nil)
+				self.createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer)
+			case .noError:
+				if let token = token {
+					self.storage.setDbToken(localDb: localDb, token: token)
+					if moreComing {
+						self.createFetchDatabaseChangesOperation(loadedZoneIds: zoneIds, localDb: localDb, observer: observer)
+					} else {
+						observer.onNext(ZonesToFetchWrapper(localDb: localDb, zoneIds: zoneIds))
+						SwiftyBeaver.debug("Update zones request finished")
+						observer.onCompleted()
 					}
-				case .tokenReset:
-					self.storage.setDbToken(localDb: localDb, token: nil)
-                    self.createFetchDatabaseChangesOperation(loadedZoneIds: loadedZoneIds, localDb: localDb, observer: observer)
-				default:
-					self.storage.setDbToken(localDb: localDb, token: nil)
+				} else {
+					let error = CommonError(description: "iCloud token is empty")
+					SwiftyBeaver.debug(error.localizedDescription)
 					observer.onError(error)
 				}
-			} else if let token = token {
-				self.storage.setDbToken(localDb: localDb, token: token)
-				if moreComing {
-                    self.createFetchDatabaseChangesOperation(loadedZoneIds: zoneIds, localDb: localDb, observer: observer)
-				} else {
-					observer.onNext(ZonesToFetchWrapper(localDb: localDb, zoneIds: zoneIds))
-					SwiftyBeaver.debug("Update zones request finished")
-					observer.onCompleted()
-				}
-			} else {
-				let error = CommonError(description: "iCloud token is empty")
-				SwiftyBeaver.debug(error.localizedDescription)
-				observer.onError(error)
+			default:
+				self.storage.setDbToken(localDb: localDb, token: nil)
+				observer.onError(error!)
 			}
 		}
         self.operations.run(operation: operation, localDb: localDb)
@@ -197,16 +192,15 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		operation.recordChangedBlock = { record in records.append(record) }
 		operation.recordZoneChangeTokensUpdatedBlock = {[weak self] zoneId, token, data in self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: token) }
 		operation.recordZoneFetchCompletionBlock = {[weak self] zoneId, changeToken, data, moreComing, error in
-			if let error = error {
-				switch CloudKitErrorType.errorType(forError: error) {
-				case .tokenReset:
-					self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: nil)
-				default:
-					break
+			switch CloudKitErrorType.errorType(forError: error) {
+			case .tokenReset:
+				self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: nil)
+			case .noError:
+				if let token = changeToken {
+					self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: token)
 				}
-				SwiftyBeaver.debug(error.localizedDescription)
-			} else if let token = changeToken {
-				self?.storage.setZoneToken(zoneId: zoneId, localDb: wrapper.localDb, token: token)
+			default:
+				break
 			}
 			if moreComing {
 				moreComingFlag = true
@@ -214,19 +208,14 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 		}
 		operation.fetchRecordZoneChangesCompletionBlock = {[weak self] error in
             guard let self = self else { return }
-			if let error = error {
-				SwiftyBeaver.debug(error.localizedDescription)
-				switch CloudKitErrorType.errorType(forError: error) {
-				case .retry(let timeout):
-					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
-                        self?.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer)
-					}
-				case .tokenReset:
-                    self.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer)
-				default:
-					observer.onError(error)
+			switch CloudKitErrorType.errorType(forError: error) {
+			case .retry(let timeout):
+				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+					self?.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer)
 				}
-			} else {
+			case .tokenReset:
+				self.createFetchZoneChangesOperation(loadedRecords: loadedRecords, wrapper: wrapper, observer: observer)
+			case .noError:
 				if moreComingFlag {
                     self.createFetchZoneChangesOperation(loadedRecords: records, wrapper: wrapper, observer: observer)
 				} else {
@@ -234,6 +223,8 @@ class CloudKitUtils: CloudKitUtilsProtocol {
 					observer.onNext(records)
 					observer.onCompleted()
 				}
+			default:
+				observer.onError(error!)
 			}
 		}
         self.operations.run(operation: operation, localDb: wrapper.localDb)
