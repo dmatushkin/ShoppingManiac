@@ -72,10 +72,7 @@ class CloudShare {
             
             let recordsToUpdate = [wrapper.record, share]
             
-            let disposable = self.cloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true).flatMap({[weak self] _ -> Observable<Void> in
-                guard let self = self else { fatalError() }
-                return self.cloudKitUtils.updateRecords(records: wrapper.items, localDb: true)
-            }).subscribe(onError: {error in
+			let disposable = self.cloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true).map({(wrapper.items, true)}).flatMap(self.updateRecords).subscribe(onError: {error in
                     observer.onError(error)
             }, onCompleted: {
                 observer.onNext(share)
@@ -96,16 +93,16 @@ class CloudShare {
         }
     }
 
-    private func updateListWrapper(tuple: (CKRecord, ShoppingList)) -> Observable<ShoppingListItemsWrapper> {
-        return getItemsRecords(list: tuple.1).toArray().asObservable().map({items in
+	private func updateListWrapper(tuple: (record: CKRecord, list: ShoppingList)) -> Observable<ShoppingListItemsWrapper> {
+        return getItemsRecords(list: tuple.list).toArray().asObservable().map({items in
             for item in items {
-                item.setParent(tuple.0)
+                item.setParent(tuple.record)
             }
-            tuple.0["name"] = (tuple.1.name ?? "") as CKRecordValue
-            tuple.0["date"] = Date(timeIntervalSinceReferenceDate: tuple.1.date) as CKRecordValue
-            tuple.0["isRemoved"] = tuple.1.isRemoved as CKRecordValue
-            tuple.0["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
-            return ShoppingListItemsWrapper(localDb: !tuple.1.isRemote, shoppingList: tuple.1, record: tuple.0, items: items, ownerName: tuple.1.ownerName)
+            tuple.record["name"] = (tuple.list.name ?? "") as CKRecordValue
+            tuple.record["date"] = Date(timeIntervalSinceReferenceDate: tuple.list.date) as CKRecordValue
+            tuple.record["isRemoved"] = tuple.list.isRemoved as CKRecordValue
+            tuple.record["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
+            return ShoppingListItemsWrapper(localDb: !tuple.list.isRemote, shoppingList: tuple.list, record: tuple.record, items: items, ownerName: tuple.list.ownerName)
         })
     }
 
@@ -186,18 +183,16 @@ class CloudShare {
     
     private func updateRecord(wrapper: ShoppingListItemsWrapper) -> Observable<Void> {
         if let shareRef = wrapper.record.share {
-            return cloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb).flatMap({[weak self] shareRecord -> Observable<Void> in
-                guard let self = self else { fatalError() }
-                return self.cloudKitUtils.updateRecords(records: [wrapper.record, shareRecord], localDb: wrapper.localDb).flatMap({[weak self] _ -> Observable<Void> in
-                    guard let self = self else { fatalError() }
-                    return self.cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb)
-                })
-            })
+			return cloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb)
+				.map({([wrapper.record, $0], wrapper.localDb)}).flatMap(updateRecords)
+				.map({(wrapper.items, wrapper.localDb)}).flatMap(updateRecords)
         } else {
-            return cloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb).flatMap({[weak self] _ -> Observable<Void> in
-                guard let self = self else { fatalError() }
-                return self.cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb)
-            })
+            return cloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb)
+				.map({(wrapper.items, wrapper.localDb)}).flatMap(updateRecords)
         }
     }
+	
+	private func updateRecords(tuple: (records: [CKRecord], localDb: Bool)) -> Observable<Void> {
+		return self.cloudKitUtils.updateRecords(records: tuple.records, localDb: tuple.localDb)
+	}
 }

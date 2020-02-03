@@ -101,15 +101,12 @@ class CloudLoader {
 
     func fetchChanges(localDb: Bool) -> Observable<Void> {
         return cloudKitUtils.fetchDatabaseChanges(localDb: localDb)
-            .flatMap(cloudKitUtils.fetchZoneChanges).flatMap({[weak self] records -> Observable<Void> in
-                guard let self = self else { fatalError() }
-                return self.processChangesRecords(records: records, localDb: localDb)
-            })
+			.flatMap(cloudKitUtils.fetchZoneChanges).map({($0, localDb)}).flatMap(processChangesRecords)
     }
     
-    private func processChangesRecords(records: [CKRecord], localDb: Bool) -> Observable<Void> {
-        if records.count > 0 {
-            let lists = records.filter({$0.recordType == CloudKitUtils.listRecordType}).map({processChangesList(listRecord: $0, allRecords: records, localDb: localDb)})
+	private func processChangesRecords(tuple: (records: [CKRecord], localDb: Bool)) -> Observable<Void> {
+		if tuple.records.count > 0 {
+			let lists = tuple.records.filter({$0.recordType == CloudKitUtils.listRecordType}).map({processChangesList(listRecord: $0, allRecords: tuple.records, localDb: tuple.localDb)})
             return Observable.merge(lists)
         } else {
             return Observable<Void>.empty()
