@@ -24,4 +24,76 @@ platform :ios do
     build_app(workspace: "ShoppingManiac.xcworkspace", scheme: "ShoppingManiac", clean: true, output_directory: "/tmp/fastlane", silent: true, suppress_xcode_output: true)
     upload_to_testflight
   end
+
+  desc "Upload build with automatic minor version or build number increment"
+  lane :deploy_auto do
+    cert
+    sigh
+    version = get_version_number(xcodeproj: "ShoppingManiac.xcodeproj", target: "ShoppingManiac")
+    buildNumber = latest_testflight_build_number(version: version) + 1
+    app = Spaceship::Tunes::Application.find("org.md.ShoppingManiac")
+    all_trains = app.all_build_train_numbers
+    version = all_trains[all_trains.length - 1]
+    app_store_version = app.live_version.version
+    puts "App store version " + app_store_version
+    if version == app_store_version
+        versionArray = version.split('.')
+        last = versionArray.length - 1
+        versionArray[last] = (versionArray[last].to_i + 1).to_s
+        version = versionArray.join('.')
+        buildNumber = 1
+    else
+        buildNumber = latest_testflight_build_number(version: version) + 1
+    end
+    puts "Version set to " + version + " build number " + buildNumber.to_s
+    set_info_plist_value(path: "./ShoppingManiac/Resources/Info.plist", key: "CFBundleShortVersionString", value: version)
+    set_info_plist_value(path: "./ShoppingManiac/Resources/Info.plist", key: "CFBundleVersion", value: buildNumber.to_s)
+    build_app(scheme: "ShoppingManiac", clean: true, output_directory: "/tmp/fastlane", silent: true, suppress_xcode_output: true)
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
+
+  desc "Upload build with mid version increment"
+  lane :deploy_increase_mid do
+    cert
+    sigh
+    version = get_version_number(xcodeproj: "ShoppingManiac.xcodeproj", target: "ShoppingManiac")
+    buildNumber = latest_testflight_build_number(version: version) + 1
+    app = Spaceship::Tunes::Application.find("org.md.ShoppingManiac")
+    all_trains = app.all_build_train_numbers
+    version = all_trains[all_trains.length - 1]
+    versionArray = version.split('.')
+    mid = versionArray.length - 2
+    versionArray[mid] = (versionArray[mid].to_i + 1).to_s
+    versionArray[versionArray.length - 1] = "0"
+    version = versionArray.join('.')
+    buildNumber = 1
+    puts "Version set to " + version + " build number " + buildNumber.to_s
+    set_info_plist_value(path: "./ShoppingManiac/Resources/Info.plist", key: "CFBundleShortVersionString", value: version)
+    set_info_plist_value(path: "./ShoppingManiac/Resources/Info.plist", key: "CFBundleVersion", value: buildNumber.to_s)
+    build_app(scheme: "ShoppingManiac", clean: true, output_directory: "/tmp/fastlane", silent: true, suppress_xcode_output: true)
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
+
+  desc "Upload build with major version increment"
+  lane :deploy_increase_major do
+    cert
+    sigh
+    version = get_version_number(xcodeproj: "ShoppingManiac.xcodeproj", target: "ShoppingManiac")
+    buildNumber = latest_testflight_build_number(version: version) + 1
+    app = Spaceship::Tunes::Application.find("org.md.ShoppingManiac")
+    all_trains = app.all_build_train_numbers
+    version = all_trains[all_trains.length - 1]
+    versionArray = version.split('.')
+    versionArray[0] = (versionArray[0].to_i + 1).to_s
+    for i in 1..(versionArray.length - 1)
+        versionArray[i] = "0"
+    end
+    version = versionArray.join('.')
+    buildNumber = 1
+    puts "Version set to " + version + " build number " + buildNumber.to_s
+    set_info_plist_value(path: "./ShoppingManiac/Resources/Info.plist", key: "CFBundleShortVersionString", value: version)
+    set_info_plist_value(path: "./ShoppingManiac/Resources/Info.plist", key: "CFBundleVersion", value: buildNumber.to_s)
+    build_app(scheme: "ShoppingManiac", clean: true, output_directory: "/tmp/fastlane", silent: true, suppress_xcode_output: true)
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
 end
