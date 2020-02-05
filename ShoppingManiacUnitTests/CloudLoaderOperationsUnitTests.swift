@@ -261,4 +261,455 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
         }
 		XCTAssertEqual((self.storage.getDbToken(localDb: true) as? TestServerChangeToken)?.key, "test")
 	}
+    
+    func testFetchChangesSuccessHasTokenNoMore() throws {
+        let dbToken = TestServerChangeToken(key: "test")
+        let zoneIds = [CKRecordZone.ID(zoneName: "testZone1", ownerName: "testOwner"), CKRecordZone.ID(zoneName: "testZone2", ownerName: "testOwner"), CKRecordZone.ID(zoneName: "testZone3", ownerName: "testOwner")]
+        self.storage.setDbToken(localDb: true, token: TestServerChangeToken(key: "orig"))
+        for zoneId in zoneIds {
+            let token = TestServerChangeToken(key: zoneId.zoneName + "prev")!
+            self.storage.setZoneToken(zoneId: zoneId, localDb: true, token: token)
+        }
+        let tokensMap = zoneIds.reduce(into: [CKRecordZone.ID: TestServerChangeToken](), {result, currentZone in
+            let token = TestServerChangeToken(key: currentZone.zoneName)!
+            result[currentZone] = token
+        })
+        self.operations.onAddOperation = { operation, localOperations, sharedOperations in
+            if localOperations.count == 1 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchDatabaseChangesOperation else { fatalError() }
+                XCTAssertNotEqual(operation.previousServerChangeToken, nil)
+                for zoneId in zoneIds {
+                    operation.recordZoneWithIDChangedBlock?(zoneId)
+                }
+                operation.fetchDatabaseChangesCompletionBlock?(dbToken, false, nil)
+            } else if localOperations.count == 2 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchRecordZoneChangesOperation else { return }
+                let zoneIds = operation.recordZoneIDs ?? []
+                XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
+                XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
+                XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
+                XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
+                let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+                let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+                let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+                listRecord1["name"] = "Test Shopping List"
+                listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
+                listItem11["goodName"] = "Test good 11"
+                listItem11["storeName"] = "Test store 11"
+                listItem11.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
+                listItem12["goodName"] = "Test good 12"
+                listItem12["storeName"] = "Test store 12"
+                listItem12.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
+                
+                let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+                let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+                let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+                listRecord2["name"] = "Test Shopping List 2"
+                listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
+                listItem21["goodName"] = "Test good 21"
+                listItem21["storeName"] = "Test store 21"
+                listItem21.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
+                listItem22["goodName"] = "Test good 22"
+                listItem22["storeName"] = "Test store 22"
+                listItem22.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
+                
+                for zoneId in zoneIds {
+                    let option = operation.configurationsByRecordZoneID?[zoneId]
+                    XCTAssertNotEqual(option, nil)
+                    XCTAssertNotEqual(option?.previousServerChangeToken, nil)
+                }
+                let records = [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22]
+                for record in records {
+                    operation.recordChangedBlock?(record)
+                }
+                for zoneId in zoneIds {
+                    operation.recordZoneFetchCompletionBlock?(zoneId, tokensMap[zoneId], nil, false, nil)
+                }
+                operation.fetchRecordZoneChangesCompletionBlock?(nil)
+            } else {
+                fatalError()
+            }
+        }
+        
+        _ = try self.cloudLoader.fetchChanges(localDb: true).toBlocking().first()
+        let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
+        let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
+        let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
+        XCTAssertEqual(shoppingLists.count, 2)
+        XCTAssertEqual(shoppingLists[0].name, "Test Shopping List")
+        XCTAssertEqual(shoppingLists[0].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[0].recordid, "testListRecord1")
+        XCTAssertTrue(!shoppingLists[0].isRemote)
+        XCTAssertEqual(shoppingLists[0].date, 602175855.0)
+        XCTAssertEqual(shoppingLists[1].name, "Test Shopping List 2")
+        XCTAssertEqual(shoppingLists[1].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[1].recordid, "testListRecord2")
+        XCTAssertTrue(!shoppingLists[1].isRemote)
+        XCTAssertEqual(shoppingLists[1].date, 602175855.0)
+        XCTAssertEqual(items1[0].good?.name, "Test good 11")
+        XCTAssertEqual(items1[0].store?.name, "Test store 11")
+        XCTAssertEqual(items1[1].good?.name, "Test good 12")
+        XCTAssertEqual(items1[1].store?.name, "Test store 12")
+        XCTAssertEqual(items2[0].good?.name, "Test good 21")
+        XCTAssertEqual(items2[0].store?.name, "Test store 21")
+        XCTAssertEqual(items2[1].good?.name, "Test good 22")
+        XCTAssertEqual(items2[1].store?.name, "Test store 22")
+        XCTAssertEqual(self.operations.localOperations.count, 2)
+        XCTAssertEqual(self.operations.sharedOperations.count, 0)
+        for zoneId in zoneIds {
+            XCTAssertEqual((self.storage.getZoneToken(zoneId: zoneId, localDb: true) as? TestServerChangeToken)?.key, zoneId.zoneName)
+        }
+        XCTAssertEqual((self.storage.getDbToken(localDb: true) as? TestServerChangeToken)?.key, "test")
+    }
+    
+    func testFetchChangesTokenResetHasTokenNoMore() throws {
+        let dbToken = TestServerChangeToken(key: "test")
+        let zoneIds = [CKRecordZone.ID(zoneName: "testZone1", ownerName: "testOwner"), CKRecordZone.ID(zoneName: "testZone2", ownerName: "testOwner"), CKRecordZone.ID(zoneName: "testZone3", ownerName: "testOwner")]
+        self.storage.setDbToken(localDb: true, token: TestServerChangeToken(key: "orig"))
+        for zoneId in zoneIds {
+            let token = TestServerChangeToken(key: zoneId.zoneName + "prev")!
+            self.storage.setZoneToken(zoneId: zoneId, localDb: true, token: token)
+        }
+        let tokensMap = zoneIds.reduce(into: [CKRecordZone.ID: TestServerChangeToken](), {result, currentZone in
+            let token = TestServerChangeToken(key: currentZone.zoneName)!
+            result[currentZone] = token
+        })
+        self.operations.onAddOperation = { operation, localOperations, sharedOperations in
+            if localOperations.count == 1 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchDatabaseChangesOperation else { fatalError() }
+                operation.fetchDatabaseChangesCompletionBlock?(dbToken, false, CommonError(description: "token"))
+            } else if localOperations.count == 2 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchDatabaseChangesOperation else { fatalError() }
+                XCTAssertEqual(operation.previousServerChangeToken, nil)
+                for zoneId in zoneIds {
+                    operation.recordZoneWithIDChangedBlock?(zoneId)
+                }
+                operation.fetchDatabaseChangesCompletionBlock?(dbToken, false, nil)
+            } else if localOperations.count == 3 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchRecordZoneChangesOperation else { return }
+                for zoneId in zoneIds {
+                    let option = operation.configurationsByRecordZoneID?[zoneId]
+                    XCTAssertNotEqual(option, nil)
+                    XCTAssertNotEqual(option?.previousServerChangeToken, nil)
+                }
+                for zoneId in zoneIds {
+                    operation.recordZoneFetchCompletionBlock?(zoneId, tokensMap[zoneId], nil, false, CommonError(description: "token"))
+                }
+                operation.fetchRecordZoneChangesCompletionBlock?(CommonError(description: "token"))
+            } else if localOperations.count == 4 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchRecordZoneChangesOperation else { return }
+                let zoneIds = operation.recordZoneIDs ?? []
+                XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
+                XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
+                XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
+                XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
+                let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+                let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+                let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+                listRecord1["name"] = "Test Shopping List"
+                listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
+                listItem11["goodName"] = "Test good 11"
+                listItem11["storeName"] = "Test store 11"
+                listItem11.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
+                listItem12["goodName"] = "Test good 12"
+                listItem12["storeName"] = "Test store 12"
+                listItem12.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
+                
+                let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+                let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+                let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+                listRecord2["name"] = "Test Shopping List 2"
+                listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
+                listItem21["goodName"] = "Test good 21"
+                listItem21["storeName"] = "Test store 21"
+                listItem21.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
+                listItem22["goodName"] = "Test good 22"
+                listItem22["storeName"] = "Test store 22"
+                listItem22.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
+                
+                for zoneId in zoneIds {
+                    let option = operation.configurationsByRecordZoneID?[zoneId]
+                    XCTAssertNotEqual(option, nil)
+                    XCTAssertEqual(option?.previousServerChangeToken, nil)
+                }
+                let records = [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22]
+                for record in records {
+                    operation.recordChangedBlock?(record)
+                }
+                for zoneId in zoneIds {
+                    operation.recordZoneFetchCompletionBlock?(zoneId, tokensMap[zoneId], nil, false, nil)
+                }
+                operation.fetchRecordZoneChangesCompletionBlock?(nil)
+            } else {
+                fatalError()
+            }
+        }
+        
+        _ = try self.cloudLoader.fetchChanges(localDb: true).toBlocking().first()
+        let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
+        let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
+        let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
+        XCTAssertEqual(shoppingLists.count, 2)
+        XCTAssertEqual(shoppingLists[0].name, "Test Shopping List")
+        XCTAssertEqual(shoppingLists[0].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[0].recordid, "testListRecord1")
+        XCTAssertTrue(!shoppingLists[0].isRemote)
+        XCTAssertEqual(shoppingLists[0].date, 602175855.0)
+        XCTAssertEqual(shoppingLists[1].name, "Test Shopping List 2")
+        XCTAssertEqual(shoppingLists[1].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[1].recordid, "testListRecord2")
+        XCTAssertTrue(!shoppingLists[1].isRemote)
+        XCTAssertEqual(shoppingLists[1].date, 602175855.0)
+        XCTAssertEqual(items1[0].good?.name, "Test good 11")
+        XCTAssertEqual(items1[0].store?.name, "Test store 11")
+        XCTAssertEqual(items1[1].good?.name, "Test good 12")
+        XCTAssertEqual(items1[1].store?.name, "Test store 12")
+        XCTAssertEqual(items2[0].good?.name, "Test good 21")
+        XCTAssertEqual(items2[0].store?.name, "Test store 21")
+        XCTAssertEqual(items2[1].good?.name, "Test good 22")
+        XCTAssertEqual(items2[1].store?.name, "Test store 22")
+        XCTAssertEqual(self.operations.localOperations.count, 4)
+        XCTAssertEqual(self.operations.sharedOperations.count, 0)
+        for zoneId in zoneIds {
+            XCTAssertEqual((self.storage.getZoneToken(zoneId: zoneId, localDb: true) as? TestServerChangeToken)?.key, zoneId.zoneName)
+        }
+        XCTAssertEqual((self.storage.getDbToken(localDb: true) as? TestServerChangeToken)?.key, "test")
+    }
+    
+    func testFetchChangesTokenRetryHasTokenNoMore() throws {
+        let dbToken = TestServerChangeToken(key: "test")
+        let zoneIds = [CKRecordZone.ID(zoneName: "testZone1", ownerName: "testOwner"), CKRecordZone.ID(zoneName: "testZone2", ownerName: "testOwner"), CKRecordZone.ID(zoneName: "testZone3", ownerName: "testOwner")]
+        self.storage.setDbToken(localDb: true, token: TestServerChangeToken(key: "orig"))
+        for zoneId in zoneIds {
+            let token = TestServerChangeToken(key: zoneId.zoneName + "prev")!
+            self.storage.setZoneToken(zoneId: zoneId, localDb: true, token: token)
+        }
+        let tokensMap = zoneIds.reduce(into: [CKRecordZone.ID: TestServerChangeToken](), {result, currentZone in
+            let token = TestServerChangeToken(key: currentZone.zoneName)!
+            result[currentZone] = token
+        })
+        self.operations.onAddOperation = { operation, localOperations, sharedOperations in
+            if localOperations.count == 1 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchDatabaseChangesOperation else { fatalError() }
+                operation.fetchDatabaseChangesCompletionBlock?(dbToken, false, CommonError(description: "retry"))
+            } else if localOperations.count == 2 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchDatabaseChangesOperation else { fatalError() }
+                XCTAssertNotEqual(operation.previousServerChangeToken, nil)
+                for zoneId in zoneIds {
+                    operation.recordZoneWithIDChangedBlock?(zoneId)
+                }
+                operation.fetchDatabaseChangesCompletionBlock?(dbToken, false, nil)
+            } else if localOperations.count == 3 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchRecordZoneChangesOperation else { return }
+                for zoneId in zoneIds {
+                    let option = operation.configurationsByRecordZoneID?[zoneId]
+                    XCTAssertNotEqual(option, nil)
+                    XCTAssertNotEqual(option?.previousServerChangeToken, nil)
+                }
+                for zoneId in zoneIds {
+                    operation.recordZoneFetchCompletionBlock?(zoneId, tokensMap[zoneId], nil, false, CommonError(description: "retry"))
+                }
+                operation.fetchRecordZoneChangesCompletionBlock?(CommonError(description: "retry"))
+            } else if localOperations.count == 4 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchRecordZoneChangesOperation else { return }
+                let zoneIds = operation.recordZoneIDs ?? []
+                XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
+                XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
+                XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
+                XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
+                let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+                let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+                let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+                listRecord1["name"] = "Test Shopping List"
+                listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
+                listItem11["goodName"] = "Test good 11"
+                listItem11["storeName"] = "Test store 11"
+                listItem11.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
+                listItem12["goodName"] = "Test good 12"
+                listItem12["storeName"] = "Test store 12"
+                listItem12.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
+                
+                let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+                let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+                let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+                listRecord2["name"] = "Test Shopping List 2"
+                listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
+                listItem21["goodName"] = "Test good 21"
+                listItem21["storeName"] = "Test store 21"
+                listItem21.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
+                listItem22["goodName"] = "Test good 22"
+                listItem22["storeName"] = "Test store 22"
+                listItem22.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
+                
+                for zoneId in zoneIds {
+                    let option = operation.configurationsByRecordZoneID?[zoneId]
+                    XCTAssertNotEqual(option, nil)
+                    XCTAssertNotEqual(option?.previousServerChangeToken, nil)
+                }
+                let records = [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22]
+                for record in records {
+                    operation.recordChangedBlock?(record)
+                }
+                for zoneId in zoneIds {
+                    operation.recordZoneFetchCompletionBlock?(zoneId, tokensMap[zoneId], nil, false, nil)
+                }
+                operation.fetchRecordZoneChangesCompletionBlock?(nil)
+            } else {
+                fatalError()
+            }
+        }
+        
+        _ = try self.cloudLoader.fetchChanges(localDb: true).toBlocking().first()
+        let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
+        let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
+        let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
+        XCTAssertEqual(shoppingLists.count, 2)
+        XCTAssertEqual(shoppingLists[0].name, "Test Shopping List")
+        XCTAssertEqual(shoppingLists[0].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[0].recordid, "testListRecord1")
+        XCTAssertTrue(!shoppingLists[0].isRemote)
+        XCTAssertEqual(shoppingLists[0].date, 602175855.0)
+        XCTAssertEqual(shoppingLists[1].name, "Test Shopping List 2")
+        XCTAssertEqual(shoppingLists[1].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[1].recordid, "testListRecord2")
+        XCTAssertTrue(!shoppingLists[1].isRemote)
+        XCTAssertEqual(shoppingLists[1].date, 602175855.0)
+        XCTAssertEqual(items1[0].good?.name, "Test good 11")
+        XCTAssertEqual(items1[0].store?.name, "Test store 11")
+        XCTAssertEqual(items1[1].good?.name, "Test good 12")
+        XCTAssertEqual(items1[1].store?.name, "Test store 12")
+        XCTAssertEqual(items2[0].good?.name, "Test good 21")
+        XCTAssertEqual(items2[0].store?.name, "Test store 21")
+        XCTAssertEqual(items2[1].good?.name, "Test good 22")
+        XCTAssertEqual(items2[1].store?.name, "Test store 22")
+        XCTAssertEqual(self.operations.localOperations.count, 4)
+        XCTAssertEqual(self.operations.sharedOperations.count, 0)
+        for zoneId in zoneIds {
+            XCTAssertEqual((self.storage.getZoneToken(zoneId: zoneId, localDb: true) as? TestServerChangeToken)?.key, zoneId.zoneName)
+        }
+        XCTAssertEqual((self.storage.getDbToken(localDb: true) as? TestServerChangeToken)?.key, "test")
+    }
+    
+    func testFetchChangesSuccessNoTokenHasMore() throws {
+        let dbToken = TestServerChangeToken(key: "test")
+        let zoneIds = [CKRecordZone.ID(zoneName: "testZone1", ownerName: "testOwner"), CKRecordZone.ID(zoneName: "testZone2", ownerName: "testOwner"), CKRecordZone.ID(zoneName: "testZone3", ownerName: "testOwner")]
+        let tokensMap = zoneIds.reduce(into: [CKRecordZone.ID: TestServerChangeToken](), {result, currentZone in
+            let token = TestServerChangeToken(key: currentZone.zoneName)!
+            result[currentZone] = token
+        })
+        self.operations.onAddOperation = { operation, localOperations, sharedOperations in
+            if localOperations.count == 1 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchDatabaseChangesOperation else { fatalError() }
+                XCTAssertEqual(operation.previousServerChangeToken, nil)
+                for zoneId in zoneIds {
+                    operation.recordZoneWithIDChangedBlock?(zoneId)
+                }
+                operation.fetchDatabaseChangesCompletionBlock?(dbToken, false, nil)
+            } else if localOperations.count == 2 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchRecordZoneChangesOperation else { return }
+                let zoneIds = operation.recordZoneIDs ?? []
+                XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
+                XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
+                XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
+                XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
+                let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+                let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+                let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+                listRecord1["name"] = "Test Shopping List"
+                listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
+                listItem11["goodName"] = "Test good 11"
+                listItem11["storeName"] = "Test store 11"
+                listItem11.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
+                listItem12["goodName"] = "Test good 12"
+                listItem12["storeName"] = "Test store 12"
+                listItem12.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
+                                
+                for zoneId in zoneIds {
+                    let option = operation.configurationsByRecordZoneID?[zoneId]
+                    XCTAssertNotEqual(option, nil)
+                    XCTAssertEqual(option?.previousServerChangeToken, nil)
+                }
+                let records = [listRecord1, listItem11, listItem12]
+                for record in records {
+                    operation.recordChangedBlock?(record)
+                }
+                operation.recordZoneFetchCompletionBlock?(zoneIds[0], tokensMap[zoneIds[0]], nil, false, nil)
+                operation.recordZoneFetchCompletionBlock?(zoneIds[1], tokensMap[zoneIds[1]], nil, true, nil)
+                operation.recordZoneFetchCompletionBlock?(zoneIds[2], tokensMap[zoneIds[2]], nil, false, nil)
+                operation.fetchRecordZoneChangesCompletionBlock?(nil)
+            } else if localOperations.count == 3 && sharedOperations.count == 0 {
+                guard let operation = operation as? CKFetchRecordZoneChangesOperation else { return }
+                let zoneIds = operation.recordZoneIDs ?? []
+                XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
+                XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
+                XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
+                XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
+                let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+                let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+                let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+                listRecord2["name"] = "Test Shopping List 2"
+                listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
+                listItem21["goodName"] = "Test good 21"
+                listItem21["storeName"] = "Test store 21"
+                listItem21.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
+                listItem22["goodName"] = "Test good 22"
+                listItem22["storeName"] = "Test store 22"
+                listItem22.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
+                
+                for zoneId in zoneIds {
+                    let option = operation.configurationsByRecordZoneID?[zoneId]
+                    XCTAssertNotEqual(option, nil)
+                    XCTAssertNotEqual(option?.previousServerChangeToken, nil)
+                }
+                let records = [listRecord2, listItem21, listItem22]
+                for record in records {
+                    operation.recordChangedBlock?(record)
+                }
+                for zoneId in zoneIds {
+                    operation.recordZoneFetchCompletionBlock?(zoneId, tokensMap[zoneId], nil, false, nil)
+                }
+                operation.fetchRecordZoneChangesCompletionBlock?(nil)
+            } else {
+                fatalError()
+            }
+        }
+        
+        _ = try self.cloudLoader.fetchChanges(localDb: true).toBlocking().first()
+        let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
+        let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
+        let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
+        XCTAssertEqual(shoppingLists.count, 2)
+        XCTAssertEqual(shoppingLists[0].name, "Test Shopping List")
+        XCTAssertEqual(shoppingLists[0].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[0].recordid, "testListRecord1")
+        XCTAssertTrue(!shoppingLists[0].isRemote)
+        XCTAssertEqual(shoppingLists[0].date, 602175855.0)
+        XCTAssertEqual(shoppingLists[1].name, "Test Shopping List 2")
+        XCTAssertEqual(shoppingLists[1].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[1].recordid, "testListRecord2")
+        XCTAssertTrue(!shoppingLists[1].isRemote)
+        XCTAssertEqual(shoppingLists[1].date, 602175855.0)
+        XCTAssertEqual(items1[0].good?.name, "Test good 11")
+        XCTAssertEqual(items1[0].store?.name, "Test store 11")
+        XCTAssertEqual(items1[1].good?.name, "Test good 12")
+        XCTAssertEqual(items1[1].store?.name, "Test store 12")
+        XCTAssertEqual(items2[0].good?.name, "Test good 21")
+        XCTAssertEqual(items2[0].store?.name, "Test store 21")
+        XCTAssertEqual(items2[1].good?.name, "Test good 22")
+        XCTAssertEqual(items2[1].store?.name, "Test store 22")
+        XCTAssertEqual(self.operations.localOperations.count, 3)
+        XCTAssertEqual(self.operations.sharedOperations.count, 0)
+        for zoneId in zoneIds {
+            XCTAssertEqual((self.storage.getZoneToken(zoneId: zoneId, localDb: true) as? TestServerChangeToken)?.key, zoneId.zoneName)
+        }
+        XCTAssertEqual((self.storage.getDbToken(localDb: true) as? TestServerChangeToken)?.key, "test")
+    }
 }
