@@ -26,7 +26,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
     }
 
     override func tearDown() {
-		TestDbWrapper.setup()
+		TestDbWrapper.cleanup()
         self.operations.cleanup()
         self.storage.cleanup()
 		self.cloudLoader = nil
@@ -38,10 +38,10 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 			if sharedOperations.count == 1 && localOperations.count == 0 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 1)
-                XCTAssert(recordIds[0].recordName == "testShareRecord")
-                XCTAssert(recordIds[0].zoneID.zoneName == "testRecordZone")
-                XCTAssert(recordIds[0].zoneID.ownerName == "testRecordOwner")
+				XCTAssertEqual(recordIds.count, 1)
+                XCTAssertEqual(recordIds[0].recordName, "testShareRecord")
+                XCTAssertEqual(recordIds[0].zoneID.zoneName, "testRecordZone")
+                XCTAssertEqual(recordIds[0].zoneID.ownerName, "testRecordOwner")
 				for recordId in recordIds {
 					let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
 					record["name"] = "Test Shopping List"
@@ -53,9 +53,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 			} else if sharedOperations.count == 2 && localOperations.count == 0 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 2)
-                XCTAssert(recordIds[0].recordName == "testItem1")
-                XCTAssert(recordIds[1].recordName == "testItem2")
+				XCTAssertEqual(recordIds.count, 2)
+                XCTAssertEqual(recordIds[0].recordName, "testItem1")
+                XCTAssertEqual(recordIds[1].recordName, "testItem2")
                 let record1 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordIds[0])
                 record1["goodName"] = "Test good 1"
                 record1["storeName"] = "Test store 1"
@@ -71,30 +71,30 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 		}
         let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata).toBlocking().first()!
         let shoppingList = CoreStoreDefaults.dataStack.fetchExisting(shoppingListLink)!
-        XCTAssert(shoppingList.name == "Test Shopping List")
-        XCTAssert(shoppingList.ownerName == "testRecordOwner")
-        XCTAssert(shoppingList.recordid == "testShareRecord")
-        XCTAssert(shoppingList.isRemote)
-        XCTAssert(shoppingList.date == 602175855.0)
+        XCTAssertEqual(shoppingList.name, "Test Shopping List")
+        XCTAssertEqual(shoppingList.ownerName, "testRecordOwner")
+        XCTAssertEqual(shoppingList.recordid, "testShareRecord")
+        XCTAssertTrue(shoppingList.isRemote)
+        XCTAssertEqual(shoppingList.date, 602175855.0)
         let items = shoppingList.listItems
-        XCTAssert(items.count == 2)
+        XCTAssertEqual(items.count, 2)
         if items[0].good?.name == "Test good 1" {
-            XCTAssert(items[0].recordid == "testItem1")
-            XCTAssert(items[0].good?.name == "Test good 1")
-            XCTAssert(items[0].store?.name == "Test store 1")
-            XCTAssert(items[1].recordid == "testItem2")
-            XCTAssert(items[1].good?.name == "Test good 2")
-            XCTAssert(items[1].store?.name == "Test store 2")
+            XCTAssertEqual(items[0].recordid, "testItem1")
+            XCTAssertEqual(items[0].good?.name, "Test good 1")
+            XCTAssertEqual(items[0].store?.name, "Test store 1")
+            XCTAssertEqual(items[1].recordid, "testItem2")
+            XCTAssertEqual(items[1].good?.name, "Test good 2")
+            XCTAssertEqual(items[1].store?.name, "Test store 2")
         } else {
-            XCTAssert(items[0].recordid == "testItem2")
-            XCTAssert(items[0].good?.name == "Test good 2")
-            XCTAssert(items[0].store?.name == "Test store 2")
-            XCTAssert(items[1].recordid == "testItem1")
-            XCTAssert(items[1].good?.name == "Test good 1")
-            XCTAssert(items[1].store?.name == "Test store 1")
+            XCTAssertEqual(items[0].recordid, "testItem2")
+            XCTAssertEqual(items[0].good?.name, "Test good 2")
+            XCTAssertEqual(items[0].store?.name, "Test store 2")
+            XCTAssertEqual(items[1].recordid, "testItem1")
+            XCTAssertEqual(items[1].good?.name, "Test good 1")
+            XCTAssertEqual(items[1].store?.name, "Test store 1")
         }
-		XCTAssert(self.operations.localOperations.count == 0)
-		XCTAssert(self.operations.sharedOperations.count == 2)
+		XCTAssertEqual(self.operations.localOperations.count, 0)
+		XCTAssertEqual(self.operations.sharedOperations.count, 2)
     }
 	
 	func testLoadShareRetry() throws {
@@ -103,10 +103,10 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 			if sharedOperations.count == 1 && localOperations.count == 0 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 1)
-                XCTAssert(recordIds[0].recordName == "testShareRecord")
-                XCTAssert(recordIds[0].zoneID.zoneName == "testRecordZone")
-                XCTAssert(recordIds[0].zoneID.ownerName == "testRecordOwner")
+				XCTAssertEqual(recordIds.count, 1)
+                XCTAssertEqual(recordIds[0].recordName, "testShareRecord")
+                XCTAssertEqual(recordIds[0].zoneID.zoneName, "testRecordZone")
+                XCTAssertEqual(recordIds[0].zoneID.ownerName, "testRecordOwner")
 				for recordId in recordIds {
 					let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
 					record["name"] = "Test Shopping List"
@@ -121,9 +121,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 			} else if sharedOperations.count == 3 && localOperations.count == 0 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 2)
-                XCTAssert(recordIds[0].recordName == "testItem1")
-                XCTAssert(recordIds[1].recordName == "testItem2")
+				XCTAssertEqual(recordIds.count, 2)
+                XCTAssertEqual(recordIds[0].recordName, "testItem1")
+                XCTAssertEqual(recordIds[1].recordName, "testItem2")
                 let record1 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordIds[0])
                 record1["goodName"] = "Test good 1"
                 record1["storeName"] = "Test store 1"
@@ -139,30 +139,30 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 		}
         let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata).toBlocking().first()!
         let shoppingList = CoreStoreDefaults.dataStack.fetchExisting(shoppingListLink)!
-        XCTAssert(shoppingList.name == "Test Shopping List")
-        XCTAssert(shoppingList.ownerName == "testRecordOwner")
-        XCTAssert(shoppingList.recordid == "testShareRecord")
-        XCTAssert(shoppingList.isRemote)
-        XCTAssert(shoppingList.date == 602175855.0)
+        XCTAssertEqual(shoppingList.name, "Test Shopping List")
+        XCTAssertEqual(shoppingList.ownerName, "testRecordOwner")
+        XCTAssertEqual(shoppingList.recordid, "testShareRecord")
+        XCTAssertTrue(shoppingList.isRemote)
+        XCTAssertEqual(shoppingList.date, 602175855.0)
         let items = shoppingList.listItems
-        XCTAssert(items.count == 2)
+        XCTAssertEqual(items.count, 2)
         if items[0].good?.name == "Test good 1" {
-            XCTAssert(items[0].recordid == "testItem1")
-            XCTAssert(items[0].good?.name == "Test good 1")
-            XCTAssert(items[0].store?.name == "Test store 1")
-            XCTAssert(items[1].recordid == "testItem2")
-            XCTAssert(items[1].good?.name == "Test good 2")
-            XCTAssert(items[1].store?.name == "Test store 2")
+            XCTAssertEqual(items[0].recordid, "testItem1")
+            XCTAssertEqual(items[0].good?.name, "Test good 1")
+            XCTAssertEqual(items[0].store?.name, "Test store 1")
+            XCTAssertEqual(items[1].recordid, "testItem2")
+            XCTAssertEqual(items[1].good?.name, "Test good 2")
+            XCTAssertEqual(items[1].store?.name, "Test store 2")
         } else {
-            XCTAssert(items[0].recordid == "testItem2")
-            XCTAssert(items[0].good?.name == "Test good 2")
-            XCTAssert(items[0].store?.name == "Test store 2")
-            XCTAssert(items[1].recordid == "testItem1")
-            XCTAssert(items[1].good?.name == "Test good 1")
-            XCTAssert(items[1].store?.name == "Test store 1")
+            XCTAssertEqual(items[0].recordid, "testItem2")
+            XCTAssertEqual(items[0].good?.name, "Test good 2")
+            XCTAssertEqual(items[0].store?.name, "Test store 2")
+            XCTAssertEqual(items[1].recordid, "testItem1")
+            XCTAssertEqual(items[1].good?.name, "Test good 1")
+            XCTAssertEqual(items[1].store?.name, "Test store 1")
         }
-		XCTAssert(self.operations.localOperations.count == 0)
-		XCTAssert(self.operations.sharedOperations.count == 3)
+		XCTAssertEqual(self.operations.localOperations.count, 0)
+		XCTAssertEqual(self.operations.sharedOperations.count, 3)
     }
 	
 	func testFetchChangesSuccessNoTokenNoMore() throws {
@@ -175,7 +175,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 		self.operations.onAddOperation = { operation, localOperations, sharedOperations in
 			if localOperations.count == 1 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKFetchDatabaseChangesOperation else { fatalError() }
-				XCTAssert(operation.previousServerChangeToken == nil)
+				XCTAssertEqual(operation.previousServerChangeToken, nil)
 				for zoneId in zoneIds {
 					operation.recordZoneWithIDChangedBlock?(zoneId)
 				}
@@ -183,10 +183,10 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 			} else if localOperations.count == 2 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKFetchRecordZoneChangesOperation else { return }
 				let zoneIds = operation.recordZoneIDs ?? []
-				XCTAssert(zoneIds[0].zoneName == "testZone1")
-				XCTAssert(zoneIds[0].ownerName == "testOwner")
-				XCTAssert(zoneIds[1].zoneName == "testZone2")
-				XCTAssert(zoneIds[1].ownerName == "testOwner")
+				XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
+				XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
+				XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
+				XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
 				let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
 				let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
 				let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
@@ -215,8 +215,8 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 				
 				for zoneId in zoneIds {
 					let option = operation.configurationsByRecordZoneID?[zoneId]
-					XCTAssert(option != nil)
-					XCTAssert(option?.previousServerChangeToken == nil)
+					XCTAssertNotEqual(option, nil)
+					XCTAssertEqual(option?.previousServerChangeToken, nil)
 				}
 				let records = [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22]
 				for record in records {
@@ -235,30 +235,30 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 		let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
 		let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
 		let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
-		XCTAssert(shoppingLists.count == 2)
-		XCTAssert(shoppingLists[0].name == "Test Shopping List")
-        XCTAssert(shoppingLists[0].ownerName == "testOwner")
-        XCTAssert(shoppingLists[0].recordid == "testListRecord1")
-        XCTAssert(!shoppingLists[0].isRemote)
-        XCTAssert(shoppingLists[0].date == 602175855.0)
-		XCTAssert(shoppingLists[1].name == "Test Shopping List 2")
-        XCTAssert(shoppingLists[1].ownerName == "testOwner")
-        XCTAssert(shoppingLists[1].recordid == "testListRecord2")
-        XCTAssert(!shoppingLists[1].isRemote)
-        XCTAssert(shoppingLists[1].date == 602175855.0)
-		XCTAssert(items1[0].good?.name == "Test good 11")
-		XCTAssert(items1[0].store?.name == "Test store 11")
-		XCTAssert(items1[1].good?.name == "Test good 12")
-		XCTAssert(items1[1].store?.name == "Test store 12")
-		XCTAssert(items2[0].good?.name == "Test good 21")
-		XCTAssert(items2[0].store?.name == "Test store 21")
-		XCTAssert(items2[1].good?.name == "Test good 22")
-		XCTAssert(items2[1].store?.name == "Test store 22")
-		XCTAssert(self.operations.localOperations.count == 2)
-		XCTAssert(self.operations.sharedOperations.count == 0)
+		XCTAssertEqual(shoppingLists.count, 2)
+		XCTAssertEqual(shoppingLists[0].name, "Test Shopping List")
+        XCTAssertEqual(shoppingLists[0].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[0].recordid, "testListRecord1")
+        XCTAssertTrue(!shoppingLists[0].isRemote)
+        XCTAssertEqual(shoppingLists[0].date, 602175855.0)
+		XCTAssertEqual(shoppingLists[1].name, "Test Shopping List 2")
+        XCTAssertEqual(shoppingLists[1].ownerName, "testOwner")
+        XCTAssertEqual(shoppingLists[1].recordid, "testListRecord2")
+        XCTAssertTrue(!shoppingLists[1].isRemote)
+        XCTAssertEqual(shoppingLists[1].date, 602175855.0)
+		XCTAssertEqual(items1[0].good?.name, "Test good 11")
+		XCTAssertEqual(items1[0].store?.name, "Test store 11")
+		XCTAssertEqual(items1[1].good?.name, "Test good 12")
+		XCTAssertEqual(items1[1].store?.name, "Test store 12")
+		XCTAssertEqual(items2[0].good?.name, "Test good 21")
+		XCTAssertEqual(items2[0].store?.name, "Test store 21")
+		XCTAssertEqual(items2[1].good?.name, "Test good 22")
+		XCTAssertEqual(items2[1].store?.name, "Test store 22")
+		XCTAssertEqual(self.operations.localOperations.count, 2)
+		XCTAssertEqual(self.operations.sharedOperations.count, 0)
 		for zoneId in zoneIds {
-            XCTAssert((self.storage.getZoneToken(zoneId: zoneId, localDb: true) as? TestServerChangeToken)?.key == zoneId.zoneName)
+            XCTAssertEqual((self.storage.getZoneToken(zoneId: zoneId, localDb: true) as? TestServerChangeToken)?.key, zoneId.zoneName)
         }
-		XCTAssert((self.storage.getDbToken(localDb: true) as? TestServerChangeToken)?.key == "test")
+		XCTAssertEqual((self.storage.getDbToken(localDb: true) as? TestServerChangeToken)?.key, "test")
 	}
 }

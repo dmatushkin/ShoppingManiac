@@ -25,7 +25,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
     }
 
     override func tearDown() {
-		TestDbWrapper.setup()
+		TestDbWrapper.cleanup()
         self.operations.cleanup()
         self.storage.cleanup()
 		self.cloudShare = nil
@@ -49,31 +49,31 @@ class CloudShareOperationsUnitTests: XCTestCase {
 		self.operations.onAddOperation = { operation, localOperations, sharedOperations in
 			if localOperations.count == 1 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
 				let listRecord = records[0]
-                XCTAssert(listRecord.recordType == "ShoppingList")
-                XCTAssert(listRecord.share != nil)
-                XCTAssert(listRecord["name"] as? String == "test name")
-                XCTAssert((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate == 602175855.0)
-                XCTAssert(records[1].recordType == "cloudkit.share")
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertNotEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
+                XCTAssertEqual(records[1].recordType, "cloudkit.share")
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else if localOperations.count == 2 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
-				XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[1].recordType == "ShoppingListItem")
+				XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
                 if records[0]["goodName"] as? String == "good1" {
-                    XCTAssert(records[0]["goodName"] as? String == "good1")
-                    XCTAssert(records[0]["storeName"] as? String == "store1")
-                    XCTAssert(records[1]["goodName"] as? String == "good2")
-                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
                 } else {
-                    XCTAssert(records[0]["goodName"] as? String == "good2")
-                    XCTAssert(records[0]["storeName"] as? String == "store2")
-                    XCTAssert(records[1]["goodName"] as? String == "good1")
-                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
                 }
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else {
@@ -82,10 +82,10 @@ class CloudShareOperationsUnitTests: XCTestCase {
 		}
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
         let share = try self.cloudShare.shareList(list: shoppingList).toBlocking().first()!
-        XCTAssert(share[CKShare.SystemFieldKey.title] as? String == "Shopping list")
-        XCTAssert(share[CKShare.SystemFieldKey.shareType] as? String == "org.md.ShoppingManiac")
-		XCTAssert(self.operations.localOperations.count == 2)
-		XCTAssert(self.operations.sharedOperations.count == 0)
+        XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
+        XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
+		XCTAssertEqual(self.operations.localOperations.count, 2)
+		XCTAssertEqual(self.operations.sharedOperations.count, 0)
 	}
 	
 	func testShareLocalShoppingListRetry() throws {
@@ -106,34 +106,34 @@ class CloudShareOperationsUnitTests: XCTestCase {
 		self.operations.onAddOperation = { operation, localOperations, sharedOperations in
 			if localOperations.count == 1 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
 				let listRecord = records[0]
-                XCTAssert(listRecord.recordType == "ShoppingList")
-                XCTAssert(listRecord.share != nil)
-                XCTAssert(listRecord["name"] as? String == "test name")
-                XCTAssert((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate == 602175855.0)
-                XCTAssert(records[1].recordType == "cloudkit.share")
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertNotEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
+                XCTAssertEqual(records[1].recordType, "cloudkit.share")
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else if localOperations.count == 2 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
 				operation.modifyRecordsCompletionBlock?([], [], CommonError(description: "retry"))
 			} else if localOperations.count == 3 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
-				XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[1].recordType == "ShoppingListItem")
+				XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
                 if records[0]["goodName"] as? String == "good1" {
-                    XCTAssert(records[0]["goodName"] as? String == "good1")
-                    XCTAssert(records[0]["storeName"] as? String == "store1")
-                    XCTAssert(records[1]["goodName"] as? String == "good2")
-                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
                 } else {
-                    XCTAssert(records[0]["goodName"] as? String == "good2")
-                    XCTAssert(records[0]["storeName"] as? String == "store2")
-                    XCTAssert(records[1]["goodName"] as? String == "good1")
-                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
                 }
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else {
@@ -142,10 +142,10 @@ class CloudShareOperationsUnitTests: XCTestCase {
 		}
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
         let share = try self.cloudShare.shareList(list: shoppingList).toBlocking().first()!
-        XCTAssert(share[CKShare.SystemFieldKey.title] as? String == "Shopping list")
-        XCTAssert(share[CKShare.SystemFieldKey.shareType] as? String == "org.md.ShoppingManiac")
-		XCTAssert(self.operations.localOperations.count == 3)
-		XCTAssert(self.operations.sharedOperations.count == 0)
+        XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
+        XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
+		XCTAssertEqual(self.operations.localOperations.count, 3)
+		XCTAssertEqual(self.operations.sharedOperations.count, 0)
 	}
 
 	func testUpdateLocalShoppingListSuccess() throws {
@@ -166,30 +166,30 @@ class CloudShareOperationsUnitTests: XCTestCase {
 		self.operations.onAddOperation = { operation, localOperations, sharedOperations in
 			if localOperations.count == 1 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 1)
+				XCTAssertEqual(operation.recordsToSave?.count, 1)
 				let records = operation.recordsToSave ?? []
 				let listRecord = records[0]
-                XCTAssert(listRecord.recordType == "ShoppingList")
-                XCTAssert(listRecord.share == nil)
-                XCTAssert(listRecord["name"] as? String == "test name")
-                XCTAssert((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate == 602175855.0)
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else if localOperations.count == 2 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
-				XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[1].recordType == "ShoppingListItem")
+				XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
                 if records[0]["goodName"] as? String == "good1" {
-                    XCTAssert(records[0]["goodName"] as? String == "good1")
-                    XCTAssert(records[0]["storeName"] as? String == "store1")
-                    XCTAssert(records[1]["goodName"] as? String == "good2")
-                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
                 } else {
-                    XCTAssert(records[0]["goodName"] as? String == "good2")
-                    XCTAssert(records[0]["storeName"] as? String == "store2")
-                    XCTAssert(records[1]["goodName"] as? String == "good1")
-                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
                 }
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else {
@@ -198,8 +198,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
 		}
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
-		XCTAssert(self.operations.localOperations.count == 2)
-		XCTAssert(self.operations.sharedOperations.count == 0)
+		XCTAssertEqual(self.operations.localOperations.count, 2)
+		XCTAssertEqual(self.operations.sharedOperations.count, 0)
 	}
 	
 	func testUpdateLocalShoppingListRetry() throws {
@@ -223,30 +223,30 @@ class CloudShareOperationsUnitTests: XCTestCase {
 				operation.modifyRecordsCompletionBlock?([], [], CommonError(description: "retry"))
 			} else if localOperations.count == 2 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 1)
+				XCTAssertEqual(operation.recordsToSave?.count, 1)
 				let records = operation.recordsToSave ?? []
 				let listRecord = records[0]
-                XCTAssert(listRecord.recordType == "ShoppingList")
-                XCTAssert(listRecord.share == nil)
-                XCTAssert(listRecord["name"] as? String == "test name")
-                XCTAssert((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate == 602175855.0)
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else if localOperations.count == 3 && sharedOperations.count == 0 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
-				XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[1].recordType == "ShoppingListItem")
+				XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
                 if records[0]["goodName"] as? String == "good1" {
-                    XCTAssert(records[0]["goodName"] as? String == "good1")
-                    XCTAssert(records[0]["storeName"] as? String == "store1")
-                    XCTAssert(records[1]["goodName"] as? String == "good2")
-                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
                 } else {
-                    XCTAssert(records[0]["goodName"] as? String == "good2")
-                    XCTAssert(records[0]["storeName"] as? String == "store2")
-                    XCTAssert(records[1]["goodName"] as? String == "good1")
-                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
                 }
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else {
@@ -255,8 +255,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
 		}
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
-		XCTAssert(self.operations.localOperations.count == 3)
-		XCTAssert(self.operations.sharedOperations.count == 0)
+		XCTAssertEqual(self.operations.localOperations.count, 3)
+		XCTAssertEqual(self.operations.sharedOperations.count, 0)
 	}
 	
 	func testUpdateRemoteShoppingListNoShareSuccess() throws {
@@ -278,8 +278,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			if localOperations.count == 0 && sharedOperations.count == 1 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 1)
-				XCTAssert(recordIds[0].recordName == "testListRecord")
+				XCTAssertEqual(recordIds.count, 1)
+				XCTAssertEqual(recordIds[0].recordName, "testListRecord")
 				for recordId in recordIds {
 					let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
 					operation.perRecordCompletionBlock?(record, recordId, nil)
@@ -288,13 +288,13 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			} else if localOperations.count == 0 && sharedOperations.count == 2 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 2)
+				XCTAssertEqual(recordIds.count, 2)
                 if recordIds[0].recordName == "testItemRecord1" {
-                    XCTAssert(recordIds[0].recordName == "testItemRecord1")
-                    XCTAssert(recordIds[1].recordName == "testItemRecord2")
+                    XCTAssertEqual(recordIds[0].recordName, "testItemRecord1")
+                    XCTAssertEqual(recordIds[1].recordName, "testItemRecord2")
                 } else {
-                    XCTAssert(recordIds[0].recordName == "testItemRecord2")
-                    XCTAssert(recordIds[1].recordName == "testItemRecord1")
+                    XCTAssertEqual(recordIds[0].recordName, "testItemRecord2")
+                    XCTAssertEqual(recordIds[1].recordName, "testItemRecord1")
                 }
 				for recordId in recordIds {
 					let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
@@ -303,30 +303,30 @@ class CloudShareOperationsUnitTests: XCTestCase {
 				operation.fetchRecordsCompletionBlock?([:], nil)
 			} else if localOperations.count == 0 && sharedOperations.count == 3 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 1)
+				XCTAssertEqual(operation.recordsToSave?.count, 1)
 				let records = operation.recordsToSave ?? []
 				let listRecord = records[0]
-                XCTAssert(listRecord.recordType == "ShoppingList")
-                XCTAssert(listRecord.share == nil)
-                XCTAssert(listRecord["name"] as? String == "test name")
-                XCTAssert((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate == 602175855.0)
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else if localOperations.count == 0 && sharedOperations.count == 4 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
-				XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[1].recordType == "ShoppingListItem")
+				XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
                 if records[0]["goodName"] as? String == "good1" {
-                    XCTAssert(records[0]["goodName"] as? String == "good1")
-                    XCTAssert(records[0]["storeName"] as? String == "store1")
-                    XCTAssert(records[1]["goodName"] as? String == "good2")
-                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
                 } else {
-                    XCTAssert(records[0]["goodName"] as? String == "good2")
-                    XCTAssert(records[0]["storeName"] as? String == "store2")
-                    XCTAssert(records[1]["goodName"] as? String == "good1")
-                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
                 }
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else {
@@ -345,8 +345,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
-        XCTAssert(self.operations.localOperations.count == 0)
-		XCTAssert(self.operations.sharedOperations.count == 4)
+        XCTAssertEqual(self.operations.localOperations.count, 0)
+		XCTAssertEqual(self.operations.sharedOperations.count, 4)
     }
 	
 	func testUpdateRemoteShoppingListNoShareRetry() throws {
@@ -368,8 +368,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			if localOperations.count == 0 && sharedOperations.count == 1 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 1)
-				XCTAssert(recordIds[0].recordName == "testListRecord")
+				XCTAssertEqual(recordIds.count, 1)
+				XCTAssertEqual(recordIds[0].recordName, "testListRecord")
 				for recordId in recordIds {
 					let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
 					operation.perRecordCompletionBlock?(record, recordId, nil)
@@ -381,13 +381,13 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			} else if localOperations.count == 0 && sharedOperations.count == 3 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 2)
+				XCTAssertEqual(recordIds.count, 2)
                 if recordIds[0].recordName == "testItemRecord1" {
-                    XCTAssert(recordIds[0].recordName == "testItemRecord1")
-                    XCTAssert(recordIds[1].recordName == "testItemRecord2")
+                    XCTAssertEqual(recordIds[0].recordName, "testItemRecord1")
+                    XCTAssertEqual(recordIds[1].recordName, "testItemRecord2")
                 } else {
-                    XCTAssert(recordIds[0].recordName == "testItemRecord2")
-                    XCTAssert(recordIds[1].recordName == "testItemRecord1")
+                    XCTAssertEqual(recordIds[0].recordName, "testItemRecord2")
+                    XCTAssertEqual(recordIds[1].recordName, "testItemRecord1")
                 }
 				for recordId in recordIds {
 					let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
@@ -396,33 +396,33 @@ class CloudShareOperationsUnitTests: XCTestCase {
 				operation.fetchRecordsCompletionBlock?([:], nil)
 			} else if localOperations.count == 0 && sharedOperations.count == 4 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 1)
+				XCTAssertEqual(operation.recordsToSave?.count, 1)
 				let records = operation.recordsToSave ?? []
 				let listRecord = records[0]
-                XCTAssert(listRecord.recordType == "ShoppingList")
-                XCTAssert(listRecord.share == nil)
-                XCTAssert(listRecord["name"] as? String == "test name")
-                XCTAssert((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate == 602175855.0)
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else if localOperations.count == 0 && sharedOperations.count == 5 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
 				operation.modifyRecordsCompletionBlock?([], [], CommonError(description: "retry"))
 			} else if localOperations.count == 0 && sharedOperations.count == 6 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
-				XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[1].recordType == "ShoppingListItem")
+				XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
                 if records[0]["goodName"] as? String == "good1" {
-                    XCTAssert(records[0]["goodName"] as? String == "good1")
-                    XCTAssert(records[0]["storeName"] as? String == "store1")
-                    XCTAssert(records[1]["goodName"] as? String == "good2")
-                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
                 } else {
-                    XCTAssert(records[0]["goodName"] as? String == "good2")
-                    XCTAssert(records[0]["storeName"] as? String == "store2")
-                    XCTAssert(records[1]["goodName"] as? String == "good1")
-                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
                 }
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else {
@@ -441,8 +441,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
-        XCTAssert(self.operations.localOperations.count == 0)
-		XCTAssert(self.operations.sharedOperations.count == 6)
+        XCTAssertEqual(self.operations.localOperations.count, 0)
+		XCTAssertEqual(self.operations.sharedOperations.count, 6)
     }
 	
 	func testUpdateRemoteShoppingListHasShareSuccess() throws {
@@ -464,8 +464,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			if localOperations.count == 0 && sharedOperations.count == 1 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 1)
-				XCTAssert(recordIds[0].recordName == "testListRecord")
+				XCTAssertEqual(recordIds.count, 1)
+				XCTAssertEqual(recordIds[0].recordName, "testListRecord")
 				for recordId in recordIds {
 					let record = SharedRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
 					operation.perRecordCompletionBlock?(record, recordId, nil)
@@ -474,13 +474,13 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			} else if localOperations.count == 0 && sharedOperations.count == 2 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 2)
+				XCTAssertEqual(recordIds.count, 2)
                 if recordIds[0].recordName == "testItemRecord1" {
-                    XCTAssert(recordIds[0].recordName == "testItemRecord1")
-                    XCTAssert(recordIds[1].recordName == "testItemRecord2")
+                    XCTAssertEqual(recordIds[0].recordName, "testItemRecord1")
+                    XCTAssertEqual(recordIds[1].recordName, "testItemRecord2")
                 } else {
-                    XCTAssert(recordIds[0].recordName == "testItemRecord2")
-                    XCTAssert(recordIds[1].recordName == "testItemRecord1")
+                    XCTAssertEqual(recordIds[0].recordName, "testItemRecord2")
+                    XCTAssertEqual(recordIds[1].recordName, "testItemRecord1")
                 }
 				for recordId in recordIds {
 					let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
@@ -490,8 +490,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			} else if localOperations.count == 0 && sharedOperations.count == 3 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 1)
-                XCTAssert(recordIds[0].recordName == "shareTestRecord")
+				XCTAssertEqual(recordIds.count, 1)
+                XCTAssertEqual(recordIds[0].recordName, "shareTestRecord")
 				for recordId in recordIds {
 					let record = CKRecord(recordType: "cloudkit.share", recordID: recordId)
 					operation.perRecordCompletionBlock?(record, recordId, nil)
@@ -499,31 +499,31 @@ class CloudShareOperationsUnitTests: XCTestCase {
 				operation.fetchRecordsCompletionBlock?([:], nil)
 			} else if localOperations.count == 0 && sharedOperations.count == 4 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
 				let listRecord = records[0]
-                XCTAssert(listRecord.recordType == "ShoppingList")
-                XCTAssert(listRecord.share != nil)
-                XCTAssert(listRecord["name"] as? String == "test name")
-                XCTAssert((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate == 602175855.0)
-				XCTAssert(records[1].recordType == "cloudkit.share")
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertNotEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
+				XCTAssertEqual(records[1].recordType, "cloudkit.share")
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else if localOperations.count == 0 && sharedOperations.count == 5 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
-				XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[1].recordType == "ShoppingListItem")
+				XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
                 if records[0]["goodName"] as? String == "good1" {
-                    XCTAssert(records[0]["goodName"] as? String == "good1")
-                    XCTAssert(records[0]["storeName"] as? String == "store1")
-                    XCTAssert(records[1]["goodName"] as? String == "good2")
-                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
                 } else {
-                    XCTAssert(records[0]["goodName"] as? String == "good2")
-                    XCTAssert(records[0]["storeName"] as? String == "store2")
-                    XCTAssert(records[1]["goodName"] as? String == "good1")
-                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
                 }
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else {
@@ -542,8 +542,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
-        XCTAssert(self.operations.localOperations.count == 0)
-		XCTAssert(self.operations.sharedOperations.count == 5)
+        XCTAssertEqual(self.operations.localOperations.count, 0)
+		XCTAssertEqual(self.operations.sharedOperations.count, 5)
     }
 	
 	func testUpdateRemoteShoppingListHasShareRetry() throws {
@@ -565,8 +565,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			if localOperations.count == 0 && sharedOperations.count == 1 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 1)
-				XCTAssert(recordIds[0].recordName == "testListRecord")
+				XCTAssertEqual(recordIds.count, 1)
+				XCTAssertEqual(recordIds[0].recordName, "testListRecord")
 				for recordId in recordIds {
 					let record = SharedRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
 					operation.perRecordCompletionBlock?(record, recordId, nil)
@@ -578,13 +578,13 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			} else if localOperations.count == 0 && sharedOperations.count == 3 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 2)
+				XCTAssertEqual(recordIds.count, 2)
                 if recordIds[0].recordName == "testItemRecord1" {
-                    XCTAssert(recordIds[0].recordName == "testItemRecord1")
-                    XCTAssert(recordIds[1].recordName == "testItemRecord2")
+                    XCTAssertEqual(recordIds[0].recordName, "testItemRecord1")
+                    XCTAssertEqual(recordIds[1].recordName, "testItemRecord2")
                 } else {
-                    XCTAssert(recordIds[0].recordName == "testItemRecord2")
-                    XCTAssert(recordIds[1].recordName == "testItemRecord1")
+                    XCTAssertEqual(recordIds[0].recordName, "testItemRecord2")
+                    XCTAssertEqual(recordIds[1].recordName, "testItemRecord1")
                 }
 				for recordId in recordIds {
 					let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
@@ -594,8 +594,8 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			} else if localOperations.count == 0 && sharedOperations.count == 4 {
 				guard let operation = operation as? CKFetchRecordsOperation else { fatalError() }
 				let recordIds = operation.recordIDs ?? []
-				XCTAssert(recordIds.count == 1)
-                XCTAssert(recordIds[0].recordName == "shareTestRecord")
+				XCTAssertEqual(recordIds.count, 1)
+                XCTAssertEqual(recordIds[0].recordName, "shareTestRecord")
 				for recordId in recordIds {
 					let record = CKRecord(recordType: "cloudkit.share", recordID: recordId)
 					operation.perRecordCompletionBlock?(record, recordId, nil)
@@ -606,31 +606,31 @@ class CloudShareOperationsUnitTests: XCTestCase {
 				operation.modifyRecordsCompletionBlock?([], [], CommonError(description: "retry"))
 			} else if localOperations.count == 0 && sharedOperations.count == 6 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
 				let listRecord = records[0]
-                XCTAssert(listRecord.recordType == "ShoppingList")
-                XCTAssert(listRecord.share != nil)
-                XCTAssert(listRecord["name"] as? String == "test name")
-                XCTAssert((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate == 602175855.0)
-				XCTAssert(records[1].recordType == "cloudkit.share")
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertNotEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
+				XCTAssertEqual(records[1].recordType, "cloudkit.share")
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else if localOperations.count == 0 && sharedOperations.count == 7 {
 				guard let operation = operation as? CKModifyRecordsOperation else { fatalError() }
-				XCTAssert(operation.recordsToSave?.count == 2)
+				XCTAssertEqual(operation.recordsToSave?.count, 2)
 				let records = operation.recordsToSave ?? []
-				XCTAssert(records[0].recordType == "ShoppingListItem")
-                XCTAssert(records[1].recordType == "ShoppingListItem")
+				XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
                 if records[0]["goodName"] as? String == "good1" {
-                    XCTAssert(records[0]["goodName"] as? String == "good1")
-                    XCTAssert(records[0]["storeName"] as? String == "store1")
-                    XCTAssert(records[1]["goodName"] as? String == "good2")
-                    XCTAssert(records[1]["storeName"] as? String == "store2")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
                 } else {
-                    XCTAssert(records[0]["goodName"] as? String == "good2")
-                    XCTAssert(records[0]["storeName"] as? String == "store2")
-                    XCTAssert(records[1]["goodName"] as? String == "good1")
-                    XCTAssert(records[1]["storeName"] as? String == "store1")
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
                 }
 				operation.modifyRecordsCompletionBlock?([], [], nil)
 			} else {
@@ -649,7 +649,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
         _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
-        XCTAssert(self.operations.localOperations.count == 0)
-		XCTAssert(self.operations.sharedOperations.count == 7)
+        XCTAssertEqual(self.operations.localOperations.count, 0)
+		XCTAssertEqual(self.operations.sharedOperations.count, 7)
     }
 }
