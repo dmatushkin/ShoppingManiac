@@ -11,7 +11,7 @@ import UIKit
 @IBDesignable
 class RoundRectTextField: UITextField {
 
-    private let floatingLabelActiveColor = UIColor.blue
+    private let floatingLabelActiveColor = UIColor(named: "floatingLabelColor")!
     private let floatingLabelInactiveColor = UIColor.gray
 
     private let floatingLabel = UILabel()
