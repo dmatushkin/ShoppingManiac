@@ -2,21 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "BitByteData",
-        "repositoryURL": "https://github.com/tsolomko/BitByteData",
-        "state": {
-          "branch": null,
-          "revision": "e7516072dfc33cad98db8db28e97d573d9e540aa",
-          "version": "1.4.1"
-        }
-      },
-      {
         "package": "CoreStore",
         "repositoryURL": "https://github.com/JohnEstropia/CoreStore",
         "state": {
           "branch": null,
-          "revision": "b4489301ac65dc36509583eb69731e8862fe0a20",
-          "version": "7.0.2"
+          "revision": "73b7fcd9071616ead14d3c486e8d1076b29f8bf2",
+          "version": "7.1.0"
         }
       },
       {
@@ -24,8 +15,8 @@
         "repositoryURL": "https://github.com/HeroTransitions/Hero",
         "state": {
           "branch": null,
-          "revision": "7d541ecbf8f53edc87bf51c54ab207bddc39e4cb",
-          "version": "1.4.0"
+          "revision": "ae951b89f23485de8a7b95aaa5cead7f78ab1df0",
+          "version": "1.5.0"
         }
       },
       {
@@ -42,17 +33,8 @@
         "repositoryURL": "https://github.com/ReactiveX/RxSwift",
         "state": {
           "branch": "master",
-          "revision": "9b31a15520306b073cb9d46456f64826c1d6dcab",
+          "revision": "002d325b0bdee94e7882e1114af5ff4fe1e96afa",
           "version": null
-        }
-      },
-      {
-        "package": "SWCompression",
-        "repositoryURL": "https://github.com/tsolomko/SWCompression",
-        "state": {
-          "branch": null,
-          "revision": "f007e40cade39b1371f6c8c8ab72c5328485d87a",
-          "version": "4.5.2"
         }
       },
       {
@@ -69,8 +51,8 @@
         "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver",
         "state": {
           "branch": null,
-          "revision": "d215a5c97ff9695f4de18a114e760a63a19eb80a",
-          "version": "1.8.2"
+          "revision": "97477264cd683a387e80fc2f9b0f0e8db8070ed2",
+          "version": "1.9.0"
         }
       }
     ]
