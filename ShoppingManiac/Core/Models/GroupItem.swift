@@ -9,6 +9,7 @@
 import Foundation
 import CoreData
 import CoreStore
+import RxSwift
 
 class GroupItem {
     let objectId: NSManagedObjectID
@@ -33,38 +34,5 @@ class GroupItem {
         } else {
             return (self.purchased ? 0 : 1) > (item.purchased ? 0 : 1)
         }
-    }
-    
-    func togglePurchased(list: ShoppingList) {
-        self.purchased = !self.purchased
-        try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction in
-            guard let self = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId), let shoppingList: ShoppingList = transaction.edit(list) {
-                shoppingListItem.purchased = self.purchased
-                shoppingListItem.list = shoppingList
-            }
-        })
-    }
-    
-    func markRemoved() {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction in
-            guard let self = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
-                shoppingListItem.isRemoved = true
-            }
-        })
-    }
-    
-    func moveTo(group: ShoppingGroup) {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction in
-            guard let self = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), self.objectId) {
-                if let storeObjectId = group.objectId {
-                    shoppingListItem.store = transaction.edit(Into<Store>(), storeObjectId)
-                } else {
-                    shoppingListItem.store = nil
-                }
-            }
-        })
     }
 }

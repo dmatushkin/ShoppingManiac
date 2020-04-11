@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 import CoreStore
+import CoreData
 
 class AddGoodModel {
     
@@ -33,32 +34,32 @@ class AddGoodModel {
         self.rating.accept(Int(good?.personalRating ?? 0))
     }
     
-    func persistChanges() {
-        if let good = self.good {
-            self.updateItem(item: good, withName: self.goodName.value)
-        } else {
-            self.createItem(withName: self.goodName.value)
-        }
-    }
-    
-    private func createItem(withName name: String) {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-            let item = transaction.create(Into<Good>())
+	func persistChangesAsync() -> Observable<Void> {
+		if let good = self.good {
+			return self.updateItemAsync(item: good, withName: self.goodName.value)
+		} else {
+			return self.createItemAsync(withName: self.goodName.value)
+		}
+	}
+
+	private func createItemAsync(withName name: String) -> Observable<Void> {
+		Observable<Void>.performCoreStore {transaction -> Void in
+			let item = transaction.create(Into<Good>())
             item.name = name
             item.category = transaction.edit(self.category)
             item.personalRating = Int16(self.rating.value)
-        })
-    }
-    
-    private func updateItem(item: Good, withName name: String) {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-            let item = transaction.edit(item)
+		}
+	}
+
+	private func updateItemAsync(item: Good, withName name: String) -> Observable<Void> {
+		Observable<Void>.performCoreStore({transaction -> Void in
+			let item = transaction.edit(item)
             item?.name = name
             item?.category = transaction.edit(self.category)
             item?.personalRating = Int16(self.rating.value)
-        })
-    }
-    
+		})
+	}
+
     func categoriesCount() -> Int {
         return (try? CoreStoreDefaults.dataStack.fetchCount(From<Category>(), [])) ?? 0
     }

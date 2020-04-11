@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16096" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="2Bx-FO-PuE">
-    <device id="retina4_7" orientation="portrait" appearance="dark"/>
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16086"/>
@@ -433,7 +433,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="1Q6-P8-MbD" kind="unwind" unwindAction="shoppingListWithUnwindSegue:" id="4J2-KN-ZIF"/>
+                                    <segue destination="1Q6-P8-MbD" kind="unwind" identifier="dismissAddItemSegue" unwindAction="shoppingListWithUnwindSegue:" id="4J2-KN-ZIF"/>
                                 </connections>
                             </button>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1cb-yK-Aoi">
@@ -451,7 +451,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="1Q6-P8-MbD" kind="unwind" identifier="addShoppingItemSaveSegue" unwindAction="shoppingListWithUnwindSegue:" id="fgE-59-jIe"/>
+                                    <action selector="saveActionWithSender:" destination="YIa-9X-Crd" eventType="touchUpInside" id="7sl-gm-0hb"/>
                                 </connections>
                             </button>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Store" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="2Fv-iF-RAn" customClass="AutocompleteTextField" customModule="ShoppingManiac" customModuleProvider="target">
@@ -614,6 +614,7 @@
                         <outlet property="starButton5" destination="ltr-7y-g9o" id="fc4-sv-Stb"/>
                         <outlet property="storeEditField" destination="2Fv-iF-RAn" id="LxF-F8-pjb"/>
                         <outlet property="weightSwitch" destination="IIl-LO-r5s" id="TRa-Kq-XNQ"/>
+                        <segue destination="1Q6-P8-MbD" kind="unwind" identifier="addShoppingItemSaveSegue" unwindAction="shoppingListWithUnwindSegue:" id="w5X-1r-Zya"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="d96-QD-tfQ" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1030,7 +1031,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="89P-XD-lmJ" kind="unwind" identifier="addGoodSaveSegue" unwindAction="goodsListWithUnwindSegue:" id="WHt-ig-VLa"/>
+                                    <action selector="saveAction" destination="ihD-iJ-3RI" eventType="touchUpInside" id="gIP-0i-Mw5"/>
                                 </connections>
                             </button>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oZN-j7-uRK">
@@ -1048,7 +1049,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="89P-XD-lmJ" kind="unwind" unwindAction="goodsListWithUnwindSegue:" id="DbZ-Dc-4bd"/>
+                                    <segue destination="89P-XD-lmJ" kind="unwind" identifier="cancelAddGoodSegue" unwindAction="goodsListWithUnwindSegue:" id="DbZ-Dc-4bd"/>
                                 </connections>
                             </button>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Category name" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="g9P-3F-QmA" customClass="RoundRectTextField" customModule="ShoppingManiac" customModuleProvider="target">
@@ -1158,6 +1159,7 @@
                         <outlet property="ratingStar3Button" destination="rsm-2K-o5F" id="L1m-bR-n5K"/>
                         <outlet property="ratingStar4Button" destination="WiR-Be-P9u" id="G7E-gE-D6y"/>
                         <outlet property="ratingStar5Button" destination="jIg-Fc-7fA" id="85R-Da-huV"/>
+                        <segue destination="89P-XD-lmJ" kind="unwind" identifier="addGoodSaveSegue" unwindAction="goodsListWithUnwindSegue:" id="hgi-Cu-X3W"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3Fn-nd-6o4" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1282,7 +1284,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="lOA-ph-N5t" kind="unwind" identifier="addStoreSaveSegue" unwindAction="storesListWithUnwindSegue:" id="Ig8-gz-D0D"/>
+                                    <action selector="saveAction" destination="Mcf-so-Wog" eventType="touchUpInside" id="719-T7-I85"/>
                                 </connections>
                             </button>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BV5-76-iPg">
@@ -1300,7 +1302,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="lOA-ph-N5t" kind="unwind" unwindAction="storesListWithUnwindSegue:" id="Q6P-hA-TQw"/>
+                                    <segue destination="lOA-ph-N5t" kind="unwind" identifier="dismissAddStoreSegue" unwindAction="storesListWithUnwindSegue:" id="Q6P-hA-TQw"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -1319,6 +1321,7 @@
                     </view>
                     <connections>
                         <outlet property="storeNameEditField" destination="CnZ-9V-2Pv" id="jLD-G5-asM"/>
+                        <segue destination="lOA-ph-N5t" kind="unwind" identifier="addStoreSaveSegue" unwindAction="storesListWithUnwindSegue:" id="Whf-SQ-LKG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="azC-42-zmP" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1361,7 +1364,7 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="L6f-r0-K95" kind="unwind" identifier="addCategorySaveSegue" unwindAction="categoriesListWithUnwindSegue:" id="taz-Cz-mQD"/>
+                                    <action selector="saveAction" destination="Ex1-Yx-90b" eventType="touchUpInside" id="BkG-d1-Z6B"/>
                                 </connections>
                             </button>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Nyd-PI-EQM">
@@ -1398,6 +1401,7 @@
                     </view>
                     <connections>
                         <outlet property="categoryNameEditField" destination="BpW-Qr-93d" id="O10-2H-WA1"/>
+                        <segue destination="L6f-r0-K95" kind="unwind" identifier="addCategorySaveSegue" unwindAction="categoriesListWithUnwindSegue:" id="bf0-kk-mlf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R6l-df-sAh" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1450,7 +1454,7 @@
             <color red="0.80000000000000004" green="1" blue="0.89803921568627454" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="bottomPanelColor">
-            <color red="0.80000000000000004" green="1" blue="0.89803921568627454" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.80000001192092896" green="1" blue="0.89800000190734863" alpha="0.80000001192092896" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="buttonTextColor">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

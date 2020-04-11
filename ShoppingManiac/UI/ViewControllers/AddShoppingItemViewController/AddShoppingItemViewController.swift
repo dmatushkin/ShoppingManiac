@@ -26,6 +26,7 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
     @IBOutlet private weak var crossListItemSwitch: UISwitch!
     
     let model = AddShoppingListItemModel()
+	private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,21 +48,15 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
         self.model.applyData()
     }
 
-    // MARK: - Navigation
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    }
-
-    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        if identifier == "addShoppingItemSaveSegue" {
-            if self.model.itemName.value.count > 0 {
-                self.model.persistData()
-                return true
-            } else {
-                return false
-            }
-        } else {
-            return true
-        }
-    }
+	@IBAction private func saveAction(sender: UIButton) {
+		guard self.model.itemName.value.count > 0 else {
+			CommonError(description: "Item name should not be empty").showError(title: "Unable to create item")
+			return
+		}
+		self.model.persistDataAsync().observeOnMain().subscribe(onNext: {[weak self] in
+			self?.performSegue(withIdentifier: "addShoppingItemSaveSegue", sender: nil)
+		}, onError: { error in
+			error.showError(title: "Unable to create item")
+		}).disposed(by: self.disposeBag)
+	}
 }

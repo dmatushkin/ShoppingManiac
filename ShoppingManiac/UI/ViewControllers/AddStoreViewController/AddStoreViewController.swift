@@ -8,12 +8,14 @@
 
 import UIKit
 import CoreStore
+import RxSwift
 
 class AddStoreViewController: ShoppingManiacViewController {
 
     @IBOutlet private weak var storeNameEditField: UITextField!
 
     let model = AddStoreModel()
+	private let disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,21 +24,15 @@ class AddStoreViewController: ShoppingManiacViewController {
         self.model.applyData()
     }
 
-    // MARK: - Navigation
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    }
-
-    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        if identifier == "addStoreSaveSegue" {
-            if self.model.storeName.value.count > 0 {
-                self.model.persistData()
-                return true
-            } else {
-                return false
-            }
-        } else {
-            return true
-        }
-    }
+	@IBAction private func saveAction() {
+		guard self.model.storeName.value.count > 0 else {
+			CommonError(description: "Store name should not be empty").showError(title: "Unable to create store")
+			return
+		}
+		self.model.persistDataAsync().observeOnMain().subscribe(onNext: {[weak self] in
+			self?.performSegue(withIdentifier: "addStoreSaveSegue", sender: nil)
+			}, onError: {error in
+				error.showError(title: "Unable to create store")
+		}).disposed(by: self.disposeBag)
+	}
 }

@@ -28,7 +28,7 @@ class LocalNotification<T> {
     }
     
     func listen() -> Observable<T> {
-        return self.subject.asObservable().observeOn(MainScheduler.asyncInstance)
+        return self.subject.asObservable().observeOnMain()
     }
 }
 

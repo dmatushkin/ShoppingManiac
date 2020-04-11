@@ -8,12 +8,14 @@
 
 import UIKit
 import CoreStore
+import RxSwift
 
 class AddCategoryViewController: ShoppingManiacViewController {
 
     @IBOutlet private weak var categoryNameEditField: UITextField!
     
     let model = AddCategoryModel()
+	private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,21 +24,15 @@ class AddCategoryViewController: ShoppingManiacViewController {
         self.model.applyData()
     }
 
-    // MARK: - Navigation
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    }
-
-    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        if identifier == "addCategorySaveSegue" {
-            if self.model.categoryName.value.count > 0 {
-                self.model.persistData()
-                return true
-            } else {
-                return false
-            }
-        } else {
-            return true
-        }
-    }
+	@IBAction private func saveAction() {
+		guard self.model.categoryName.value.count > 0 else {
+			CommonError(description: "Category name should not be empty").showError(title: "Unable to create category")
+			return
+		}
+		self.model.persistDataAsync().observeOnMain().subscribe(onNext: {[weak self] in
+			self?.performSegue(withIdentifier: "addCategorySaveSegue", sender: nil)
+			}, onError: {error in
+				error.showError(title: "Unable to create category")
+		}).disposed(by: self.disposeBag)
+	}
 }

@@ -103,9 +103,9 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         let item = self.model.item(forIndexPath: indexPath)
         let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Delete") { [weak self] _, _ in
             let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {[weak self] in
-                self?.tableView.isEditing = false
-                item.markRemoved()
-                self?.model.resyncData()
+				guard let self = self else { return }
+                self.tableView.isEditing = false
+				self.model.removeItem(from: indexPath)
             }
             self?.present(alertController, animated: true, completion: nil)
         }

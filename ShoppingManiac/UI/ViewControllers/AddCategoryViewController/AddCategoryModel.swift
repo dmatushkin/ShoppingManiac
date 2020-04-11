@@ -23,25 +23,25 @@ class AddCategoryModel {
         self.categoryName.accept(self.category?.name ?? "")
     }
     
-    private func createItem(withName name: String) {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-            let item = transaction.create(Into<Category>())
+	func persistDataAsync() -> Observable<Void> {
+		if let category = self.category {
+			return self.updateItemAssync(item: category, withName: self.categoryName.value)
+		} else {
+			return self.createItemAsync(withName: self.categoryName.value)
+		}
+	}
+
+	func createItemAsync(withName name: String) -> Observable<Void> {
+		return Observable<Void>.performCoreStore({transaction -> Void in
+			let item = transaction.create(Into<Category>())
             item.name = name
-        })
-    }
-    
-    private func updateItem(item: Category, withName name: String) {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-            let item = transaction.edit(item)
+		})
+	}
+
+	func updateItemAssync(item: Category, withName name: String) -> Observable<Void> {
+		return Observable<Void>.performCoreStore({transaction -> Void in
+			let item = transaction.edit(item)
             item?.name = name
-        })
-    }
-    
-    func persistData() {
-        if let category = self.category {
-            self.updateItem(item: category, withName: self.categoryName.value)
-        } else {
-            self.createItem(withName: self.categoryName.value)
-        }
-    }
+		})
+	}
 }

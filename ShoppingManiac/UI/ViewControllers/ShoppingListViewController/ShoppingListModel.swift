@@ -102,16 +102,41 @@ class ShoppingListModel {
     
     func moveItem(from: IndexPath, toGroup: Int) {
         let item = self.item(forIndexPath: from)
-        item.moveTo(group: self.shoppingGroups[toGroup])
-        self.resyncData()
+        let group = self.shoppingGroups[toGroup]
+
+		Observable<Void>.performCoreStore({transaction -> Void in
+            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
+                if let storeObjectId = group.objectId {
+                    shoppingListItem.store = transaction.edit(Into<Store>(), storeObjectId)
+                } else {
+                    shoppingListItem.store = nil
+                }
+            }
+			}).observeOnMain().subscribe(onNext: {[weak self] in
+				self?.resyncData()
+			}).disposed(by: self.disposeBag)
     }
     
     func togglePurchased(indexPath: IndexPath) {
         let group = self.shoppingGroups[indexPath.section]
         let item = group.items[indexPath.row]
-        
-        item.togglePurchased(list: self.shoppingList)
-        self.syncWithCloud()
+
+		item.purchased = !item.purchased
+		Observable<Void>.performCoreStore({[weak self] transaction -> Void in
+			guard let self = self else { return }
+			if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId), let shoppingList: ShoppingList = transaction.edit(self.shoppingList) {
+                shoppingListItem.purchased = item.purchased
+                shoppingListItem.list = shoppingList
+            }
+		}).observeOnMain().subscribe(onNext: {[weak self] in
+			self?.updateToggledData(indexPath: indexPath)
+		}).disposed(by: self.disposeBag)
+    }
+
+	private func updateToggledData(indexPath: IndexPath) {
+		self.syncWithCloud()
+		let group = self.shoppingGroups[indexPath.section]
+		let item = group.items[indexPath.row]
         let sortedItems = self.sortItems(items: group.items)
         var itemFound: Bool = false
         for (idx, sortedItem) in sortedItems.enumerated() where item.objectId == sortedItem.objectId {
@@ -125,5 +150,16 @@ class ShoppingListModel {
             group.items = sortedItems
             self.delegate?.reloadData()
         }
-    }
+	}
+
+	func removeItem(from: IndexPath) {
+		let item = self.item(forIndexPath: from)
+		Observable<Void>.performCoreStore({transaction in
+            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
+                shoppingListItem.isRemoved = true
+            }
+			}).observeOnMain().subscribe(onNext: {[weak self] in
+				self?.resyncData()
+			}).disposed(by: self.disposeBag)
+	}
 }

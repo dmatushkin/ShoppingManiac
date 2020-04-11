@@ -15,17 +15,12 @@ class AddShoppingListModel {
     
     let listTitle = BehaviorRelay<String>(value: "")
     
-    func createItem() -> ShoppingList? {
-        do {
-            let list: ShoppingList = try CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-                let item = transaction.create(Into<ShoppingList>())
-                item.name = self.listTitle.value
-                item.date = Date().timeIntervalSinceReferenceDate
-                return item
-            })
-            return CoreStoreDefaults.dataStack.fetchExisting(list)
-        } catch {
-            return nil
-        }
-    }
+	func createItemAsync() -> Observable<ShoppingList> {
+		return Observable<ShoppingList>.performCoreStore({transaction -> ShoppingList in
+			let item = transaction.create(Into<ShoppingList>())
+			item.name = self.listTitle.value
+			item.date = Date().timeIntervalSinceReferenceDate
+			return item
+		})
+	}
 }

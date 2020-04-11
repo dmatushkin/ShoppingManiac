@@ -19,7 +19,7 @@ class FetchChangesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.activityIndicator.startAnimating()
-        self.cloudLoader.fetchChanges(localDb: false).concat(self.cloudLoader.fetchChanges(localDb: true)).observeOn(MainScheduler.asyncInstance).subscribe(onError: self.hasError, onCompleted: self.proceed).disposed(by: self.disposeBag)
+        self.cloudLoader.fetchChanges(localDb: false).concat(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().subscribe(onError: self.hasError, onCompleted: self.proceed).disposed(by: self.disposeBag)
     }
     
     private func proceed() {

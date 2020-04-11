@@ -23,25 +23,25 @@ class AddStoreModel {
         self.storeName.accept(self.store?.name ?? "") 
     }
     
-    private func createItem(withName name: String) {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-            let item = transaction.create(Into<Store>())
+	func persistDataAsync() -> Observable<Void> {
+		if let store = self.store {
+			return self.updateItemAssync(item: store, withName: self.storeName.value)
+		} else {
+			return self.createItemAsync(withName: self.storeName.value)
+		}
+	}
+
+	func createItemAsync(withName name: String) -> Observable<Void> {
+		return Observable<Void>.performCoreStore({transaction -> Void in
+			let item = transaction.create(Into<Store>())
             item.name = name
-        })
-    }
-    
-    private func updateItem(item: Store, withName name: String) {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-            let item = transaction.edit(item)
+		})
+	}
+
+	func updateItemAssync(item: Store, withName name: String) -> Observable<Void> {
+		return Observable<Void>.performCoreStore({transaction -> Void in
+			let item = transaction.edit(item)
             item?.name = name
-        })
-    }
-    
-    func persistData() {
-        if let store = store {
-            self.updateItem(item: store, withName: self.storeName.value)
-        } else {
-            self.createItem(withName: self.storeName.value)
-        }
-    }
+		})
+	}
 }

@@ -62,41 +62,36 @@ class CloudLoader {
     }
 
     private func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
-        return Observable<ShoppingList>.create { observer in
-            CoreStoreDefaults.dataStack.perform(asynchronous: { (transaction)  in
-                for record in wrapper.items {
-                    let item: ShoppingListItem = try transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
-                    SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
-                    item.recordid = record.recordID.recordName
-                    item.list = transaction.edit(wrapper.shoppingList)
-                    item.comment = record["comment"] as? String
-                    if let name = record["goodName"] as? String {
-                        let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
-                        good.name = name
-                        item.good = good
-                    } else {
-                        item.good = nil
-                    }
-                    item.isWeight = record["isWeight"] as? Bool ?? false
-                    item.price = record["price"] as? Float ?? 0
-                    item.purchased = record["purchased"] as? Bool ?? false
-                    item.quantity = record["quantity"] as? Float ?? 1
-                    item.isRemoved = record["isRemoved"] as? Bool ?? false
-                    item.isCrossListItem = record["isCrossListItem"] as? Bool ?? false
-                    if let storeName = record["storeName"] as? String, storeName.count > 0 {
-                        let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
-                        store.name = storeName
-                        item.store = store
-                    } else {
-                        item.store = nil
-                    }
-                }
-            }, completion: {_ in
-                observer.onNext(wrapper.shoppingList)
-                observer.onCompleted()
-            })
-            return Disposables.create()
-        }
+		return Observable<ShoppingList>.performCoreStore({transaction -> ShoppingList in
+			for record in wrapper.items {
+				let item: ShoppingListItem = try transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
+				SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
+				item.recordid = record.recordID.recordName
+				item.list = transaction.edit(wrapper.shoppingList)
+				item.comment = record["comment"] as? String
+				if let name = record["goodName"] as? String {
+					let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", name))) ?? transaction.create(Into<Good>())
+					good.name = name
+					item.good = good
+				} else {
+					item.good = nil
+				}
+				item.isWeight = record["isWeight"] as? Bool ?? false
+				item.price = record["price"] as? Float ?? 0
+				item.purchased = record["purchased"] as? Bool ?? false
+				item.quantity = record["quantity"] as? Float ?? 1
+				item.isRemoved = record["isRemoved"] as? Bool ?? false
+				item.isCrossListItem = record["isCrossListItem"] as? Bool ?? false
+				if let storeName = record["storeName"] as? String, storeName.count > 0 {
+					let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
+					store.name = storeName
+					item.store = store
+				} else {
+					item.store = nil
+				}
+			}
+			return wrapper.shoppingList
+		})
     }
 
     func fetchChanges(localDb: Bool) -> Observable<Void> {

@@ -48,31 +48,31 @@ class AddShoppingListItemModel {
         self.crossListItem.accept(self.shoppingListItem?.isCrossListItem ?? false)
     }
     
-    func persistData() {
-        try? CoreStoreDefaults.dataStack.perform(synchronous: { transaction in
-            let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
-            item?.good = try Good.item(forName: self.itemName.value, inTransaction: transaction)
-            item?.isWeight = self.isWeight.value
-            item?.good?.personalRating = Int16(self.rating.value)
-            if self.storeName.value.count > 0 {
-                item?.store = try Store.item(forName: self.storeName.value, inTransaction: transaction)
-            } else {
-                item?.store = nil
-            }
-            let amount = self.amountText.value.replacingOccurrences(of: ",", with: ".")
-            if amount.count > 0, let value = Float(amount) {
-                item?.quantity = value
-            } else {
-                item?.quantity = 1
-            }
-            let price = self.priceText.value.replacingOccurrences(of: ",", with: ".")
-            if price.count > 0, let value = Float(price) {
-                item?.price = value
-            } else {
-                item?.price = 0
-            }
-            item?.isCrossListItem = self.crossListItem.value
-            item?.list = transaction.edit(self.shoppingList)
-        })
-    }
+	func persistDataAsync() -> Observable<Void> {
+		return Observable<Void>.performCoreStore({transaction -> Void in
+			let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
+			item?.good = try Good.item(forName: self.itemName.value, inTransaction: transaction)
+			item?.isWeight = self.isWeight.value
+			item?.good?.personalRating = Int16(self.rating.value)
+			if self.storeName.value.count > 0 {
+				item?.store = try Store.item(forName: self.storeName.value, inTransaction: transaction)
+			} else {
+				item?.store = nil
+			}
+			let amount = self.amountText.value.replacingOccurrences(of: ",", with: ".")
+			if amount.count > 0, let value = Float(amount) {
+				item?.quantity = value
+			} else {
+				item?.quantity = 1
+			}
+			let price = self.priceText.value.replacingOccurrences(of: ",", with: ".")
+			if price.count > 0, let value = Float(price) {
+				item?.price = value
+			} else {
+				item?.price = 0
+			}
+			item?.isCrossListItem = self.crossListItem.value
+			item?.list = transaction.edit(self.shoppingList)
+		})
+	}
 }

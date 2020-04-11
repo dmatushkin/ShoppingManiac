@@ -26,6 +26,7 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
     private var stars: [UIButton] = []
     
     let model = AddGoodModel()
+	private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +51,18 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
     @IBAction private func cancelCategorySelectionAction(_ sender: Any) {
         self.goodCategoryEditField.endEditing(true)
     }
+
+	@IBAction private func saveAction() {
+		guard self.model.goodName.value.count > 0 else {
+			CommonError(description: "Good name should not be empty").showError(title: "Unable to create good")
+			return
+		}
+		self.model.persistChangesAsync().observeOnMain().subscribe(onNext: {[weak self] in
+			self?.performSegue(withIdentifier: "addGoodSaveSegue", sender: nil)
+		}, onError: {error in
+			error.showError(title: "Unable to create good")
+		}).disposed(by: self.disposeBag)
+	}
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.model.categoriesCount()
@@ -76,18 +89,5 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    }
-
-    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        if identifier == "addGoodSaveSegue" {
-            if self.model.goodName.value.count > 0 {
-                self.model.persistChanges()
-                return true
-            } else {
-                return false
-            }
-        } else {
-            return true
-        }
     }
 }

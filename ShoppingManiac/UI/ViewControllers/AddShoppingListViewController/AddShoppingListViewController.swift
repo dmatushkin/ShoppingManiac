@@ -25,22 +25,17 @@ class AddShoppingListViewController: ShoppingManiacViewController {
     }
 
     @IBAction private func addAction(_ sender: Any) {
-        if let list = self.model.createItem(), let presenter = self.listsViewController {
-            self.dismiss(animated: true, completion: {
+		guard let presenter = self.listsViewController else { return }
+		self.model.createItemAsync().observeOnMain().subscribe(onNext: {list in
+			self.dismiss(animated: true, completion: {
                 presenter.showList(list: list, isNew: true)
             })
-        }
+		}, onError: {error in
+			error.showError(title: "Unable to create shopping list")
+		}).disposed(by: self.disposeBag)
     }
     
     @IBAction private func cancelAction(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
-    }
-    
-    // MARK: - Navigation
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "addListSaveSegue", let list = self.model.createItem() {
-            (segue.destination as? ShoppingListViewController)?.model.shoppingList = list
-        }
     }
 }

@@ -24,6 +24,8 @@
 		562BAA4F20A60CC30061D654 /* AddShoppingListItemModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */; };
 		562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
+		5637F9492441D3330024F6A1 /* ObservableTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */; };
+		5637F94B2441D37B0024F6A1 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 5637F94A2441D37B0024F6A1 /* RxCocoa */; };
 		563E92802086395800933522 /* CloudShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563E927F2086395700933522 /* CloudShare.swift */; };
 		56438BDB232CE1DE005DAC77 /* PKHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 56438BDA232CE1DE005DAC77 /* PKHUD */; };
 		5644D78523239C3E00982D4E /* ListSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5644D78423239C3E00982D4E /* ListSplitViewController.swift */; };
@@ -292,6 +294,7 @@
 				569114CA23E46DA1003B0419 /* RxBlocking in Frameworks */,
 				569114CC23E46DA1003B0419 /* RxSwift in Frameworks */,
 				569114C423E46DA1003B0419 /* SwiftDate in Frameworks */,
+				5637F94B2441D37B0024F6A1 /* RxCocoa in Frameworks */,
 				569114D023E46DA1003B0419 /* CoreStore in Frameworks */,
 				569114CE23E46DA1003B0419 /* RxTest in Frameworks */,
 				569114C623E46DA1003B0419 /* SwiftyBeaver in Frameworks */,
@@ -732,6 +735,7 @@
 				569114CB23E46DA1003B0419 /* RxSwift */,
 				569114CD23E46DA1003B0419 /* RxTest */,
 				569114CF23E46DA1003B0419 /* CoreStore */,
+				5637F94A2441D37B0024F6A1 /* RxCocoa */,
 			);
 			productName = ShoppingManiacUnitTests;
 			productReference = 56E798AB23DACB2700461F96 /* ShoppingManiacUnitTests.xctest */;
@@ -928,6 +932,7 @@
 				56E798B623DACB8C00461F96 /* CloudKitUtilsTests.swift in Sources */,
 				56E798D623DAD76800461F96 /* ShoppingManiac.xcdatamodeld in Sources */,
 				56E798C723DAD72A00461F96 /* CommonError.swift in Sources */,
+				5637F9492441D3330024F6A1 /* ObservableTypeExtension.swift in Sources */,
 				567D065A23E55288008DB00D /* CloudLoader.swift in Sources */,
 				45B78AE123E9827F00C77A52 /* CloudShareOperationsUnitTests.swift in Sources */,
 				56E798C423DACD2100461F96 /* CloudKitTestOperations.swift in Sources */,
@@ -1326,6 +1331,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxBlocking;
+		};
+		5637F94A2441D37B0024F6A1 /* RxCocoa */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxCocoa;
 		};
 		56438BDA232CE1DE005DAC77 /* PKHUD */ = {
 			isa = XCSwiftPackageProductDependency;
