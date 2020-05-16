@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 import CoreStore
+import CoreData
 
 infix operator <->
 
@@ -32,29 +33,16 @@ extension ObservableType {
     }
 }
 
-extension AnyObserver where Element: DynamicObject {
-
-	func processResult(result: Result<Element, CoreStoreError>) {
-		switch result {
-		case .success(let element):
-			if let coreDataObject = CoreStoreDefaults.dataStack.fetchExisting(element) {
-				self.onNext(coreDataObject)
-				self.onCompleted()
-			} else {
-				self.onError(CommonError(description: "Object not found"))
-			}
-		case .failure(let error):
-			self.onError(error)
-		}
-	}
-}
-
 extension AnyObserver {
 
 	func processResult(result: Result<Element, CoreStoreError>) {
 		switch result {
 		case .success(let element):
-			self.onNext(element)
+			if let coreDataObject = (element as? NSManagedObject).flatMap({ CoreStoreDefaults.dataStack.fetchExisting($0) }).flatMap({ $0 as? Element }) {
+				self.onNext(coreDataObject)
+			} else {
+				self.onNext(element)
+			}
 			self.onCompleted()
 		case .failure(let error):
 			self.onError(error)
