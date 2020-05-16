@@ -12,6 +12,7 @@ import CloudKit
 import SwiftyBeaver
 import RxSwift
 import PKHUD
+import SwiftEntryKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -101,6 +102,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         CKContainer.default().add(operation)
     }
 
+	func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+		return application(app, handleOpen: url)
+	}
+
     func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
         let data = try? Data(contentsOf: url)
         if let jsonObject = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions())) as? NSDictionary, let list = ShoppingList.importShoppingList(fromJsonData: jsonObject) {
@@ -110,73 +115,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     private func showList(list: ShoppingList) {
-        if let topController = self.window?.rootViewController as? UITabBarController, let navigation = topController.viewControllers?.first as? UINavigationController, let listController = navigation.viewControllers.first as? ShoppingListsListViewController {
-            topController.selectedIndex = 0
-            listController.dismiss(animated: false, completion: nil)
-            listController.showList(list: list)
-        }
-    }
-
-    class func topViewController(rootViewController: UIViewController?) -> UIViewController? {
-        guard let rootViewController = rootViewController else { return nil }
-        if let controller = rootViewController as? UITabBarController {
-            return AppDelegate.topViewController(rootViewController: controller.selectedViewController)
-        } else if let controller = rootViewController as? UINavigationController {
-            return AppDelegate.topViewController(rootViewController: controller.visibleViewController)
-        } else if let controller = rootViewController.presentedViewController {
-            return AppDelegate.topViewController(rootViewController: controller)
-        } else {
-            return rootViewController
-        }
-    }
-
-    class func topViewController() -> UIViewController? {
-        guard let rootViewController = (UIApplication.shared.delegate as? AppDelegate)?.window?.rootViewController else { return nil }
-        return AppDelegate.topViewController(rootViewController: rootViewController)
+		if let controllers = (self.window?.rootViewController as? UINavigationController)?.viewControllers, controllers.count > 1, let topController = controllers[1] as? UITabBarController, let listViewController = ((topController.viewControllers?.first as? ListSplitViewController)?.viewControllers.first as? UINavigationController)?.viewControllers.first as? ShoppingListsListViewController {
+			topController.selectedIndex = 0
+			listViewController.navigationController?.popToRootViewController(animated: false)
+			listViewController.showList(list: list)
+		}
     }
 
     class func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
-            if let topViewController = AppDelegate.topViewController() {
-                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] _ in
-                    alert?.dismiss(animated: true, completion: nil)
-                }
-                alert.addAction(closeAction)
-                topViewController.present(alert, animated: true, completion: nil)
-            }
-        }
-    }
+			var attributes = EKAttributes.topFloat
+			attributes.entryBackground = .color(color: EKColor(UIColor(named: "cancelColor")!))
+			attributes.popBehavior = .animated(animation: .init(translate: .init(duration: 0.3), scale: .init(from: 1, to: 0.7, duration: 0.7)))
+			attributes.shadow = .active(with: .init(color: .black, opacity: 0.5, radius: 10, offset: .zero))
+			attributes.statusBar = .dark
+			attributes.scroll = .enabled(swipeable: true, pullbackAnimation: .jolt)
 
-    class func showConfirm(title: String, message: String, onDone: @escaping (() -> Void)) {
-        DispatchQueue.main.async {
-            if let topViewController = AppDelegate.topViewController() {
-                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                let closeAction = UIAlertAction(title: "Close", style: .cancel) { [weak alert] _ in
-                    alert?.dismiss(animated: false, completion: nil)
-                    onDone()
-                }
-                alert.addAction(closeAction)
-                topViewController.present(alert, animated: true, completion: nil)
-            }
-        }
-    }
+			let title = EKProperty.LabelContent(text: title, style: .init(font: UIFont.systemFont(ofSize: 18), color: EKColor(.black)))
+			let description = EKProperty.LabelContent(text: message, style: .init(font: UIFont.systemFont(ofSize: 15), color: EKColor(.black)))
+			let simpleMessage = EKSimpleMessage(title: title, description: description)
+			let alertMessage = EKAlertMessage(simpleMessage: simpleMessage,
+											  buttonBarContent: .init(with: [],
+																	  separatorColor: EKColor(.clear),
+																	  expandAnimatedly: false))
 
-    class func showQuestion(title: String, message: String, question: String, cancelString: String = "Close", onController controller: UIViewController? = nil, onDone: @escaping (() -> Void)) {
-        DispatchQueue.main.async {
-            if let topViewController = controller ?? AppDelegate.topViewController() {
-                let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-                let questionAction = UIAlertAction(title: question, style: .default) { [weak alert] _ in
-                    alert?.dismiss(animated: true, completion: nil)
-                    onDone()
-                }
-                let closeAction = UIAlertAction(title: cancelString, style: .cancel) { [weak alert] _ in
-                    alert?.dismiss(animated: true, completion: nil)
-                }
-                alert.addAction(questionAction)
-                alert.addAction(closeAction)
-                topViewController.present(alert, animated: true, completion: nil)
-            }
+			let contentView = EKAlertMessageView(with: alertMessage)
+			SwiftEntryKit.display(entry: contentView, using: attributes)
         }
     }
 }

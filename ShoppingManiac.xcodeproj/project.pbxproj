@@ -97,6 +97,7 @@
 		569114D023E46DA1003B0419 /* CoreStore in Frameworks */ = {isa = PBXBuildFile; productRef = 569114CF23E46DA1003B0419 /* CoreStore */; };
 		569114D223E4A1C3003B0419 /* SharedRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 569114D123E4A1C3003B0419 /* SharedRecord.swift */; };
 		56C7334C208EF05800E085FF /* CKContainerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C7334B208EF05800E085FF /* CKContainerExtension.swift */; };
+		56CDEE5C24701695006C52C2 /* SwiftEntryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 56CDEE5B24701695006C52C2 /* SwiftEntryKit */; };
 		56CFDBAF20A010BA00C299AA /* ObservableTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */; };
 		56D1215E20A6FE510044C486 /* GoodsListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D1215D20A6FE510044C486 /* GoodsListModel.swift */; };
 		56D1216020A700F40044C486 /* AddGoodModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D1215F20A700F40044C486 /* AddGoodModel.swift */; };
@@ -284,6 +285,7 @@
 				56438BDB232CE1DE005DAC77 /* PKHUD in Frameworks */,
 				565BC9DE232CC69E001A90A3 /* CoreStore in Frameworks */,
 				561BA78F232BF9E100381E02 /* SwiftyBeaver in Frameworks */,
+				56CDEE5C24701695006C52C2 /* SwiftEntryKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -709,6 +711,7 @@
 				561BA79C232BFB1000381E02 /* RxBlocking */,
 				565BC9DD232CC69E001A90A3 /* CoreStore */,
 				56438BDA232CE1DE005DAC77 /* PKHUD */,
+				56CDEE5B24701695006C52C2 /* SwiftEntryKit */,
 			);
 			productName = ShoppingManiac;
 			productReference = 566A7DD41ED1759C005F9D31 /* ShoppingManiac.app */;
@@ -789,6 +792,7 @@
 				561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */,
 				565BC9DC232CC69E001A90A3 /* XCRemoteSwiftPackageReference "CoreStore" */,
 				56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */,
+				56CDEE5A24701694006C52C2 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */,
 			);
 			productRefGroup = 566A7DD51ED1759C005F9D31 /* Products */;
 			projectDirPath = "";
@@ -1294,6 +1298,14 @@
 				minimumVersion = 7.1.0;
 			};
 		};
+		56CDEE5A24701694006C52C2 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/huri000/SwiftEntryKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1376,6 +1388,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 565BC9DC232CC69E001A90A3 /* XCRemoteSwiftPackageReference "CoreStore" */;
 			productName = CoreStore;
+		};
+		56CDEE5B24701695006C52C2 /* SwiftEntryKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 56CDEE5A24701694006C52C2 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */;
+			productName = SwiftEntryKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 
