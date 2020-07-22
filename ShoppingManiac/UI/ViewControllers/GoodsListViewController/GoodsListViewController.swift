@@ -45,24 +45,19 @@ class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate
         return true
     }
 
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let disableAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Delete") { [unowned self] _, indexPath in
-            tableView.isEditing = false
-            if let good = self.model.getItem(forIndex: indexPath) {
+	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+		let disableAction = UIContextualAction(style: .destructive, title: "Delete") {[weak self] (_, _, actionPerformed) in
+			tableView.isEditing = false
+			if let good = self?.model.getItem(forIndex: indexPath) {
                 let alertController = UIAlertController(title: "Delete good", message: "Are you sure you want to delete \(good.name ?? "this good")?", confirmActionTitle: "Delete") {[weak self] in
                     self?.model.deleteItem(good: good)
                 }
-                self.present(alertController, animated: true, completion: nil)
+                self?.present(alertController, animated: true, completion: nil)
             }
-        }
-        disableAction.backgroundColor = UIColor.red
-
-        return [disableAction]
-    }
-
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-
-    }
+			actionPerformed(true)
+		}
+		return UISwipeActionsConfiguration(actions: [disableAction])
+	}
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude

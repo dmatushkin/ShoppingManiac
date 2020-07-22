@@ -99,29 +99,25 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         return true
     }
 
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let item = self.model.item(forIndexPath: indexPath)
-        let deleteAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Delete") { [weak self] _, _ in
-            let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {[weak self] in
+	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+		let item = self.model.item(forIndexPath: indexPath)
+		let disableAction = UIContextualAction(style: .destructive, title: "Delete") {[weak self] (_, _, actionPerformed) in
+			tableView.isEditing = false
+			let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {[weak self] in
 				guard let self = self else { return }
-                self.tableView.isEditing = false
+				self.tableView.isEditing = false
 				self.model.removeItem(from: indexPath)
-            }
-            self?.present(alertController, animated: true, completion: nil)
-        }
-        deleteAction.backgroundColor = UIColor.red
-        let editAction = UITableViewRowAction(style: UITableViewRowAction.Style.default, title: "Edit") { [weak self] _, indexPath in
-            tableView.isEditing = false
+			}
+			self?.present(alertController, animated: true, completion: nil)
+			actionPerformed(true)
+		}
+		let editAction = UIContextualAction(style: .normal, title: "Edit") {[weak self] (_, _, actionPerformed) in
+			tableView.isEditing = false
             self?.performSegue(withIdentifier: "editShoppingListItemSegue", sender: indexPath)
-        }
-        editAction.backgroundColor = UIColor.gray
-
-        return [deleteAction, editAction]
-    }
-
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-
-    }
+			actionPerformed(true)
+		}
+		return UISwipeActionsConfiguration(actions: [disableAction, editAction])
+	}
 
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         return true
