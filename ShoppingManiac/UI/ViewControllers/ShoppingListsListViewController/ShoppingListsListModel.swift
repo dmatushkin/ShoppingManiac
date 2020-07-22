@@ -14,7 +14,7 @@ class ShoppingListsListModel {
     
     let disposeBag = DisposeBag()
     var onUpdate: (() -> Void)?
-    private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
+    private let cloudShare = CloudShare()
     
     init() {
         LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.updateNeeded).disposed(by: self.disposeBag)

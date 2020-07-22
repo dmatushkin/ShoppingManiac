@@ -71,7 +71,7 @@ public class ShoppingList: NSManagedObject {
             let itemsLine = try CoreStoreDefaults.dataStack.perform(synchronous: { transaction -> String in
                 var result = ""
                 let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("list = %@", self))).sorted( by: {item1, item2 in (item1.good?.name ?? "") < (item2.good?.name ?? "") })
-                for item in items {
+				for item in items where !item.purchased {
                     var line = "\(item.good?.name ?? "") \(item.quantityText)"
                     if item.store != nil {
                         line += " : \(item.store?.name ?? "")"

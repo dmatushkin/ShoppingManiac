@@ -9,8 +9,10 @@
 import Foundation
 import CloudKit
 
-class CloudKitOperations: CloudKitOperationsProtocol {
-	
+class CloudKitOperations: CloudKitOperationsProtocol, DIDependency {
+
+	required init() {}
+
 	func run(operation: CKDatabaseOperation, localDb: Bool) {
 		CKContainer.default().database(localDb: localDb).add(operation)
 	}

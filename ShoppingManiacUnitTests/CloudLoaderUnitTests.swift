@@ -19,12 +19,15 @@ class CloudLoaderUnitTests: XCTestCase {
     private var cloudLoader: CloudLoader!
     
     override func setUp() {
-        self.cloudLoader = CloudLoader(cloudKitUtils: self.utilsStub)
+		DIProvider.shared
+			.register(forType: CloudKitUtilsProtocol.self, lambda: { self.utilsStub })
+        self.cloudLoader = CloudLoader()
         self.utilsStub.cleanup()
         TestDbWrapper.setup()
     }
 
     override func tearDown() {
+		DIProvider.shared.clear()
         self.cloudLoader = nil
         self.utilsStub.cleanup()
         TestDbWrapper.cleanup()

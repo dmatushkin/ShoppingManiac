@@ -19,22 +19,21 @@ protocol CloudKitUtilsProtocol {
     func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> Observable<[CKRecord]>
 }
 
-class CloudKitUtils: CloudKitUtilsProtocol {
+class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
     
     private static let retryQueue = DispatchQueue(label: "CloudKitUtils.retryQueue", attributes: .concurrent)
     
     static let zoneName = "ShareZone"
     static let listRecordType = "ShoppingList"
     static let itemRecordType = "ShoppingListItem"
-    
-    private let operations: CloudKitOperationsProtocol
-    private let storage: CloudKitTokenStorgeProtocol
-    
-    init(operations: CloudKitOperationsProtocol, storage: CloudKitTokenStorgeProtocol) {
-        self.operations = operations
-        self.storage = storage
-    }
-	
+
+	required init() {}
+
+	@Autowired
+    private var operations: CloudKitOperationsProtocol
+	@Autowired
+    private var storage: CloudKitTokenStorgeProtocol
+
 	private func createFetchRecordsOperation(recordIds: [CKRecord.ID], localDb: Bool, observer: AnyObserver<CKRecord>) {
 		let operation = CKFetchRecordsOperation(recordIDs: recordIds)
 		operation.perRecordCompletionBlock = { record, recordid, error in

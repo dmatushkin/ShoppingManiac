@@ -20,10 +20,14 @@ class CloudKitUtilsTests: XCTestCase {
     override func setUp() {
         self.operations.cleanup()
         self.storage.cleanup()
-        self.utils = CloudKitUtils(operations: self.operations, storage: self.storage)
+		DIProvider.shared
+			.register(forType: CloudKitOperationsProtocol.self, lambda: { self.operations })
+			.register(forType: CloudKitTokenStorgeProtocol.self, lambda: { self.storage })
+        self.utils = CloudKitUtils()
     }
 
     override func tearDown() {
+		DIProvider.shared.clear()
         self.operations.cleanup()
         self.storage.cleanup()
         self.utils = nil

@@ -24,14 +24,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     static let documentsRootDirectory: URL = {
         return FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).first!
     }()
-    
+
     private let disposeBag = DisposeBag()
-    private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
-    private let cloudLoader = CloudLoader(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
+    private let cloudShare = CloudShare()
+    private let cloudLoader = CloudLoader()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.registerForRemoteNotifications()
-        
+		DIProvider.shared
+			.register(forType: CloudKitOperationsProtocol.self, dependency: CloudKitOperations.self)
+			.register(forType: CloudKitTokenStorgeProtocol.self, dependency: CloudKitTokenStorage.self)
+			.register(forType: CloudKitUtilsProtocol.self, dependency: CloudKitUtils.self)
+		
         let log = SwiftyBeaver.self
         log.addDestination(FileDestination())
         log.addDestination(ConsoleDestination())

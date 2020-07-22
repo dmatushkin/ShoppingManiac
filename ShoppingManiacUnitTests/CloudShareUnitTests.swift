@@ -19,12 +19,15 @@ class CloudShareUnitTests: XCTestCase {
     private var cloudShare: CloudShare!    
     
     override func setUp() {
-        self.cloudShare = CloudShare(cloudKitUtils: self.utilsStub)
+		DIProvider.shared
+			.register(forType: CloudKitUtilsProtocol.self, lambda: { self.utilsStub })
+        self.cloudShare = CloudShare()
         self.utilsStub.cleanup()
         TestDbWrapper.setup()
     }
 
     override func tearDown() {
+		DIProvider.shared.clear()
         self.cloudShare = nil
         self.utilsStub.cleanup()
         TestDbWrapper.cleanup()

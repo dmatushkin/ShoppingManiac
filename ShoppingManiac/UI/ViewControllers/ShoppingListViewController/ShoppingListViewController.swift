@@ -22,7 +22,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     @IBOutlet private weak var shareButton: UIButton!
     
     let model = ShoppingListModel()
-    private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
+    private let cloudShare = CloudShare()
     
     override func viewDidLoad() {
         super.viewDidLoad()

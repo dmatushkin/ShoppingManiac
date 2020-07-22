@@ -9,7 +9,9 @@
 import Foundation
 import CloudKit
 
-class CloudKitTokenStorage: CloudKitTokenStorgeProtocol {
+class CloudKitTokenStorage: CloudKitTokenStorgeProtocol, DIDependency {
+
+	required init() {}
 	
 	private func zoneTokenDefaultsKey(zoneId: CKRecordZone.ID, localDb: Bool) -> String {
 		return zoneId.zoneName + (localDb ? "local" : "remote")

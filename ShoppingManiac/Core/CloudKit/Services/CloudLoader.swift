@@ -13,13 +13,10 @@ import SwiftyBeaver
 import RxSwift
 
 class CloudLoader {
-    
-    private let cloudKitUtils: CloudKitUtilsProtocol
-    
-    init(cloudKitUtils: CloudKitUtilsProtocol) {
-        self.cloudKitUtils = cloudKitUtils
-    }
-    
+
+	@Autowired
+    private var cloudKitUtils: CloudKitUtilsProtocol
+        
     func loadShare(metadata: CKShare.Metadata) -> Observable<ShoppingList> {
         return cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
             .map({RecordWrapper(record: $0, localDb: false, ownerName: metadata.rootRecordID.zoneID.ownerName)})

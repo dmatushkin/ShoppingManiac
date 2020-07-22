@@ -14,7 +14,7 @@ class FetchChangesViewController: UIViewController {
     
     private let disposeBag = DisposeBag()
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
-    private let cloudLoader = CloudLoader(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
+    private let cloudLoader = CloudLoader()
     
     override func viewDidLoad() {
         super.viewDidLoad()

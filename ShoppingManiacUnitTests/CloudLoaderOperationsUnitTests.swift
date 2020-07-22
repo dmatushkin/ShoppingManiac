@@ -19,13 +19,18 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 	private var cloudLoader: CloudLoader!
 
     override func setUp() {
+		DIProvider.shared
+			.register(forType: CloudKitOperationsProtocol.self, lambda: { self.operations })
+			.register(forType: CloudKitTokenStorgeProtocol.self, lambda: { self.storage })
+			.register(forType: CloudKitUtilsProtocol.self, dependency: CloudKitUtils.self)
 		TestDbWrapper.setup()
         self.operations.cleanup()
         self.storage.cleanup()
-		self.cloudLoader = CloudLoader(cloudKitUtils: CloudKitUtils(operations: self.operations, storage: self.storage))
+		self.cloudLoader = CloudLoader()
     }
 
     override func tearDown() {
+		DIProvider.shared.clear()
 		TestDbWrapper.cleanup()
         self.operations.cleanup()
         self.storage.cleanup()

@@ -12,7 +12,7 @@ import RxSwift
 
 class CloudSubscriptions {
     
-    private static let cloudKitUtils = CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage())
+    private static let cloudKitUtils = CloudKitUtils()
     
     private init() {}
     

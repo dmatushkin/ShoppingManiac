@@ -13,12 +13,9 @@ import SwiftyBeaver
 import RxSwift
 
 class CloudShare {
-    
-    private let cloudKitUtils: CloudKitUtilsProtocol
-    
-    init(cloudKitUtils: CloudKitUtilsProtocol) {
-        self.cloudKitUtils = cloudKitUtils
-    }
+
+	@Autowired
+    private var cloudKitUtils: CloudKitUtilsProtocol
 
     func setupUserPermissions() {
         CKContainer.default().accountStatus { (status, error) in

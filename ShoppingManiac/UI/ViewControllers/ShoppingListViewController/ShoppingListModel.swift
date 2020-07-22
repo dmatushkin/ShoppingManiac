@@ -13,7 +13,7 @@ import RxCocoa
 
 class ShoppingListModel {
     
-    private let cloudShare = CloudShare(cloudKitUtils: CloudKitUtils(operations: CloudKitOperations(), storage: CloudKitTokenStorage()))
+    private let cloudShare = CloudShare()
     let totalText = BehaviorRelay<String>(value: "")
     
     let disposeBag = DisposeBag()
