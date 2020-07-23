@@ -7,13 +7,12 @@
 //
 
 import UIKit
-import RxSwift
-import RxCocoa
+import Combine
 
 class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableViewDataSource {
 
     private let autocompleteTable = UITableView()
-    private let disposeBag = DisposeBag()
+    private var cancellables = Set<AnyCancellable>()
 
     var autocompleteStrings: [String] = []
 
@@ -43,8 +42,8 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         self.autocompleteTable.layer.borderColor = UIColor.gray.cgColor
         self.autocompleteTable.layer.borderWidth = 1
         self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
-        LocalNotifications.keyboardWillChangeFrame.listen().subscribe(onNext: self.setBottomOffset).disposed(by: self.disposeBag)
-        LocalNotifications.keyboardWillHide.listen().map({_ in UIKeyboardInfo(info: [:])}).subscribe(onNext: self.setBottomOffset).disposed(by: self.disposeBag)
+		LocalNotifications.keyboardWillChangeFrame.listen().sink(receiveCompletion: {_ in }, receiveValue: self.setBottomOffset).store(in: &cancellables)
+		LocalNotifications.keyboardWillHide.listen().map({_ in UIKeyboardInfo(info: [:])}).sink(receiveCompletion: {_ in }, receiveValue: self.setBottomOffset).store(in: &cancellables)
     }
 
     private func item(forIndexPath indexPath: IndexPath) -> String {

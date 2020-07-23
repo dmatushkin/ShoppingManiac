@@ -7,27 +7,22 @@
 //
 
 import Foundation
-import RxSwift
 import CoreStore
-import RxCocoa
 import Combine
 
 class ShoppingListModel {
-    
-    private let cloudShare = CloudShare()
-    let totalText = BehaviorRelay<String>(value: "")
-    
-    let disposeBag = DisposeBag()
+
 	var cancellables = Set<AnyCancellable>()
+    private let cloudShare = CloudShare()
+	let totalText = CurrentValueSubject<String?, Never>("")
+
     weak var delegate: UpdateDelegate?
     
     var shoppingList: ShoppingList!
     var shoppingGroups: [ShoppingGroup] = []
     
     init() {
-        LocalNotifications.newDataAvailable.listen().subscribe(onNext: {[weak self] in
-            self?.reloadData()
-        }).disposed(by: self.disposeBag)
+        LocalNotifications.newDataAvailable.listen().sink(receiveCompletion: {_ in }, receiveValue: self.reloadData).store(in: &cancellables)
     }
         
     func syncWithCloud() {
@@ -65,7 +60,7 @@ class ShoppingListModel {
                 }
             }
             self.shoppingGroups = self.sortGroups(groups: groups)
-            self.totalText.accept(String(format: "Total: %.2f", totalPrice))
+			self.totalText.send(String(format: "Total: %.2f", totalPrice))
         }
     }
     
@@ -106,17 +101,17 @@ class ShoppingListModel {
         let item = self.item(forIndexPath: from)
         let group = self.shoppingGroups[toGroup]
 
-		Observable<Void>.performCoreStore({transaction -> Void in
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
+		CoreDataOperationPublisher(operation: {transaction -> Void in
+			if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
                 if let storeObjectId = group.objectId {
                     shoppingListItem.store = transaction.edit(Into<Store>(), storeObjectId)
                 } else {
                     shoppingListItem.store = nil
                 }
             }
-			}).observeOnMain().subscribe(onNext: {[weak self] in
+			}).observeOnMain().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] in
 				self?.resyncData()
-			}).disposed(by: self.disposeBag)
+			}).store(in: &cancellables)
     }
     
     func togglePurchased(indexPath: IndexPath) {
@@ -124,15 +119,16 @@ class ShoppingListModel {
         let item = group.items[indexPath.row]
 
 		item.purchased = !item.purchased
-		Observable<Void>.performCoreStore({[weak self] transaction -> Void in
+
+		CoreDataOperationPublisher(operation: {[weak self] transaction -> Void in
 			guard let self = self else { return }
 			if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId), let shoppingList: ShoppingList = transaction.edit(self.shoppingList) {
                 shoppingListItem.purchased = item.purchased
                 shoppingListItem.list = shoppingList
             }
-		}).observeOnMain().subscribe(onNext: {[weak self] in
-			self?.updateToggledData(indexPath: indexPath)
-		}).disposed(by: self.disposeBag)
+			}).observeOnMain().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] in
+				self?.updateToggledData(indexPath: indexPath)
+			}).store(in: &cancellables)
     }
 
 	private func updateToggledData(indexPath: IndexPath) {
@@ -156,12 +152,12 @@ class ShoppingListModel {
 
 	func removeItem(from: IndexPath) {
 		let item = self.item(forIndexPath: from)
-		Observable<Void>.performCoreStore({transaction in
-            if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
+		CoreDataOperationPublisher(operation: {transaction -> Void in
+			if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
                 shoppingListItem.isRemoved = true
             }
-			}).observeOnMain().subscribe(onNext: {[weak self] in
+			}).observeOnMain().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] in
 				self?.resyncData()
-			}).disposed(by: self.disposeBag)
+			}).store(in: &cancellables)
 	}
 }

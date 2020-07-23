@@ -8,16 +8,15 @@
 
 import Foundation
 import CoreStore
-import RxSwift
-import RxCocoa
+import Combine
 
 class StoresListModel {
     
-    let disposeBag = DisposeBag()
+    private var cancellables = Set<AnyCancellable>()
     var onUpdate: (() -> Void)?
     
     init() {
-        LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.updateNeeded).disposed(by: self.disposeBag)
+        LocalNotifications.newDataAvailable.listen().sink(receiveCompletion: {_ in }, receiveValue: self.updateNeeded).store(in: &cancellables)
     }
     
     private func updateNeeded() {

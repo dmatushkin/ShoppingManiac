@@ -9,17 +9,15 @@
 import Foundation
 import CoreStore
 import Combine
-import RxSwift
 
 class ShoppingListsListModel {
     
-    let disposeBag = DisposeBag()
 	private var cancellables = Set<AnyCancellable>()
     var onUpdate: (() -> Void)?
     private let cloudShare = CloudShare()
     
     init() {
-        LocalNotifications.newDataAvailable.listen().subscribe(onNext: self.updateNeeded).disposed(by: self.disposeBag)
+        LocalNotifications.newDataAvailable.listen().sink(receiveCompletion: {_ in }, receiveValue: self.updateNeeded).store(in: &cancellables)
     }
     
     private func updateNeeded() {

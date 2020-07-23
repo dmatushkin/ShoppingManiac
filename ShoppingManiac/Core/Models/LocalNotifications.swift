@@ -7,11 +7,10 @@
 //
 
 import UIKit
-import RxSwift
-import RxCocoa
+import Combine
 
 class LocalNotification<T> {
-    private let subject = PublishSubject<T>()
+    private let subject = PassthroughSubject<T, Never>()
     fileprivate var observer: NSObjectProtocol?
     
     init() {
@@ -24,11 +23,11 @@ class LocalNotification<T> {
     }
     
     func post(value: T) {
-        self.subject.onNext(value)
+        self.subject.send(value)
     }
     
-    func listen() -> Observable<T> {
-        return self.subject.asObservable().observeOnMain()
+    func listen() -> AnyPublisher<T, Never> {
+        return self.subject.observeOnMain()
     }
 }
 
@@ -41,7 +40,7 @@ extension LocalNotification where T: NotificationUserInfoDecodable {
     
     private func notificationAction(notification: Notification) {
         if let info = notification.userInfo, let obj = T(info: info) {
-            self.subject.onNext(obj)
+            self.subject.send(obj)
         }
     }
 }

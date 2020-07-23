@@ -11,9 +11,8 @@ import CoreStore
 import MessageUI
 import SwiftyBeaver
 import CloudKit
-import RxSwift
-import RxCocoa
 import PKHUD
+import Combine
 
 class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate, UpdateDelegate {
 
@@ -34,7 +33,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         self.tableView.setBottomInset(inset: 70)
         self.navigationItem.rightBarButtonItem = self.editButtonItem
         self.model.delegate = self
-        self.model.totalText.asObservable().observeOnMain().bind(to: self.totalLabel.rx.text).disposed(by: self.model.disposeBag)
+		self.model.totalText.observeOnMain().assign(to: \.text, on: self.totalLabel).store(in: &model.cancellables)
         self.model.reloadData()
         if let controllers = self.navigationController?.viewControllers {
             self.navigationController?.viewControllers = controllers.filter({!($0 is AddShoppingListViewController)})
