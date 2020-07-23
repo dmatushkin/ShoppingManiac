@@ -8,11 +8,13 @@
 
 import Foundation
 import CoreStore
+import Combine
 import RxSwift
 
 class ShoppingListsListModel {
     
     let disposeBag = DisposeBag()
+	private var cancellables = Set<AnyCancellable>()
     var onUpdate: (() -> Void)?
     private let cloudShare = CloudShare()
     
@@ -42,7 +44,7 @@ class ShoppingListsListModel {
         }, completion: {[weak self] _ in
             guard let self = self else { return }
             if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
-                self.cloudShare.updateList(list: shoppingList).subscribe().disposed(by: self.disposeBag)
+				self.cloudShare.updateList(list: shoppingList).sink(receiveCompletion: {_ in}, receiveValue: {}).store(in: &self.cancellables)
             }
             self.onUpdate?()
         })

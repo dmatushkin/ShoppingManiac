@@ -7,9 +7,9 @@
 //
 
 import XCTest
-import RxBlocking
 import CoreStore
 import CloudKit
+import Combine
 
 //swiftlint:disable type_body_length function_body_length
 
@@ -81,7 +81,7 @@ class CloudShareUnitTests: XCTestCase {
             recordsUpdateIteration += 1
         }
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-        let share = try self.cloudShare.shareList(list: shoppingList).toBlocking().first()!
+		let share = try self.cloudShare.shareList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
         XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
         XCTAssertEqual(recordsUpdateIteration, 2)
@@ -134,7 +134,7 @@ class CloudShareUnitTests: XCTestCase {
             recordsUpdateIteration += 1
         }
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(recordsUpdateIteration, 2)
     }
 
@@ -220,7 +220,7 @@ class CloudShareUnitTests: XCTestCase {
             shoppingList.listItems[0].recordid = "testItemRecord2"
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(recordsUpdateIteration, 2)
         XCTAssertEqual(recordsFetchIteration, 2)
     }
@@ -312,7 +312,7 @@ class CloudShareUnitTests: XCTestCase {
             shoppingList.listItems[0].recordid = "testItemRecord2"
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(recordsUpdateIteration, 2)
         XCTAssertEqual(recordsFetchIteration, 3)
     }

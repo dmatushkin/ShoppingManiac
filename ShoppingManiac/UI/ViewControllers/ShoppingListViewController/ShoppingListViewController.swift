@@ -193,7 +193,16 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     private func icloudShare() {
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
-        self.cloudShare.shareList(list: self.model.shoppingList).observeOnMain().subscribe(onNext: self.createSharingController, onError: self.showSharingError).disposed(by: self.model.disposeBag)
+		self.cloudShare.shareList(list: self.model.shoppingList).observeOnMain().sink(receiveCompletion: { completion in
+			switch completion {
+			case .failure(let error):
+				HUD.flash(.labeledError(title: "iCloud sharing error", subtitle: error.localizedDescription), delay: 3)
+			case .finished:
+				break
+			}
+		}, receiveValue: {[weak self] value in
+			self?.createSharingController(share: value)
+		}).store(in: &self.model.cancellables)
     }
     
     private func createSharingController(share: CKShare) {
@@ -205,11 +214,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         HUD.hide()
         self.present(controller, animated: true, completion: nil)
     }
-    
-    private func showSharingError(error: Error) {
-        HUD.flash(.labeledError(title: "iCloud sharing error", subtitle: error.localizedDescription), delay: 3)
-    }
-    
+
     // MARK: - Cloud sharing controller delegate
     
     func cloudSharingController(_ csc: UICloudSharingController, failedToSaveShareWithError error: Error) {

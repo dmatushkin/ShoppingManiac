@@ -10,7 +10,18 @@ import UIKit
 import CloudKit
 import CoreStore
 import SwiftyBeaver
-import RxSwift
+import Combine
+
+extension CKRecordZone {
+
+	convenience init(ownerName: String?) {
+		if let ownerName = ownerName {
+			self.init(zoneID: CKRecordZone.ID(zoneName: CloudKitUtils.zoneName, ownerName: ownerName))
+        } else {
+			self.init(zoneName: CloudKitUtils.zoneName)
+        }
+	}
+}
 
 class CloudShare {
 
@@ -51,34 +62,16 @@ class CloudShare {
         }
     }
 
-    func shareList(list: ShoppingList) -> Observable<CKShare> {
-        return getListWrapper(list: list).flatMap(createShare)
+    func shareList(list: ShoppingList) -> AnyPublisher<CKShare, Error> {
+		return getListWrapper(list: list).flatMap(createShare).eraseToAnyPublisher()
     }
 
-    func updateList(list: ShoppingList) -> Observable<Void> {
-        return getListWrapper(list: list).flatMap(updateRecord)
+    func updateList(list: ShoppingList) -> AnyPublisher<Void, Error> {
+		return getListWrapper(list: list).flatMap(updateRecord).eraseToAnyPublisher()
     }
     
-    private func createShare(wrapper: ShoppingListItemsWrapper) -> Observable<CKShare> {
-        return Observable<CKShare>.create {[weak self] observer in
-            guard let self = self else { return Disposables.create() }
-            let share = CKShare(rootRecord: wrapper.record)
-            share[CKShare.SystemFieldKey.title] = "Shopping list" as CKRecordValue
-            share[CKShare.SystemFieldKey.shareType] = "org.md.ShoppingManiac" as CKRecordValue
-            share.publicPermission = .readWrite
-            
-            let recordsToUpdate = [wrapper.record, share]
-            
-			let disposable = self.cloudKitUtils.updateRecords(records: recordsToUpdate, localDb: true).map({(wrapper.items, true)}).flatMap(self.updateRecords).subscribe(onError: {error in
-                    observer.onError(error)
-            }, onCompleted: {
-                observer.onNext(share)
-                observer.onCompleted()
-            })
-            return Disposables.create {
-                disposable.dispose()
-            }
-        }
+    private func createShare(wrapper: ShoppingListItemsWrapper) -> AnyPublisher<CKShare, Error> {
+		return CloudKitCreateSharePublisher(wrapper: wrapper).eraseToAnyPublisher()
     }
     
     private func createZone() {
@@ -90,8 +83,8 @@ class CloudShare {
         }
     }
 
-	private func updateListWrapper(tuple: (record: CKRecord, list: ShoppingList)) -> Observable<ShoppingListItemsWrapper> {
-        return getItemsRecords(list: tuple.list).toArray().asObservable().map({items in
+	private func updateListWrapper(tuple: (record: CKRecord, list: ShoppingList)) -> AnyPublisher<ShoppingListItemsWrapper, Error> {
+		return CloudKitShoppingListItemsPublisher(list: tuple.list).collect().map({items in
             for item in items {
                 item.setParent(tuple.record)
             }
@@ -100,7 +93,7 @@ class CloudShare {
             tuple.record["isRemoved"] = tuple.list.isRemoved as CKRecordValue
             tuple.record["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
             return ShoppingListItemsWrapper(localDb: !tuple.list.isRemote, shoppingList: tuple.list, record: tuple.record, items: items, ownerName: tuple.list.ownerName)
-        })
+		}).eraseToAnyPublisher()
     }
 
     private func updateItemRecord(record: CKRecord, item: ShoppingListItem) -> CKRecord {
@@ -115,20 +108,12 @@ class CloudShare {
         record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
         return record
     }
-    
-    private func zone(ownerName: String?) -> CKRecordZone {
-        if let ownerName = ownerName {
-            return CKRecordZone(zoneID: CKRecordZone.ID(zoneName: CloudKitUtils.zoneName, ownerName: ownerName))
-        } else {
-            return CKRecordZone(zoneName: CloudKitUtils.zoneName)
-        }
-    }
 
-    private func getListWrapper(list: ShoppingList) -> Observable<ShoppingListItemsWrapper> {
-        let recordZone = zone(ownerName: list.ownerName).zoneID
+    private func getListWrapper(list: ShoppingList) -> AnyPublisher<ShoppingListItemsWrapper, Error> {
+		let recordZone = CKRecordZone(ownerName: list.ownerName).zoneID
         if let recordName = list.recordid {
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-            return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).map({($0, list)}).flatMap(self.updateListWrapper)
+			return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).map({($0, list)}).flatMap(self.updateListWrapper).eraseToAnyPublisher()
         } else {
             let recordName = CKRecord.ID().recordName
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
@@ -137,59 +122,19 @@ class CloudShare {
             return updateListWrapper(tuple: (record, list))
         }
     }
-    
-    private func getItemsRecords(list: ShoppingList) -> Observable<CKRecord> {
-        return Observable<CKRecord>.create {[weak self] observer in
-            guard let self = self else { fatalError() }
-            let items = list.listItems
-            let locals = items.filter({$0.recordid == nil})
-            let shares = items.filter({$0.recordid != nil}).reduce(into: [String: ShoppingListItem](), {result, item in
-                if let recordId = item.recordid {
-                    result[recordId] = item
-                }
-            })
-            let listIsRemote = list.isRemote
-            let recordZone = self.zone(ownerName: list.ownerName).zoneID
-            for local in locals {
-                let recordName = CKRecord.ID().recordName
-                let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-                let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
-                local.setRecordId(recordId: recordName)
-                observer.onNext(self.updateItemRecord(record: record, item: local))
-            }
-            if shares.count > 0 {
-                let disposable = self.cloudKitUtils.fetchRecords(recordIds: shares.keys.map({CKRecord.ID(recordName: $0, zoneID: recordZone)}), localDb: !listIsRemote)
-                    .subscribe(onNext: {record in
-                    if let item = shares[record.recordID.recordName] {
-                        observer.onNext(self.updateItemRecord(record: record, item: item))
-                    }
-                }, onError: {error in
-                    observer.onError(error)
-                }, onCompleted: {
-                    observer.onCompleted()
-                })
-                return Disposables.create {
-                    disposable.dispose()
-                }
-            } else {
-                observer.onCompleted()
-                return Disposables.create()
-            }            
-        }
-    }
-    
-    private func updateRecord(wrapper: ShoppingListItemsWrapper) -> Observable<Void> {
+
+    private func updateRecord(wrapper: ShoppingListItemsWrapper) -> AnyPublisher<Void, Error> {
         if let shareRef = wrapper.record.share {
 			return cloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb)
 				.map({([wrapper.record, $0], wrapper.localDb)}).flatMap(updateRecords)
-				.map({(wrapper.items, wrapper.localDb)}).flatMap(updateRecords)
+				.map({(wrapper.items, wrapper.localDb)}).flatMap(updateRecords).eraseToAnyPublisher()
         } else {
             return cloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb)
-				.map({(wrapper.items, wrapper.localDb)}).flatMap(updateRecords)
+				.map({(wrapper.items, wrapper.localDb)}).flatMap(updateRecords).eraseToAnyPublisher()
         }
     }
 	
-	private func updateRecords(tuple: (records: [CKRecord], localDb: Bool)) -> Observable<Void> {
+	private func updateRecords(tuple: (records: [CKRecord], localDb: Bool)) -> AnyPublisher<Void, Error> {
 		return self.cloudKitUtils.updateRecords(records: tuple.records, localDb: tuple.localDb)
 	}
 }

@@ -10,18 +10,24 @@ import Foundation
 import CloudKit
 import SwiftyBeaver
 import RxSwift
+import Combine
 
 protocol CloudKitUtilsProtocol {
     func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> Observable<CKRecord>
+	func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> AnyPublisher<CKRecord, Error>
     func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> Observable<Void>
+	func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> AnyPublisher<Void, Error>
     func updateRecords(records: [CKRecord], localDb: Bool) -> Observable<Void>
+	func updateRecords(records: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error>
     func fetchDatabaseChanges(localDb: Bool) -> Observable<ZonesToFetchWrapper>
+	func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<ZonesToFetchWrapper, Error>
     func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> Observable<[CKRecord]>
+	func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> AnyPublisher<[CKRecord], Error>
 }
 
 class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
     
-    private static let retryQueue = DispatchQueue(label: "CloudKitUtils.retryQueue", attributes: .concurrent)
+    static let retryQueue = DispatchQueue(label: "CloudKitUtils.retryQueue", attributes: .concurrent)
     
     static let zoneName = "ShareZone"
     static let listRecordType = "ShoppingList"
@@ -66,6 +72,10 @@ class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
             return Disposables.create()
         }
     }
+
+	func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> AnyPublisher<CKRecord, Error> {
+		return CloudKitFetchRecordsPublisher(recordIds: recordIds, localDb: localDb).eraseToAnyPublisher()
+	}
 	
 	private func createUpdateSubscriptionsOperation(subscriptions: [CKSubscription], localDb: Bool, observer: AnyObserver<Void>) {
 		let operation = CKModifySubscriptionsOperation(subscriptionsToSave: subscriptions, subscriptionIDsToDelete: [])
@@ -89,6 +99,10 @@ class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
             return Disposables.create()
         }
     }
+
+	func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> AnyPublisher<Void, Error> {
+		return CloudKitUpdateSubscriptionsPublisher(subscriptions: subscriptions, localDb: localDb).eraseToAnyPublisher()
+	}
     	
 	private func createUpdateRecordsOperation(records: [CKRecord], localDb: Bool, observer: AnyObserver<Void>) {
 		let modifyOperation = CKModifyRecordsOperation(recordsToSave: records, recordIDsToDelete: nil)
@@ -125,6 +139,10 @@ class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
             return Disposables.create()
         }
     }
+
+	func updateRecords(records: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error> {
+		return CloudKitUpdateRecordsPublisher(records: records, localDb: localDb).eraseToAnyPublisher()
+	}
 	
 	private func createFetchDatabaseChangesOperation(loadedZoneIds: [CKRecordZone.ID], localDb: Bool, observer: AnyObserver<ZonesToFetchWrapper>) {
 		let operation = CKFetchDatabaseChangesOperation(previousServerChangeToken: self.storage.getDbToken(localDb: localDb))
@@ -178,6 +196,10 @@ class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
             return Disposables.create()
         }
     }
+
+	func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<ZonesToFetchWrapper, Error> {
+		return CloudKitFetchDatabaseChangesPublisher(localDb: localDb).eraseToAnyPublisher()
+	}
     	
 	private func zoneIdFetchOption(zoneId: CKRecordZone.ID, localDb: Bool) -> CKFetchRecordZoneChangesOperation.ZoneConfiguration {
 		let options = CKFetchRecordZoneChangesOperation.ZoneConfiguration()
@@ -246,5 +268,9 @@ class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
             }
             return Disposables.create()
         }
-    }    
+    }
+
+	func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> AnyPublisher<[CKRecord], Error> {
+		return CloudKitFetchZoneChangesPublisher(wrapper: wrapper).eraseToAnyPublisher()
+	}
 }

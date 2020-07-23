@@ -8,7 +8,7 @@
 
 import XCTest
 import CloudKit
-import RxBlocking
+import Combine
 
 //swiftlint:disable type_body_length file_length function_body_length cyclomatic_complexity
 class CloudShareOperationsUnitTests: XCTestCase {
@@ -86,7 +86,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			}
 		}
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-        let share = try self.cloudShare.shareList(list: shoppingList).toBlocking().first()!
+        let share = try self.cloudShare.shareList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
         XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
 		XCTAssertEqual(self.operations.localOperations.count, 2)
@@ -146,7 +146,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			}
 		}
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-        let share = try self.cloudShare.shareList(list: shoppingList).toBlocking().first()!
+        let share = try self.cloudShare.shareList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
         XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
 		XCTAssertEqual(self.operations.localOperations.count, 3)
@@ -202,7 +202,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			}
 		}
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
 		XCTAssertEqual(self.operations.localOperations.count, 2)
 		XCTAssertEqual(self.operations.sharedOperations.count, 0)
 	}
@@ -259,7 +259,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
 			}
 		}
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
 		XCTAssertEqual(self.operations.localOperations.count, 3)
 		XCTAssertEqual(self.operations.sharedOperations.count, 0)
 	}
@@ -349,7 +349,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
             shoppingList.listItems[0].recordid = "testItemRecord2"
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(self.operations.localOperations.count, 0)
 		XCTAssertEqual(self.operations.sharedOperations.count, 4)
     }
@@ -445,7 +445,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
             shoppingList.listItems[0].recordid = "testItemRecord2"
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(self.operations.localOperations.count, 0)
 		XCTAssertEqual(self.operations.sharedOperations.count, 6)
     }
@@ -546,7 +546,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
             shoppingList.listItems[0].recordid = "testItemRecord2"
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(self.operations.localOperations.count, 0)
 		XCTAssertEqual(self.operations.sharedOperations.count, 5)
     }
@@ -653,7 +653,7 @@ class CloudShareOperationsUnitTests: XCTestCase {
             shoppingList.listItems[0].recordid = "testItemRecord2"
             shoppingList.listItems[1].recordid = "testItemRecord1"
         }
-        _ = try self.cloudShare.updateList(list: shoppingList).toBlocking().first()!
+        _ = try self.cloudShare.updateList(list: shoppingList).getValue(test: self, timeout: 10)
         XCTAssertEqual(self.operations.localOperations.count, 0)
 		XCTAssertEqual(self.operations.sharedOperations.count, 7)
     }

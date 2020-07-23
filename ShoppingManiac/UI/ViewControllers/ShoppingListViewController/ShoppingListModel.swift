@@ -10,6 +10,7 @@ import Foundation
 import RxSwift
 import CoreStore
 import RxCocoa
+import Combine
 
 class ShoppingListModel {
     
@@ -17,6 +18,7 @@ class ShoppingListModel {
     let totalText = BehaviorRelay<String>(value: "")
     
     let disposeBag = DisposeBag()
+	var cancellables = Set<AnyCancellable>()
     weak var delegate: UpdateDelegate?
     
     var shoppingList: ShoppingList!
@@ -30,7 +32,7 @@ class ShoppingListModel {
         
     func syncWithCloud() {
         if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
-            self.cloudShare.updateList(list: self.shoppingList).subscribe().disposed(by: self.disposeBag)
+			self.cloudShare.updateList(list: self.shoppingList).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
         }
     }
     
