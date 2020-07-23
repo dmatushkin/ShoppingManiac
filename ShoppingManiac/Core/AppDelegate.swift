@@ -10,7 +10,6 @@ import UIKit
 import CoreStore
 import CloudKit
 import SwiftyBeaver
-import RxSwift
 import PKHUD
 import SwiftEntryKit
 import Combine
@@ -26,7 +25,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).first!
     }()
 
-    private let disposeBag = DisposeBag()
 	private var cancellables = Set<AnyCancellable>()
     private let cloudShare = CloudShare()
     private let cloudLoader = CloudLoader()

@@ -8,7 +8,6 @@
 
 import XCTest
 import CloudKit
-import RxBlocking
 import CoreStore
 
 //swiftlint:disable type_body_length file_length function_body_length cyclomatic_complexity

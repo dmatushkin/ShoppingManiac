@@ -8,8 +8,8 @@
 
 import XCTest
 import CloudKit
-import RxBlocking
 import CoreStore
+import Combine
 
 //swiftlint:disable type_body_length function_body_length superfluous_disable_command
 
