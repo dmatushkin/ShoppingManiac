@@ -7,19 +7,26 @@
 //
 
 import UIKit
-import RxSwift
 import PKHUD
+import Combine
 
 class FetchChangesViewController: UIViewController {
     
-    private let disposeBag = DisposeBag()
+	private var cancellables = Set<AnyCancellable>()
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     private let cloudLoader = CloudLoader()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.activityIndicator.startAnimating()
-        self.cloudLoader.fetchChanges(localDb: false).concat(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().subscribe(onError: self.hasError, onCompleted: self.proceed).disposed(by: self.disposeBag)
+		self.cloudLoader.fetchChanges(localDb: false).append(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().sink(receiveCompletion: {completion in
+			switch completion {
+			case .finished:
+				self.proceed()
+			case .failure(let error):
+				self.hasError(error: error)
+			}
+		}, receiveValue: {}).store(in: &self.cancellables)
     }
     
     private func proceed() {
@@ -28,6 +35,7 @@ class FetchChangesViewController: UIViewController {
     }
     
     private func hasError(error: Error) {
+		error.showError(title: "CloudKit update error")
         self.proceed()
     }
     

@@ -11,55 +11,48 @@ import CloudKit
 import CoreStore
 import SwiftyBeaver
 import RxSwift
+import Combine
 
 class CloudLoader {
 
 	@Autowired
     private var cloudKitUtils: CloudKitUtilsProtocol
         
-    func loadShare(metadata: CKShare.Metadata) -> Observable<ShoppingList> {
+    func loadShare(metadata: CKShare.Metadata) -> AnyPublisher<ShoppingList, Error> {
         return cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
             .map({RecordWrapper(record: $0, localDb: false, ownerName: metadata.rootRecordID.zoneID.ownerName)})
             .flatMap(storeListRecord)
             .flatMap(fetchListItems)
-            .flatMap(storeListItems)
+			.flatMap(storeListItems)
+			.eraseToAnyPublisher()
     }
     
-    private func storeListRecord(recordWrapper: RecordWrapper) -> Observable<ShoppingListWrapper> {
-        return Observable<ShoppingListWrapper>.create { observer in
-            CoreStoreDefaults.dataStack.perform(asynchronous: { (transaction) -> ShoppingList in
-                let shoppingList: ShoppingList = try transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", recordWrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
-                shoppingList.recordid = recordWrapper.record.recordID.recordName
-                shoppingList.ownerName = recordWrapper.ownerName
-                shoppingList.name = recordWrapper.record["name"] as? String
-                shoppingList.isRemote = !recordWrapper.localDb
-                shoppingList.isRemoved = recordWrapper.record["isRemoved"] as? Bool ?? false
-                let date = recordWrapper.record["date"] as? Date ?? Date()
-                shoppingList.date = date.timeIntervalSinceReferenceDate
-                SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name") record \(String(describing: recordWrapper.record))")
-                return shoppingList
-            }, completion: {result in
-                switch result {
-                case .success(let list):
-                    let items = recordWrapper.record["items"] as? [CKRecord.Reference] ?? []
-                    observer.onNext(ShoppingListWrapper(localDb: recordWrapper.localDb, record: recordWrapper.record, shoppingList: list, items: items, ownerName: recordWrapper.ownerName))
-                    observer.onCompleted()
-                case .failure(let error):
-                    SwiftyBeaver.debug(error.debugDescription)
-                    observer.onError(error)
-                }
-            })
-            return Disposables.create()
-        }
+    private func storeListRecord(recordWrapper: RecordWrapper) -> AnyPublisher<ShoppingListWrapper, Error> {
+		return CoreDataOperationPublisher(operation: {transaction -> ShoppingList in
+			let shoppingList: ShoppingList = try transaction.fetchOne(From<ShoppingList>().where(Where("recordid == %@", recordWrapper.record.recordID.recordName))) ?? transaction.create(Into<ShoppingList>())
+			shoppingList.recordid = recordWrapper.record.recordID.recordName
+			shoppingList.ownerName = recordWrapper.ownerName
+			shoppingList.name = recordWrapper.record["name"] as? String
+			shoppingList.isRemote = !recordWrapper.localDb
+			shoppingList.isRemoved = recordWrapper.record["isRemoved"] as? Bool ?? false
+			let date = recordWrapper.record["date"] as? Date ?? Date()
+			shoppingList.date = date.timeIntervalSinceReferenceDate
+			SwiftyBeaver.debug("got a list with name \(shoppingList.name ?? "no name") record \(String(describing: recordWrapper.record))")
+			return shoppingList
+		}).map({list in
+			let items = recordWrapper.record["items"] as? [CKRecord.Reference] ?? []
+			return ShoppingListWrapper(localDb: recordWrapper.localDb, record: recordWrapper.record, shoppingList: list, items: items, ownerName: recordWrapper.ownerName)
+		}).eraseToAnyPublisher()
     }
     
-    private func fetchListItems(wrapper: ShoppingListWrapper) -> Observable<ShoppingListItemsWrapper> {
-        return cloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).toArray().asObservable()
-            .map({ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: $0, ownerName: wrapper.ownerName)})
+    private func fetchListItems(wrapper: ShoppingListWrapper) -> AnyPublisher<ShoppingListItemsWrapper, Error> {
+        return cloudKitUtils.fetchRecords(recordIds: wrapper.items.map({$0.recordID}), localDb: wrapper.localDb).collect()
+			.map({ShoppingListItemsWrapper(localDb: wrapper.localDb, shoppingList: wrapper.shoppingList, record: wrapper.record, items: $0, ownerName: wrapper.ownerName)})
+			.eraseToAnyPublisher()
     }
 
-    private func storeListItems(wrapper: ShoppingListItemsWrapper) -> Observable<ShoppingList> {
-		return Observable<ShoppingList>.performCoreStore({transaction -> ShoppingList in
+    private func storeListItems(wrapper: ShoppingListItemsWrapper) -> AnyPublisher<ShoppingList, Error> {
+		return CoreDataOperationPublisher(operation: {transaction -> ShoppingList in
 			for record in wrapper.items {
 				let item: ShoppingListItem = try transaction.fetchOne(From<ShoppingListItem>().where(Where("recordid == %@", record.recordID.recordName))) ?? transaction.create(Into<ShoppingListItem>())
 				SwiftyBeaver.debug("loading item \(record["goodName"] as? String ?? "no name")")
@@ -88,29 +81,33 @@ class CloudLoader {
 				}
 			}
 			return wrapper.shoppingList
-		})
+		}).eraseToAnyPublisher()
     }
 
-    func fetchChanges(localDb: Bool) -> Observable<Void> {
+    func fetchChanges(localDb: Bool) -> AnyPublisher<Void, Error> {
         return cloudKitUtils.fetchDatabaseChanges(localDb: localDb)
 			.flatMap(cloudKitUtils.fetchZoneChanges).map({($0, localDb)}).flatMap(processChangesRecords)
+			.eraseToAnyPublisher()
     }
     
-	private func processChangesRecords(tuple: (records: [CKRecord], localDb: Bool)) -> Observable<Void> {
+	private func processChangesRecords(tuple: (records: [CKRecord], localDb: Bool)) -> AnyPublisher<Void, Error> {
 		if tuple.records.count > 0 {
 			let lists = tuple.records.filter({$0.recordType == CloudKitUtils.listRecordType}).map({processChangesList(listRecord: $0, allRecords: tuple.records, localDb: tuple.localDb)})
-            return Observable.merge(lists)
+			let firstList = lists[0].eraseToAnyPublisher()
+			return lists.dropFirst().reduce(firstList, {result, item in
+				return result.merge(with: item).eraseToAnyPublisher()
+			})
         } else {
-            return Observable<Void>.empty()
+			return Empty(completeImmediately: true, outputType: Void.self, failureType: Error.self).eraseToAnyPublisher()
         }
     }
     
-    private func processChangesList(listRecord: CKRecord, allRecords: [CKRecord], localDb: Bool) -> Observable<Void> {
+    private func processChangesList(listRecord: CKRecord, allRecords: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error> {
         let items = allRecords.filter({$0.recordType == CloudKitUtils.itemRecordType && $0.parent?.recordID.recordName == listRecord.recordID.recordName})
         let ownerName = listRecord.recordID.zoneID.ownerName
         let wrapper = RecordWrapper(record: listRecord, localDb: localDb, ownerName: ownerName)
         return storeListRecord(recordWrapper: wrapper)
             .map({ShoppingListItemsWrapper(localDb: localDb, shoppingList: $0.shoppingList, record: listRecord, items: items, ownerName: ownerName)})
-            .flatMap(storeListItems).flatMap({_ in Observable<Void>.empty()})
+			.flatMap(storeListItems).last().map({_ in ()}).eraseToAnyPublisher()
     }
 }

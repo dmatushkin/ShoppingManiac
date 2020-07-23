@@ -11,20 +11,33 @@ import Combine
 import CoreStore
 import CoreData
 
-struct CoreDataOperationPublisher<I, R>: Publisher {
+struct CoreDataOperationPublisher<R>: Publisher {
 
 	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == R, S.Failure == Error {
 
-		private let input: I
+		private let operation: (AsynchronousDataTransaction) throws -> R
 		private var subscriber: S?
 
-		init(input: I, subscriber: S) {
-			self.input = input
+		init(operation: @escaping (AsynchronousDataTransaction) throws -> R, subscriber: S) {
+			self.operation = operation
 			self.subscriber = subscriber
 		}
 
 		func request(_ demand: Subscribers.Demand) {
 			guard let subscriber = subscriber else { return }
+			CoreStoreDefaults.dataStack.perform(asynchronous: operation, completion: {result in
+				switch result {
+				case .success(let value):
+					if let coreDataObject = (value as? NSManagedObject).flatMap({ CoreStoreDefaults.dataStack.fetchExisting($0) }).flatMap({ $0 as? R }) {
+						_ = subscriber.receive(coreDataObject)
+					} else {
+						_ = subscriber.receive(value)
+					}
+					subscriber.receive(completion: .finished)
+				case .failure(let error):
+					subscriber.receive(completion: .failure(error))
+				}
+			})
 		}
 
 		func cancel() {
@@ -32,14 +45,14 @@ struct CoreDataOperationPublisher<I, R>: Publisher {
 		}
 	}
 
-	private let input: I
+	private let operation: (AsynchronousDataTransaction) throws -> R
 
-	init(input: I) {
-		self.input = input
+	init(operation: @escaping (AsynchronousDataTransaction) throws -> R) {
+		self.operation = operation
 	}
 
-	func receive<S>(subscriber: S) where S : Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
-		let subscription = CloudKitSubscription(input: input, subscriber: subscriber)
+	func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
+		let subscription = CloudKitSubscription(operation: operation, subscriber: subscriber)
 		subscriber.receive(subscription: subscription)
 	}
 

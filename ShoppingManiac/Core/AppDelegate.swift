@@ -13,6 +13,7 @@ import SwiftyBeaver
 import RxSwift
 import PKHUD
 import SwiftEntryKit
+import Combine
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -26,6 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
 
     private let disposeBag = DisposeBag()
+	private var cancellables = Set<AnyCancellable>()
     private let cloudShare = CloudShare()
     private let cloudLoader = CloudLoader()
     
@@ -51,14 +53,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-            self.cloudLoader.fetchChanges(localDb: false).concat(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().subscribe(onError: { error in
-                SwiftyBeaver.debug(error.localizedDescription)
-                completionHandler(.noData)
-            }, onCompleted: {
-                SwiftyBeaver.debug("loading updates done")
-                LocalNotifications.newDataAvailable.post(value: ())
-                completionHandler(.newData)
-            }).disposed(by: self.disposeBag)
+			self.cloudLoader.fetchChanges(localDb: false).append(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().sink(receiveCompletion: {completion in
+				switch completion {
+				case .finished:
+					SwiftyBeaver.debug("loading updates done")
+					LocalNotifications.newDataAvailable.post(value: ())
+					completionHandler(.newData)
+				case .failure(let error):
+					SwiftyBeaver.debug(error.localizedDescription)
+					completionHandler(.noData)
+				}
+			}, receiveValue: {}).store(in: &self.cancellables)
         } else {
             completionHandler(.noData)
         }
@@ -91,16 +96,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 DispatchQueue.main.async {
                     HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
                 }
-                self.cloudLoader.loadShare(metadata: metadata).observeOnMain().subscribe(onNext: {[weak self] list in
-                    HUD.hide()
+				self.cloudLoader.loadShare(metadata: metadata).observeOnMain().sink(receiveCompletion: {completion in
+					switch completion {
+					case .finished:
+						SwiftyBeaver.debug("loading lists done")
+						LocalNotifications.newDataAvailable.post(value: ())
+					case .failure(let error):
+						HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
+					}
+				}, receiveValue: {[weak self] list in
+					HUD.hide()
                     guard let list = CoreStoreDefaults.dataStack.fetchExisting(list) else { return }
                     self?.showList(list: list)
-                }, onError: {error in
-                    HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
-                }, onCompleted: {
-                    SwiftyBeaver.debug("loading lists done")
-                    LocalNotifications.newDataAvailable.post(value: ())
-                }).disposed(by: self.disposeBag)
+				}).store(in: &self.cancellables)
             }
         }
         CKContainer.default().add(operation)

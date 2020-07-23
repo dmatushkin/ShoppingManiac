@@ -66,7 +66,7 @@ class CloudLoaderUnitTests: XCTestCase {
                 return []
             }
         }
-        let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata).toBlocking().first()!
+		let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata).getValue(test: self, timeout: 10)
         let shoppingList = CoreStoreDefaults.dataStack.fetchExisting(shoppingListLink)!
         XCTAssertEqual(shoppingList.name, "Test Shopping List")
         XCTAssertEqual(shoppingList.ownerName, "testRecordOwner")
@@ -135,7 +135,7 @@ class CloudLoaderUnitTests: XCTestCase {
 			return [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22]
 		}
 		
-		_ = try self.cloudLoader.fetchChanges(localDb: true).toBlocking().first()
+		_ = try self.cloudLoader.fetchChanges(localDb: true).getValue(test: self, timeout: 10)
 		let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
 		let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
 		let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
@@ -203,7 +203,7 @@ class CloudLoaderUnitTests: XCTestCase {
 			return [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22]
 		}
 		
-		_ = try self.cloudLoader.fetchChanges(localDb: false).toBlocking().first()
+		_ = try self.cloudLoader.fetchChanges(localDb: false).getValue(test: self, timeout: 10)
 		let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
 		let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
 		let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
