@@ -19,7 +19,7 @@ class AddShoppingListViewController: ShoppingManiacViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-		self.shoppingNameEditField.textPublisher.bind(to: self.model.listTitle).store(in: &cancellables)
+		self.shoppingNameEditField.bind(to: self.model.listTitle, store: &cancellables)
         self.shoppingNameEditField.becomeFirstResponder()
     }
 

@@ -11,18 +11,15 @@ import Combine
 
 extension UITextField {
 
-	var textPublisher: AnyPublisher<String?, Never> {
-		return NotificationCenter.default.publisher(for: UITextField.textDidChangeNotification, object: self)
-			.compactMap({ $0.object as? UITextField })
-			.map({ $0.text })
-			.eraseToAnyPublisher()
-	}
+	func publisher(for events: UIControl.Event) -> AnyPublisher<UITextField, Never> {
+		return UIControlPublisher(control: self, events: events).eraseToAnyPublisher()
+    }
 
 	func bind(to subject: CurrentValueSubject<String?, Never>, store: inout Set<AnyCancellable>) {
 		self.text = subject.value
-		self.textPublisher.sink(receiveCompletion: {_ in }, receiveValue: { value in
-			if value != subject.value {
-				subject.send(value)
+		self.publisher(for: .editingChanged).sink(receiveCompletion: {_ in }, receiveValue: {field in
+			if field.text != subject.value {
+				subject.send(field.text)
 			}
 		}).store(in: &store)
 		subject.sink(receiveCompletion: {_ in }, receiveValue: { value in
