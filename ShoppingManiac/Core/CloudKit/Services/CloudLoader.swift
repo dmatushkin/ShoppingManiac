@@ -20,10 +20,13 @@ class CloudLoader {
     func loadShare(metadata: CKShare.Metadata) -> AnyPublisher<ShoppingList, Error> {
         return cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
             .map({RecordWrapper(record: $0, localDb: false, ownerName: metadata.rootRecordID.zoneID.ownerName)})
-            .flatMap(storeListRecord)
-            .flatMap(fetchListItems)
-			.flatMap(storeListItems)
-			.eraseToAnyPublisher()
+			.flatMap({[unowned self] wrapper in
+				return self.storeListRecord(recordWrapper: wrapper)
+			}).flatMap({[unowned self] wrapper in
+				return self.fetchListItems(wrapper: wrapper)
+			}).flatMap({[unowned self] wrapper in
+				return self.storeListItems(wrapper: wrapper)
+			}).eraseToAnyPublisher()
     }
     
     private func storeListRecord(recordWrapper: RecordWrapper) -> AnyPublisher<ShoppingListWrapper, Error> {
@@ -85,13 +88,17 @@ class CloudLoader {
 
     func fetchChanges(localDb: Bool) -> AnyPublisher<Void, Error> {
         return cloudKitUtils.fetchDatabaseChanges(localDb: localDb)
-			.flatMap(cloudKitUtils.fetchZoneChanges).map({($0, localDb)}).flatMap(processChangesRecords)
+			.flatMap({[unowned self] wrapper in
+				return self.cloudKitUtils.fetchZoneChanges(wrapper: wrapper)
+			}).flatMap({[unowned self] records in
+				self.processChangesRecords(records: records, localDb: localDb)
+			})
 			.eraseToAnyPublisher()
     }
     
-	private func processChangesRecords(tuple: (records: [CKRecord], localDb: Bool)) -> AnyPublisher<Void, Error> {
-		if tuple.records.count > 0 {
-			let lists = tuple.records.filter({$0.recordType == CloudKitUtils.listRecordType}).map({processChangesList(listRecord: $0, allRecords: tuple.records, localDb: tuple.localDb)})
+	private func processChangesRecords(records: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error> {
+		if records.count > 0 {
+			let lists = records.filter({$0.recordType == CloudKitUtils.listRecordType}).map({processChangesList(listRecord: $0, allRecords: records, localDb: localDb)})
 			let firstList = lists[0].eraseToAnyPublisher()
 			return lists.dropFirst().reduce(firstList, {result, item in
 				return result.merge(with: item).eraseToAnyPublisher()
@@ -107,6 +114,8 @@ class CloudLoader {
         let wrapper = RecordWrapper(record: listRecord, localDb: localDb, ownerName: ownerName)
         return storeListRecord(recordWrapper: wrapper)
             .map({ShoppingListItemsWrapper(localDb: localDb, shoppingList: $0.shoppingList, record: listRecord, items: items, ownerName: ownerName)})
-			.flatMap(storeListItems).last().map({_ in ()}).eraseToAnyPublisher()
+			.flatMap({[unowned self] wrapper in
+				self.storeListItems(wrapper: wrapper)
+			}).last().map({_ in ()}).eraseToAnyPublisher()
     }
 }

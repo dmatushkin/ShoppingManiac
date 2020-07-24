@@ -25,7 +25,9 @@ struct CoreDataOperationPublisher<R>: Publisher {
 
 		func request(_ demand: Subscribers.Demand) {
 			guard let subscriber = subscriber else { return }
-			CoreStoreDefaults.dataStack.perform(asynchronous: operation, completion: {result in
+			CoreStoreDefaults.dataStack.perform(asynchronous: {[unowned self] transaction in
+				return try self.operation(transaction)
+			}, completion: {result in
 				switch result {
 				case .success(let value):
 					if let coreDataObject = (value as? NSManagedObject).flatMap({ CoreStoreDefaults.dataStack.fetchExisting($0) }).flatMap({ $0 as? R }) {

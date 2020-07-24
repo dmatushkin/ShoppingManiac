@@ -42,8 +42,12 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         self.autocompleteTable.layer.borderColor = UIColor.gray.cgColor
         self.autocompleteTable.layer.borderWidth = 1
         self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
-		LocalNotifications.keyboardWillChangeFrame.listen().sink(receiveCompletion: {_ in }, receiveValue: self.setBottomOffset).store(in: &cancellables)
-		LocalNotifications.keyboardWillHide.listen().map({_ in UIKeyboardInfo(info: [:])}).sink(receiveCompletion: {_ in }, receiveValue: self.setBottomOffset).store(in: &cancellables)
+		LocalNotifications.keyboardWillChangeFrame.listen().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] value in
+			self?.setBottomOffset(keyboardInfo: value)
+		}).store(in: &cancellables)
+		LocalNotifications.keyboardWillHide.listen().map({_ in UIKeyboardInfo(info: [:])}).sink(receiveCompletion: {_ in }, receiveValue: {[weak self] value in
+			self?.setBottomOffset(keyboardInfo: value)
+		}).store(in: &cancellables)
     }
 
     private func item(forIndexPath indexPath: IndexPath) -> String {

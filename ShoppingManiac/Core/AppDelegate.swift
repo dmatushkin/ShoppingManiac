@@ -26,9 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
 
 	private var cancellables = Set<AnyCancellable>()
-    private let cloudShare = CloudShare()
-    private let cloudLoader = CloudLoader()
-    
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.registerForRemoteNotifications()
 		DIProvider.shared
@@ -43,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
         _ = try? CoreStoreDefaults.dataStack.addStorageAndWait(store)
-        self.cloudShare.setupUserPermissions()        
+        CloudShare.setupUserPermissions()
         CloudSubscriptions.setupSubscriptions()
         return true
     }
@@ -51,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-			self.cloudLoader.fetchChanges(localDb: false).append(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().sink(receiveCompletion: {completion in
+			CloudLoader().fetchChanges(localDb: false).append(CloudLoader().fetchChanges(localDb: true)).observeOnMain().sink(receiveCompletion: {completion in
 				switch completion {
 				case .finished:
 					SwiftyBeaver.debug("loading updates done")
@@ -94,7 +92,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 DispatchQueue.main.async {
                     HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
                 }
-				self.cloudLoader.loadShare(metadata: metadata).observeOnMain().sink(receiveCompletion: {completion in
+				CloudLoader().loadShare(metadata: metadata).observeOnMain().sink(receiveCompletion: {completion in
 					switch completion {
 					case .finished:
 						SwiftyBeaver.debug("loading lists done")

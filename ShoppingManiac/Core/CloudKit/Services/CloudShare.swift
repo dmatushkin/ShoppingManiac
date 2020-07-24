@@ -28,25 +28,25 @@ class CloudShare {
 	@Autowired
     private var cloudKitUtils: CloudKitUtilsProtocol
 
-    func setupUserPermissions() {
+    class func setupUserPermissions() {
         CKContainer.default().accountStatus { (status, error) in
             if let error = error {
                 SwiftyBeaver.debug("CloudKit account error \(error)")
             } else if status == .available {
-                CKContainer.default().status(forApplicationPermission: .userDiscoverability, completionHandler: {[weak self] (status, error) in
+                CKContainer.default().status(forApplicationPermission: .userDiscoverability, completionHandler: { (status, error) in
                     if let error = error {
                         SwiftyBeaver.debug("CloudKit discoverability status error \(error)")
                     } else if status == .granted {
                         AppDelegate.discoverabilityStatus = true
-                        self?.createZone()
+                        CloudShare.createZone()
                         SwiftyBeaver.debug("CloudKit discoverability status ok")
                     } else if status == .initialState {
-                        CKContainer.default().requestApplicationPermission(.userDiscoverability, completionHandler: {[weak self] (status, error) in
+                        CKContainer.default().requestApplicationPermission(.userDiscoverability, completionHandler: { (status, error) in
                             if let error = error {
                                 SwiftyBeaver.debug("CloudKit discoverability status error \(error)")
                             } else if status == .granted {
                                 AppDelegate.discoverabilityStatus = true
-                                self?.createZone()
+								CloudShare.createZone()
                                 SwiftyBeaver.debug("CloudKit discoverability status ok")
                             } else {
                                 SwiftyBeaver.debug("CloudKit discoverability status incorrect")
@@ -63,18 +63,18 @@ class CloudShare {
     }
 
     func shareList(list: ShoppingList) -> AnyPublisher<CKShare, Error> {
-		return getListWrapper(list: list).flatMap(createShare).eraseToAnyPublisher()
+		return getListWrapper(list: list).flatMap({ wrapper in
+			return CloudKitCreateSharePublisher(wrapper: wrapper).eraseToAnyPublisher()
+		}).eraseToAnyPublisher()
     }
 
     func updateList(list: ShoppingList) -> AnyPublisher<Void, Error> {
-		return getListWrapper(list: list).flatMap(updateRecord).eraseToAnyPublisher()
+		return getListWrapper(list: list).flatMap({[unowned self] wrapper in
+			return self.updateRecord(wrapper: wrapper)
+		}).eraseToAnyPublisher()
     }
-    
-    private func createShare(wrapper: ShoppingListItemsWrapper) -> AnyPublisher<CKShare, Error> {
-		return CloudKitCreateSharePublisher(wrapper: wrapper).eraseToAnyPublisher()
-    }
-    
-    private func createZone() {
+
+    private class func createZone() {
         let recordZone = CKRecordZone(zoneName: CloudKitUtils.zoneName)
         CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
             if let error = error {
@@ -83,58 +83,49 @@ class CloudShare {
         }
     }
 
-	private func updateListWrapper(tuple: (record: CKRecord, list: ShoppingList)) -> AnyPublisher<ShoppingListItemsWrapper, Error> {
-		return CloudKitShoppingListItemsPublisher(list: tuple.list).collect().map({items in
+	private func updateListWrapper(record: CKRecord, list: ShoppingList) -> AnyPublisher<ShoppingListItemsWrapper, Error> {
+		return CloudKitShoppingListItemsPublisher(list: list).collect().map({items in
             for item in items {
-                item.setParent(tuple.record)
+                item.setParent(record)
             }
-            tuple.record["name"] = (tuple.list.name ?? "") as CKRecordValue
-            tuple.record["date"] = Date(timeIntervalSinceReferenceDate: tuple.list.date) as CKRecordValue
-            tuple.record["isRemoved"] = tuple.list.isRemoved as CKRecordValue
-            tuple.record["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
-            return ShoppingListItemsWrapper(localDb: !tuple.list.isRemote, shoppingList: tuple.list, record: tuple.record, items: items, ownerName: tuple.list.ownerName)
+            record["name"] = (list.name ?? "") as CKRecordValue
+            record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
+            record["isRemoved"] = list.isRemoved as CKRecordValue
+            record["items"] = items.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
+            return ShoppingListItemsWrapper(localDb: !list.isRemote, shoppingList: list, record: record, items: items, ownerName: list.ownerName)
 		}).eraseToAnyPublisher()
-    }
-
-    private func updateItemRecord(record: CKRecord, item: ShoppingListItem) -> CKRecord {
-        record["comment"] = (item.comment ?? "") as CKRecordValue
-        record["goodName"] = (item.good?.name ?? "") as CKRecordValue
-        record["isWeight"] = item.isWeight as CKRecordValue
-        record["price"] = item.price as CKRecordValue
-        record["purchased"] = item.purchased as CKRecordValue
-        record["quantity"] = item.quantity as CKRecordValue
-        record["storeName"] = (item.store?.name ?? "") as CKRecordValue
-        record["isRemoved"] = item.isRemoved as CKRecordValue
-        record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
-        return record
     }
 
     private func getListWrapper(list: ShoppingList) -> AnyPublisher<ShoppingListItemsWrapper, Error> {
 		let recordZone = CKRecordZone(ownerName: list.ownerName).zoneID
         if let recordName = list.recordid {
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
-			return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).map({($0, list)}).flatMap(self.updateListWrapper).eraseToAnyPublisher()
+			return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !list.isRemote).flatMap({[unowned self] record in
+				return self.updateListWrapper(record: record, list: list)
+			}).eraseToAnyPublisher()
         } else {
             let recordName = CKRecord.ID().recordName
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
             let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
             list.setRecordId(recordId: recordName)
-            return updateListWrapper(tuple: (record, list))
+			return updateListWrapper(record: record, list: list)
         }
     }
 
     private func updateRecord(wrapper: ShoppingListItemsWrapper) -> AnyPublisher<Void, Error> {
         if let shareRef = wrapper.record.share {
 			return cloudKitUtils.fetchRecords(recordIds: [shareRef.recordID], localDb: wrapper.localDb)
-				.map({([wrapper.record, $0], wrapper.localDb)}).flatMap(updateRecords)
-				.map({(wrapper.items, wrapper.localDb)}).flatMap(updateRecords).eraseToAnyPublisher()
+				.flatMap({[unowned self] record in
+					return self.cloudKitUtils.updateRecords(records: [wrapper.record, record], localDb: wrapper.localDb)
+				})
+				.flatMap({[unowned self] _ in
+					return self.cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb)
+				}).eraseToAnyPublisher()
         } else {
             return cloudKitUtils.updateRecords(records: [wrapper.record], localDb: wrapper.localDb)
-				.map({(wrapper.items, wrapper.localDb)}).flatMap(updateRecords).eraseToAnyPublisher()
+				.flatMap({[unowned self] _ in
+					return self.cloudKitUtils.updateRecords(records: wrapper.items, localDb: wrapper.localDb)
+				}).eraseToAnyPublisher()
         }
     }
-	
-	private func updateRecords(tuple: (records: [CKRecord], localDb: Bool)) -> AnyPublisher<Void, Error> {
-		return self.cloudKitUtils.updateRecords(records: tuple.records, localDb: tuple.localDb)
-	}
 }

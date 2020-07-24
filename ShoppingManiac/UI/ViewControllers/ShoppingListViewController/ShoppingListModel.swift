@@ -22,7 +22,9 @@ class ShoppingListModel {
     var shoppingGroups: [ShoppingGroup] = []
     
     init() {
-        LocalNotifications.newDataAvailable.listen().sink(receiveCompletion: {_ in }, receiveValue: self.reloadData).store(in: &cancellables)
+        LocalNotifications.newDataAvailable.listen().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
+			self?.reloadData()
+		}).store(in: &cancellables)
     }
         
     func syncWithCloud() {
@@ -65,8 +67,10 @@ class ShoppingListModel {
     }
     
     func reloadData() {
-        CoreStoreDefaults.dataStack.perform(asynchronous: self.processData, completion: {[weak self] _ in
-            self?.delegate?.reloadData()
+        CoreStoreDefaults.dataStack.perform(asynchronous: {[unowned self] transaction in
+			return try self.processData(transaction: transaction)
+		}, completion: {[unowned self] _ in
+            self.delegate?.reloadData()
         })
     }
     
