@@ -38,15 +38,6 @@
         }
       },
       {
-        "package": "RxSwift",
-        "repositoryURL": "https://github.com/ReactiveX/RxSwift",
-        "state": {
-          "branch": "master",
-          "revision": "a580d07ed002217fd91d8446c3a852486e9beefa",
-          "version": null
-        }
-      },
-      {
         "package": "SwiftDate",
         "repositoryURL": "https://github.com/malcommac/SwiftDate",
         "state": {

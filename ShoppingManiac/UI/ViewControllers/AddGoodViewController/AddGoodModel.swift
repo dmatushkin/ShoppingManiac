@@ -7,34 +7,31 @@
 //
 
 import Foundation
-import RxSwift
-import RxCocoa
 import CoreStore
 import CoreData
+import Combine
 
 class AddGoodModel {
-    
+
     var good: Good?
     var category: Category? = nil {
         didSet {
-            self.goodCategory.accept(category?.name ?? "")
+            self.goodCategory.send(category?.name ?? "")
         }
     }
     
-    let disposeBag = DisposeBag()
-    
-    let goodName = BehaviorRelay<String>(value: "")
-    let goodCategory = BehaviorRelay<String>(value: "")
-    let rating = BehaviorRelay<Int>(value: 0)
+    let goodName = CurrentValueSubject<String?, Never>("")
+    let goodCategory = CurrentValueSubject<String?, Never>("")
+    let rating = CurrentValueSubject<Int, Never>(0)
     
     func applyData() {
-        self.goodName.accept(self.good?.name ?? "")
-        self.goodCategory.accept(self.good?.category?.name ?? "")
+        self.goodName.send(self.good?.name ?? "")
+        self.goodCategory.send(self.good?.category?.name ?? "")
         self.category = good?.category
-        self.rating.accept(Int(good?.personalRating ?? 0))
+        self.rating.send(Int(good?.personalRating ?? 0))
     }
     
-	func persistChangesAsync() -> Observable<Void> {
+	func persistChangesAsync() -> AnyPublisher<Void, Error> {
 		if let good = self.good {
 			return self.updateItemAsync(item: good, withName: self.goodName.value)
 		} else {
@@ -42,22 +39,24 @@ class AddGoodModel {
 		}
 	}
 
-	private func createItemAsync(withName name: String) -> Observable<Void> {
-		Observable<Void>.performCoreStore {transaction -> Void in
+	private func createItemAsync(withName name: String?) -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {[weak self] transaction -> Void in
+			guard let self = self else { return }
 			let item = transaction.create(Into<Good>())
             item.name = name
             item.category = transaction.edit(self.category)
             item.personalRating = Int16(self.rating.value)
-		}
+			}).eraseToAnyPublisher()
 	}
 
-	private func updateItemAsync(item: Good, withName name: String) -> Observable<Void> {
-		Observable<Void>.performCoreStore({transaction -> Void in
+	private func updateItemAsync(item: Good, withName name: String?) -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {[weak self] transaction -> Void in
+			guard let self = self else { return }
 			let item = transaction.edit(item)
             item?.name = name
             item?.category = transaction.edit(self.category)
             item?.personalRating = Int16(self.rating.value)
-		})
+		}).eraseToAnyPublisher()
 	}
 
     func categoriesCount() -> Int {

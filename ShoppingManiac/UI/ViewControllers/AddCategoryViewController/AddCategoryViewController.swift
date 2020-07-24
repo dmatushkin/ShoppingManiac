@@ -8,31 +8,35 @@
 
 import UIKit
 import CoreStore
-import RxSwift
+import Combine
 
 class AddCategoryViewController: ShoppingManiacViewController {
 
     @IBOutlet private weak var categoryNameEditField: UITextField!
     
     let model = AddCategoryModel()
-	private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        (self.categoryNameEditField.rx.text.orEmpty <-> self.model.categoryName).disposed(by: self.model.disposeBag)
+		self.categoryNameEditField.bind(to: self.model.categoryName, store: &self.model.cancellables)
         self.categoryNameEditField.becomeFirstResponder()
         self.model.applyData()
     }
 
 	@IBAction private func saveAction() {
-		guard self.model.categoryName.value.count > 0 else {
+		guard let value = self.model.categoryName.value, value.count > 0 else {
 			CommonError(description: "Category name should not be empty").showError(title: "Unable to create category")
 			return
 		}
-		self.model.persistDataAsync().observeOnMain().subscribe(onNext: {[weak self] in
-			self?.performSegue(withIdentifier: "addCategorySaveSegue", sender: nil)
-			}, onError: {error in
+		self.model.persistDataAsync().observeOnMain().sink(receiveCompletion: {completion in
+			switch completion {
+			case .finished:
+				break
+			case .failure(let error):
 				error.showError(title: "Unable to create category")
-		}).disposed(by: self.disposeBag)
+			}
+		}, receiveValue: {[weak self] in
+			self?.performSegue(withIdentifier: "addCategorySaveSegue", sender: nil)
+		}).store(in: &self.model.cancellables)
 	}
 }

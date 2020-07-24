@@ -8,19 +8,19 @@
 
 import Foundation
 import CoreStore
-import RxSwift
-import RxCocoa
+import Combine
 
 class AddShoppingListModel {
     
-    let listTitle = BehaviorRelay<String>(value: "")
+	let listTitle = CurrentValueSubject<String?, Never>("")
     
-	func createItemAsync() -> Observable<ShoppingList> {
-		return Observable<ShoppingList>.performCoreStore({transaction -> ShoppingList in
+	func createItemAsync() -> AnyPublisher<ShoppingList, Error> {
+		return CoreDataOperationPublisher(operation: {[weak self] transaction -> ShoppingList in
+			guard let self = self else { fatalError() }
 			let item = transaction.create(Into<ShoppingList>())
 			item.name = self.listTitle.value
 			item.date = Date().timeIntervalSinceReferenceDate
 			return item
-		})
+		}).eraseToAnyPublisher()
 	}
 }

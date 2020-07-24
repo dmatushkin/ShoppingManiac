@@ -9,7 +9,6 @@
 import Foundation
 import CoreData
 import CoreStore
-import RxSwift
 
 class GroupItem {
     let objectId: NSManagedObjectID

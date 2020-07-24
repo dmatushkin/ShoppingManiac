@@ -14,4 +14,10 @@ extension Publisher {
 	func observeOnMain() ->  AnyPublisher<Self.Output, Self.Failure> {
 		return receive(on: DispatchQueue.main).eraseToAnyPublisher()
 	}
+
+	func bind<S>(to subject: S) -> AnyCancellable where S: Subject, S.Output == Self.Output {
+		return self.sink(receiveCompletion: {_ in }, receiveValue: { value in
+			subject.send(value)
+		})
+	}
 }

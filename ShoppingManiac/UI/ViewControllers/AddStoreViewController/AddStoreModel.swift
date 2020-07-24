@@ -7,23 +7,22 @@
 //
 
 import Foundation
-import RxSwift
-import RxCocoa
+import Combine
 import CoreStore
 
 class AddStoreModel {
     
     var store: Store?
     
-    let disposeBag = DisposeBag()
+    var cancellables = Set<AnyCancellable>()
     
-    let storeName = BehaviorRelay<String>(value: "")
+    let storeName = CurrentValueSubject<String?, Never>("")
     
     func applyData() {
-        self.storeName.accept(self.store?.name ?? "") 
+        self.storeName.send(self.store?.name ?? "")
     }
     
-	func persistDataAsync() -> Observable<Void> {
+	func persistDataAsync() -> AnyPublisher<Void, Error> {
 		if let store = self.store {
 			return self.updateItemAssync(item: store, withName: self.storeName.value)
 		} else {
@@ -31,17 +30,17 @@ class AddStoreModel {
 		}
 	}
 
-	func createItemAsync(withName name: String) -> Observable<Void> {
-		return Observable<Void>.performCoreStore({transaction -> Void in
+	func createItemAsync(withName name: String?) -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {transaction -> Void in
 			let item = transaction.create(Into<Store>())
             item.name = name
-		})
+		}).eraseToAnyPublisher()
 	}
 
-	func updateItemAssync(item: Store, withName name: String) -> Observable<Void> {
-		return Observable<Void>.performCoreStore({transaction -> Void in
+	func updateItemAssync(item: Store, withName name: String?) -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {transaction -> Void in
 			let item = transaction.edit(item)
             item?.name = name
-		})
+		}).eraseToAnyPublisher()
 	}
 }

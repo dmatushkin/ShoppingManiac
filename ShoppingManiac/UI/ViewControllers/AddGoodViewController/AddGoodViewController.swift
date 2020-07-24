@@ -8,8 +8,7 @@
 
 import UIKit
 import CoreStore
-import RxSwift
-import RxCocoa
+import Combine
 
 class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -26,18 +25,18 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
     private var stars: [UIButton] = []
     
     let model = AddGoodModel()
-	private let disposeBag = DisposeBag()
+	private var cancellables = Set<AnyCancellable>()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.stars = [self.ratingStar1Button, self.ratingStar2Button, self.ratingStar3Button, self.ratingStar4Button, self.ratingStar5Button]
-        (self.goodNameEditField.rx.text.orEmpty <-> self.model.goodName).disposed(by: self.model.disposeBag)
-        self.model.goodCategory.asObservable().bind(to: self.goodCategoryEditField.rx.text).disposed(by: self.model.disposeBag)
-        self.ratingStar1Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        self.ratingStar2Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        self.ratingStar3Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        self.ratingStar4Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        self.ratingStar5Button.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
+		self.goodNameEditField.bind(to: self.model.goodName, store: &cancellables)
+		self.goodCategoryEditField.bind(to: self.model.goodCategory, store: &cancellables)
+        self.ratingStar1Button.tagRatingBinding(variable: self.model.rating, store: &cancellables)
+        self.ratingStar2Button.tagRatingBinding(variable: self.model.rating, store: &cancellables)
+        self.ratingStar3Button.tagRatingBinding(variable: self.model.rating, store: &cancellables)
+        self.ratingStar4Button.tagRatingBinding(variable: self.model.rating, store: &cancellables)
+        self.ratingStar5Button.tagRatingBinding(variable: self.model.rating, store: &cancellables)
         self.goodNameEditField.becomeFirstResponder()
         self.goodCategoryEditField.inputView = self.categorySelectionPanel
         self.model.applyData()
@@ -53,15 +52,20 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
     }
 
 	@IBAction private func saveAction() {
-		guard self.model.goodName.value.count > 0 else {
+		guard let value = self.model.goodName.value, value.count > 0 else {
 			CommonError(description: "Good name should not be empty").showError(title: "Unable to create good")
 			return
 		}
-		self.model.persistChangesAsync().observeOnMain().subscribe(onNext: {[weak self] in
+		self.model.persistChangesAsync().observeOnMain().sink(receiveCompletion: { completion in
+			switch completion {
+			case .finished:
+				break
+			case .failure(let error):
+				error.showError(title: "Unable to create good")
+			}
+		}, receiveValue: {[weak self] in
 			self?.performSegue(withIdentifier: "addGoodSaveSegue", sender: nil)
-		}, onError: {error in
-			error.showError(title: "Unable to create good")
-		}).disposed(by: self.disposeBag)
+		}).store(in: &cancellables)
 	}
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

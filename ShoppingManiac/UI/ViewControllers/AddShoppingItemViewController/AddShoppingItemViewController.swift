@@ -8,8 +8,7 @@
 
 import UIKit
 import CoreStore
-import RxSwift
-import RxCocoa
+import Combine
 
 class AddShoppingItemViewController: ShoppingManiacViewController {
 
@@ -26,21 +25,20 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
     @IBOutlet private weak var crossListItemSwitch: UISwitch!
     
     let model = AddShoppingListItemModel()
-	private let disposeBag = DisposeBag()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        (self.nameEditField.rx.text.orEmpty <-> self.model.itemName).disposed(by: self.model.disposeBag)
-        (self.storeEditField.rx.text.orEmpty <-> self.model.storeName).disposed(by: self.model.disposeBag)
-        (self.amountEditField.rx.text.orEmpty <-> self.model.amountText).disposed(by: self.model.disposeBag)
-        (self.priceEditField.rx.text.orEmpty <-> self.model.priceText).disposed(by: self.model.disposeBag)
-        (self.weightSwitch.rx.isOn <-> self.model.isWeight).disposed(by: self.model.disposeBag)
-        self.starButton1.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        self.starButton2.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        self.starButton3.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        self.starButton4.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        self.starButton5.tagRatingBinding(variable: self.model.rating).disposed(by: self.model.disposeBag)
-        (self.crossListItemSwitch.rx.isOn <-> self.model.crossListItem).disposed(by: self.model.disposeBag)
+		self.nameEditField.bind(to: model.itemName, store: &model.cancellables)
+		self.storeEditField.bind(to: model.storeName, store: &model.cancellables)
+		self.amountEditField.bind(to: model.amountText, store: &model.cancellables)
+		self.priceEditField.bind(to: model.priceText, store: &model.cancellables)
+		self.weightSwitch.bind(to: self.model.isWeight, store: &model.cancellables)
+		self.starButton1.tagRatingBinding(variable: self.model.rating, store: &model.cancellables)
+        self.starButton2.tagRatingBinding(variable: self.model.rating, store: &model.cancellables)
+        self.starButton3.tagRatingBinding(variable: self.model.rating, store: &model.cancellables)
+        self.starButton4.tagRatingBinding(variable: self.model.rating, store: &model.cancellables)
+        self.starButton5.tagRatingBinding(variable: self.model.rating, store: &model.cancellables)
+		self.crossListItemSwitch.bind(to: self.model.crossListItem, store: &model.cancellables)
         self.nameEditField.autocompleteStrings = self.model.listAllGoods()
         self.storeEditField.autocompleteStrings = self.model.listAllStores()
         
@@ -49,14 +47,19 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
     }
 
 	@IBAction private func saveAction(sender: UIButton) {
-		guard self.model.itemName.value.count > 0 else {
+		guard let value = self.model.itemName.value, value.count > 0 else {
 			CommonError(description: "Item name should not be empty").showError(title: "Unable to create item")
 			return
 		}
-		self.model.persistDataAsync().observeOnMain().subscribe(onNext: {[weak self] in
+		self.model.persistDataAsync().observeOnMain().sink(receiveCompletion: {completion in
+			switch completion {
+			case .finished:
+				break
+			case .failure(let error):
+				error.showError(title: "Unable to create item")
+			}
+		}, receiveValue: {[weak self] in
 			self?.performSegue(withIdentifier: "addShoppingItemSaveSegue", sender: nil)
-		}, onError: { error in
-			error.showError(title: "Unable to create item")
-		}).disposed(by: self.disposeBag)
+		}).store(in: &self.model.cancellables)
 	}
 }

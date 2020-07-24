@@ -7,8 +7,7 @@
 //
 
 import Foundation
-import RxSwift
-import RxCocoa
+import Combine
 import CoreStore
 
 class AddShoppingListItemModel {
@@ -16,15 +15,15 @@ class AddShoppingListItemModel {
     var shoppingListItem: ShoppingListItem?
     var shoppingList: ShoppingList!
     
-    let disposeBag = DisposeBag()
+    var cancellables = Set<AnyCancellable>()
     
-    let itemName = BehaviorRelay<String>(value: "")
-    let storeName = BehaviorRelay<String>(value: "")
-    let priceText = BehaviorRelay<String>(value: "")
-    let amountText = BehaviorRelay<String>(value: "")
-    let isWeight = BehaviorRelay<Bool>(value: false)
-    let rating = BehaviorRelay<Int>(value: 0)
-    let crossListItem = BehaviorRelay<Bool>(value: false)
+    let itemName = CurrentValueSubject<String?, Never>("")
+    let storeName = CurrentValueSubject<String?, Never>("")
+    let priceText = CurrentValueSubject<String?, Never>("")
+    let amountText = CurrentValueSubject<String?, Never>("")
+    let isWeight = CurrentValueSubject<Bool, Never>(false)
+    let rating = CurrentValueSubject<Int, Never>(0)
+    let crossListItem = CurrentValueSubject<Bool, Never>(false)
     
     func listAllGoods() -> [String] {
         return (try? CoreStoreDefaults.dataStack.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
@@ -35,37 +34,37 @@ class AddShoppingListItemModel {
     }
     
     func applyData() {
-        self.itemName.accept(self.shoppingListItem?.good?.name ?? "")
-        self.storeName.accept(self.shoppingListItem?.store?.name ?? "")
+        self.itemName.send(self.shoppingListItem?.good?.name ?? "")
+        self.storeName.send(self.shoppingListItem?.store?.name ?? "")
         if let price = self.shoppingListItem?.price, price > 0 {
-            self.priceText.accept("\(price)")
+            self.priceText.send("\(price)")
         }
         if let amount = self.shoppingListItem?.quantityText {
-            self.amountText.accept(amount)
+            self.amountText.send(amount)
         }
-        self.isWeight.accept((self.shoppingListItem?.isWeight == true))
-        self.rating.accept(Int(self.shoppingListItem?.good?.personalRating ?? 0))
-        self.crossListItem.accept(self.shoppingListItem?.isCrossListItem ?? false)
+        self.isWeight.send((self.shoppingListItem?.isWeight == true))
+        self.rating.send(Int(self.shoppingListItem?.good?.personalRating ?? 0))
+        self.crossListItem.send(self.shoppingListItem?.isCrossListItem ?? false)
     }
     
-	func persistDataAsync() -> Observable<Void> {
-		return Observable<Void>.performCoreStore({transaction -> Void in
+	func persistDataAsync() -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {transaction -> Void in
 			let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
-			item?.good = try Good.item(forName: self.itemName.value, inTransaction: transaction)
+			item?.good = try Good.item(forName: self.itemName.value ?? "", inTransaction: transaction)
 			item?.isWeight = self.isWeight.value
 			item?.good?.personalRating = Int16(self.rating.value)
-			if self.storeName.value.count > 0 {
-				item?.store = try Store.item(forName: self.storeName.value, inTransaction: transaction)
-			} else {
+			if self.storeName.value?.isEmpty ?? true {
 				item?.store = nil
+			} else {
+				item?.store = try Store.item(forName: self.storeName.value ?? "", inTransaction: transaction)
 			}
-			let amount = self.amountText.value.replacingOccurrences(of: ",", with: ".")
+			let amount = self.amountText.value?.replacingOccurrences(of: ",", with: ".") ?? ""
 			if amount.count > 0, let value = Float(amount) {
 				item?.quantity = value
 			} else {
 				item?.quantity = 1
 			}
-			let price = self.priceText.value.replacingOccurrences(of: ",", with: ".")
+			let price = self.priceText.value?.replacingOccurrences(of: ",", with: ".") ?? ""
 			if price.count > 0, let value = Float(price) {
 				item?.price = value
 			} else {
@@ -73,6 +72,6 @@ class AddShoppingListItemModel {
 			}
 			item?.isCrossListItem = self.crossListItem.value
 			item?.list = transaction.edit(self.shoppingList)
-		})
+		}).eraseToAnyPublisher()
 	}
 }

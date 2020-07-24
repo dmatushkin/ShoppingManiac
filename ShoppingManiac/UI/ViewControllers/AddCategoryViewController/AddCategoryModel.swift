@@ -7,23 +7,22 @@
 //
 
 import Foundation
-import RxSwift
-import RxCocoa
 import CoreStore
+import Combine
 
 class AddCategoryModel {
     
     var category: Category?
     
-    let disposeBag = DisposeBag()
+    var cancellables = Set<AnyCancellable>()
     
-    let categoryName = BehaviorRelay<String>(value: "")
+    let categoryName = CurrentValueSubject<String?, Never>("")
     
     func applyData() {
-        self.categoryName.accept(self.category?.name ?? "")
+        self.categoryName.send(self.category?.name ?? "")
     }
     
-	func persistDataAsync() -> Observable<Void> {
+	func persistDataAsync() -> AnyPublisher<Void, Error> {
 		if let category = self.category {
 			return self.updateItemAssync(item: category, withName: self.categoryName.value)
 		} else {
@@ -31,17 +30,17 @@ class AddCategoryModel {
 		}
 	}
 
-	func createItemAsync(withName name: String) -> Observable<Void> {
-		return Observable<Void>.performCoreStore({transaction -> Void in
+	func createItemAsync(withName name: String?) -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {transaction -> Void in
 			let item = transaction.create(Into<Category>())
             item.name = name
-		})
+		}).eraseToAnyPublisher()
 	}
 
-	func updateItemAssync(item: Category, withName name: String) -> Observable<Void> {
-		return Observable<Void>.performCoreStore({transaction -> Void in
+	func updateItemAssync(item: Category, withName name: String?) -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {transaction -> Void in
 			let item = transaction.edit(item)
             item?.name = name
-		})
+		}).eraseToAnyPublisher()
 	}
 }

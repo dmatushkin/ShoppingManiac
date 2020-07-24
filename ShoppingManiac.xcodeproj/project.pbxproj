@@ -16,16 +16,10 @@
 		561BA786232BF73800381E02 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA785232BF73800381E02 /* SwiftDate */; };
 		561BA789232BF7C600381E02 /* Hero in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA788232BF7C600381E02 /* Hero */; };
 		561BA78F232BF9E100381E02 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA78E232BF9E100381E02 /* SwiftyBeaver */; };
-		561BA795232BFB1000381E02 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA794232BFB1000381E02 /* RxSwift */; };
-		561BA799232BFB1000381E02 /* RxRelay in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA798232BFB1000381E02 /* RxRelay */; };
-		561BA79B232BFB1000381E02 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA79A232BFB1000381E02 /* RxCocoa */; };
-		561BA79D232BFB1000381E02 /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA79C232BFB1000381E02 /* RxBlocking */; };
 		561ED325233003F10045457B /* ZonesToFetchWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 561ED324233003F10045457B /* ZonesToFetchWrapper.swift */; };
 		562BAA4F20A60CC30061D654 /* AddShoppingListItemModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */; };
 		562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
-		5637F9492441D3330024F6A1 /* ObservableTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */; };
-		5637F94B2441D37B0024F6A1 /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 5637F94A2441D37B0024F6A1 /* RxCocoa */; };
 		563E92802086395800933522 /* CloudShare.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563E927F2086395700933522 /* CloudShare.swift */; };
 		56438BDB232CE1DE005DAC77 /* PKHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 56438BDA232CE1DE005DAC77 /* PKHUD */; };
 		5644D78523239C3E00982D4E /* ListSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5644D78423239C3E00982D4E /* ListSplitViewController.swift */; };
@@ -91,9 +85,6 @@
 		568ADB2420A2C1260005B14C /* AddShoppingListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568ADB2320A2C1260005B14C /* AddShoppingListModel.swift */; };
 		569114C423E46DA1003B0419 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 569114C323E46DA1003B0419 /* SwiftDate */; };
 		569114C623E46DA1003B0419 /* SwiftyBeaver in Frameworks */ = {isa = PBXBuildFile; productRef = 569114C523E46DA1003B0419 /* SwiftyBeaver */; };
-		569114CA23E46DA1003B0419 /* RxBlocking in Frameworks */ = {isa = PBXBuildFile; productRef = 569114C923E46DA1003B0419 /* RxBlocking */; };
-		569114CC23E46DA1003B0419 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 569114CB23E46DA1003B0419 /* RxSwift */; };
-		569114CE23E46DA1003B0419 /* RxTest in Frameworks */ = {isa = PBXBuildFile; productRef = 569114CD23E46DA1003B0419 /* RxTest */; };
 		569114D023E46DA1003B0419 /* CoreStore in Frameworks */ = {isa = PBXBuildFile; productRef = 569114CF23E46DA1003B0419 /* CoreStore */; };
 		569114D223E4A1C3003B0419 /* SharedRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 569114D123E4A1C3003B0419 /* SharedRecord.swift */; };
 		56B0718724C8C56600E26A23 /* TestPublisherExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B0718624C8C56600E26A23 /* TestPublisherExtension.swift */; };
@@ -115,7 +106,6 @@
 		56CFDB5A24C8B6F20098CFE6 /* CloudKitFetchRecordsPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDB5924C8B6F20098CFE6 /* CloudKitFetchRecordsPublisher.swift */; };
 		56CFDB5D24C8B85D0098CFE6 /* CloudKitUpdateRecordsPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDB5C24C8B85D0098CFE6 /* CloudKitUpdateRecordsPublisher.swift */; };
 		56CFDB6024C8BD820098CFE6 /* CloudKitFetchDatabaseChangesPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDB5F24C8BD820098CFE6 /* CloudKitFetchDatabaseChangesPublisher.swift */; };
-		56CFDBAF20A010BA00C299AA /* ObservableTypeExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */; };
 		56D1215E20A6FE510044C486 /* GoodsListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D1215D20A6FE510044C486 /* GoodsListModel.swift */; };
 		56D1216020A700F40044C486 /* AddGoodModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D1215F20A700F40044C486 /* AddGoodModel.swift */; };
 		56D1216220A708E50044C486 /* UIButtonExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56D1216120A708E50044C486 /* UIButtonExtension.swift */; };
@@ -131,6 +121,9 @@
 		56E0C5A924C9C679003AB178 /* CloudKitUtilsPublishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E0C5A824C9C679003AB178 /* CloudKitUtilsPublishers.swift */; };
 		56E0C5AB24C9CDF1003AB178 /* CoreDataOperationPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E0C5AA24C9CDF1003AB178 /* CoreDataOperationPublisher.swift */; };
 		56E0C5AC24C9CDF1003AB178 /* CoreDataOperationPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E0C5AA24C9CDF1003AB178 /* CoreDataOperationPublisher.swift */; };
+		56E0C5AE24CA1D04003AB178 /* UITextFieldExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E0C5AD24CA1D04003AB178 /* UITextFieldExtension.swift */; };
+		56E0C5B124CAABF9003AB178 /* UIControlPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E0C5B024CAABF9003AB178 /* UIControlPublisher.swift */; };
+		56E0C5B324CAAC58003AB178 /* UISwitchExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E0C5B224CAAC58003AB178 /* UISwitchExtension.swift */; };
 		56E798AE23DACB2700461F96 /* ShoppingManiacUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E798AD23DACB2700461F96 /* ShoppingManiacUnitTests.swift */; };
 		56E798B623DACB8C00461F96 /* CloudKitUtilsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56E798B523DACB8C00461F96 /* CloudKitUtilsTests.swift */; };
 		56E798BA23DACBA100461F96 /* RecordsWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565DA768208C7099005CF8C2 /* RecordsWrapper.swift */; };
@@ -274,7 +267,6 @@
 		56CFDB5924C8B6F20098CFE6 /* CloudKitFetchRecordsPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitFetchRecordsPublisher.swift; sourceTree = "<group>"; };
 		56CFDB5C24C8B85D0098CFE6 /* CloudKitUpdateRecordsPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUpdateRecordsPublisher.swift; sourceTree = "<group>"; };
 		56CFDB5F24C8BD820098CFE6 /* CloudKitFetchDatabaseChangesPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitFetchDatabaseChangesPublisher.swift; sourceTree = "<group>"; };
-		56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableTypeExtension.swift; sourceTree = "<group>"; };
 		56D1215D20A6FE510044C486 /* GoodsListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodsListModel.swift; sourceTree = "<group>"; };
 		56D1215F20A700F40044C486 /* AddGoodModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGoodModel.swift; sourceTree = "<group>"; };
 		56D1216120A708E50044C486 /* UIButtonExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIButtonExtension.swift; sourceTree = "<group>"; };
@@ -287,6 +279,9 @@
 		56E0C5A524C9C374003AB178 /* PublisherExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublisherExtension.swift; sourceTree = "<group>"; };
 		56E0C5A824C9C679003AB178 /* CloudKitUtilsPublishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUtilsPublishers.swift; sourceTree = "<group>"; };
 		56E0C5AA24C9CDF1003AB178 /* CoreDataOperationPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataOperationPublisher.swift; sourceTree = "<group>"; };
+		56E0C5AD24CA1D04003AB178 /* UITextFieldExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextFieldExtension.swift; sourceTree = "<group>"; };
+		56E0C5B024CAABF9003AB178 /* UIControlPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIControlPublisher.swift; sourceTree = "<group>"; };
+		56E0C5B224CAAC58003AB178 /* UISwitchExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UISwitchExtension.swift; sourceTree = "<group>"; };
 		56E798AB23DACB2700461F96 /* ShoppingManiacUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShoppingManiacUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		56E798AD23DACB2700461F96 /* ShoppingManiacUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingManiacUnitTests.swift; sourceTree = "<group>"; };
 		56E798AF23DACB2700461F96 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -312,13 +307,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				561BA799232BFB1000381E02 /* RxRelay in Frameworks */,
-				561BA79D232BFB1000381E02 /* RxBlocking in Frameworks */,
-				561BA79B232BFB1000381E02 /* RxCocoa in Frameworks */,
 				567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */,
 				561BA789232BF7C600381E02 /* Hero in Frameworks */,
 				561BA786232BF73800381E02 /* SwiftDate in Frameworks */,
-				561BA795232BFB1000381E02 /* RxSwift in Frameworks */,
 				56438BDB232CE1DE005DAC77 /* PKHUD in Frameworks */,
 				565BC9DE232CC69E001A90A3 /* CoreStore in Frameworks */,
 				561BA78F232BF9E100381E02 /* SwiftyBeaver in Frameworks */,
@@ -330,12 +321,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				569114CA23E46DA1003B0419 /* RxBlocking in Frameworks */,
-				569114CC23E46DA1003B0419 /* RxSwift in Frameworks */,
 				569114C423E46DA1003B0419 /* SwiftDate in Frameworks */,
-				5637F94B2441D37B0024F6A1 /* RxCocoa in Frameworks */,
 				569114D023E46DA1003B0419 /* CoreStore in Frameworks */,
-				569114CE23E46DA1003B0419 /* RxTest in Frameworks */,
 				569114C623E46DA1003B0419 /* SwiftyBeaver in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -539,10 +526,11 @@
 				565C3BB21ED1B283003D8EE8 /* UIAlertControllerExtension.swift */,
 				56C7334B208EF05800E085FF /* CKContainerExtension.swift */,
 				5666997E2095B33C0053F39E /* UserDefaultsExtension.swift */,
-				56CFDBAE20A010BA00C299AA /* ObservableTypeExtension.swift */,
 				56D1216120A708E50044C486 /* UIButtonExtension.swift */,
 				56E798E023DADB1000461F96 /* ErrorExtension.swift */,
 				56E0C5A524C9C374003AB178 /* PublisherExtension.swift */,
+				56E0C5AD24CA1D04003AB178 /* UITextFieldExtension.swift */,
+				56E0C5B224CAAC58003AB178 /* UISwitchExtension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -598,6 +586,8 @@
 			children = (
 				565DA770208C72F2005CF8C2 /* CommonError.swift */,
 				56F51FC5233097DD000055CA /* UpdateDelegate.swift */,
+				56E0C5AA24C9CDF1003AB178 /* CoreDataOperationPublisher.swift */,
+				56E0C5B024CAABF9003AB178 /* UIControlPublisher.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -666,7 +656,6 @@
 				56B0718E24C8D3C100E26A23 /* CloudKitUpdateSubscriptionsPublisher.swift */,
 				56B0718B24C8D0C800E26A23 /* CloudKitCreateSharePublisher.swift */,
 				56E0C5A224C9AC30003AB178 /* CloudKitShoppingListItemsPublisher.swift */,
-				56E0C5AA24C9CDF1003AB178 /* CoreDataOperationPublisher.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -771,10 +760,6 @@
 				561BA785232BF73800381E02 /* SwiftDate */,
 				561BA788232BF7C600381E02 /* Hero */,
 				561BA78E232BF9E100381E02 /* SwiftyBeaver */,
-				561BA794232BFB1000381E02 /* RxSwift */,
-				561BA798232BFB1000381E02 /* RxRelay */,
-				561BA79A232BFB1000381E02 /* RxCocoa */,
-				561BA79C232BFB1000381E02 /* RxBlocking */,
 				565BC9DD232CC69E001A90A3 /* CoreStore */,
 				56438BDA232CE1DE005DAC77 /* PKHUD */,
 				56CDEE5B24701695006C52C2 /* SwiftEntryKit */,
@@ -800,11 +785,7 @@
 			packageProductDependencies = (
 				569114C323E46DA1003B0419 /* SwiftDate */,
 				569114C523E46DA1003B0419 /* SwiftyBeaver */,
-				569114C923E46DA1003B0419 /* RxBlocking */,
-				569114CB23E46DA1003B0419 /* RxSwift */,
-				569114CD23E46DA1003B0419 /* RxTest */,
 				569114CF23E46DA1003B0419 /* CoreStore */,
-				5637F94A2441D37B0024F6A1 /* RxCocoa */,
 			);
 			productName = ShoppingManiacUnitTests;
 			productReference = 56E798AB23DACB2700461F96 /* ShoppingManiacUnitTests.xctest */;
@@ -855,7 +836,6 @@
 				561BA784232BF73800381E02 /* XCRemoteSwiftPackageReference "SwiftDate" */,
 				561BA787232BF7C600381E02 /* XCRemoteSwiftPackageReference "Hero" */,
 				561BA78D232BF9E000381E02 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */,
-				561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */,
 				565BC9DC232CC69E001A90A3 /* XCRemoteSwiftPackageReference "CoreStore" */,
 				56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */,
 				56CDEE5A24701694006C52C2 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */,
@@ -914,6 +894,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				56D1215E20A6FE510044C486 /* GoodsListModel.swift in Sources */,
+				56E0C5B324CAAC58003AB178 /* UISwitchExtension.swift in Sources */,
 				56B0718F24C8D3C100E26A23 /* CloudKitUpdateSubscriptionsPublisher.swift in Sources */,
 				565DA773208C73D9005CF8C2 /* ShoppingListItemsWrapper.swift in Sources */,
 				4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */,
@@ -949,7 +930,6 @@
 				565C3B871ED18CDE003D8EE8 /* AddShoppingListViewController.swift in Sources */,
 				568ADB2220A2B4930005B14C /* ShoppingListsListModel.swift in Sources */,
 				5650C1361EDAA7E400977503 /* AutocompleteTextField.swift in Sources */,
-				56CFDBAF20A010BA00C299AA /* ObservableTypeExtension.swift in Sources */,
 				565C3B841ED17DF3003D8EE8 /* AboutViewController.swift in Sources */,
 				565C3BB11ED1A61B003D8EE8 /* Picture+CoreDataProperties.swift in Sources */,
 				565DA775208C8F91005CF8C2 /* LocalNotifications.swift in Sources */,
@@ -962,6 +942,7 @@
 				565C3B9B1ED19EC5003D8EE8 /* Good+CoreDataClass.swift in Sources */,
 				565C3BCA1ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift in Sources */,
 				56CFDB5D24C8B85D0098CFE6 /* CloudKitUpdateRecordsPublisher.swift in Sources */,
+				56E0C5AE24CA1D04003AB178 /* UITextFieldExtension.swift in Sources */,
 				568ADB2420A2C1260005B14C /* AddShoppingListModel.swift in Sources */,
 				5666997B20948B700053F39E /* CloudKitUtils.swift in Sources */,
 				560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */,
@@ -986,6 +967,7 @@
 				562BAA4F20A60CC30061D654 /* AddShoppingListItemModel.swift in Sources */,
 				565A16E520A54E650063F19E /* ShoppingListModel.swift in Sources */,
 				56D1216220A708E50044C486 /* UIButtonExtension.swift in Sources */,
+				56E0C5B124CAABF9003AB178 /* UIControlPublisher.swift in Sources */,
 				56E798DB23DAD97600461F96 /* CloudKitOperationsProtocol.swift in Sources */,
 				56B0718C24C8D0C800E26A23 /* CloudKitCreateSharePublisher.swift in Sources */,
 				56D1216620A710490044C486 /* AddStoreModel.swift in Sources */,
@@ -1014,7 +996,6 @@
 				56E798B623DACB8C00461F96 /* CloudKitUtilsTests.swift in Sources */,
 				56E798D623DAD76800461F96 /* ShoppingManiac.xcdatamodeld in Sources */,
 				56E798C723DAD72A00461F96 /* CommonError.swift in Sources */,
-				5637F9492441D3330024F6A1 /* ObservableTypeExtension.swift in Sources */,
 				567D065A23E55288008DB00D /* CloudLoader.swift in Sources */,
 				45B78AE123E9827F00C77A52 /* CloudShareOperationsUnitTests.swift in Sources */,
 				56E0C5A424C9AC30003AB178 /* CloudKitShoppingListItemsPublisher.swift in Sources */,
@@ -1364,14 +1345,6 @@
 				minimumVersion = 1.9.0;
 			};
 		};
-		561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ReactiveX/RxSwift";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 		56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/dmatushkin/PKHUD";
@@ -1414,31 +1387,6 @@
 			package = 561BA78D232BF9E000381E02 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
 		};
-		561BA794232BFB1000381E02 /* RxSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxSwift;
-		};
-		561BA798232BFB1000381E02 /* RxRelay */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxRelay;
-		};
-		561BA79A232BFB1000381E02 /* RxCocoa */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxCocoa;
-		};
-		561BA79C232BFB1000381E02 /* RxBlocking */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxBlocking;
-		};
-		5637F94A2441D37B0024F6A1 /* RxCocoa */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxCocoa;
-		};
 		56438BDA232CE1DE005DAC77 /* PKHUD */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */;
@@ -1458,21 +1406,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 561BA78D232BF9E000381E02 /* XCRemoteSwiftPackageReference "SwiftyBeaver" */;
 			productName = SwiftyBeaver;
-		};
-		569114C923E46DA1003B0419 /* RxBlocking */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxBlocking;
-		};
-		569114CB23E46DA1003B0419 /* RxSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxSwift;
-		};
-		569114CD23E46DA1003B0419 /* RxTest */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA793232BFB1000381E02 /* XCRemoteSwiftPackageReference "RxSwift" */;
-			productName = RxTest;
 		};
 		569114CF23E46DA1003B0419 /* CoreStore */ = {
 			isa = XCSwiftPackageProductDependency;

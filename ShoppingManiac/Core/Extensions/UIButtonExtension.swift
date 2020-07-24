@@ -7,22 +7,22 @@
 //
 
 import UIKit
-import RxCocoa
-import RxSwift
+import Combine
 
 extension UIButton {
+
+	func publisher(for events: UIControl.Event) -> AnyPublisher<UIButton, Never> {
+		return UIControlPublisher(control: self, events: events).eraseToAnyPublisher()
+    }
     
-    func tagRatingBinding(variable: BehaviorRelay<Int>) -> Disposable {
-        let bindToUIDisposable = variable.asObservable().subscribe(onNext: {[weak self] rating in
-            guard let self = self else {return}
-            self.isSelected = (self.tag <= rating)
-        })
-        let bindToVariable = self.rx.tap.map({[weak self] in self?.tag ?? 0})
-            .subscribe(onNext: { next in
-                variable.accept(next)
-            }, onCompleted: {
-                bindToUIDisposable.dispose()
-            })
-        return CompositeDisposable(bindToUIDisposable, bindToVariable)
+	func tagRatingBinding(variable: CurrentValueSubject<Int, Never>, store: inout Set<AnyCancellable>) {
+		self.isSelected = (self.tag <= variable.value)
+		variable.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] value in
+			guard let self = self else { return }
+			self.isSelected = (self.tag <= value)
+		}).store(in: &store)
+		self.publisher(for: .touchUpInside).sink(receiveCompletion: {_ in }, receiveValue: { button in
+			variable.send(button.tag)
+		}).store(in: &store)
     }
 }
