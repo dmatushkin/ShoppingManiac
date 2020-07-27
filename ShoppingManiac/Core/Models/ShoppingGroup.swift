@@ -9,14 +9,12 @@
 import Foundation
 import CoreData
 
-class ShoppingGroup {
+struct ShoppingGroup: Hashable {
     let groupName: String?
     let objectId: NSManagedObjectID?
-    var items: [GroupItem]
 
-    init(name: String?, objectId: NSManagedObjectID?, items: [GroupItem]) {
+    init(name: String?, objectId: NSManagedObjectID?) {
         self.groupName = name
         self.objectId = objectId
-        self.items = items
     }
 }

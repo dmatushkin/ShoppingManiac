@@ -10,6 +10,7 @@ import Foundation
 import CoreStore
 import CoreData
 import Combine
+import UIKit
 
 class AddGoodModel {
 
@@ -19,10 +20,40 @@ class AddGoodModel {
             self.goodCategory.send(category?.name ?? "")
         }
     }
+	private let categoriesPublisher = CoreStoreDefaults.dataStack.publishList(From<Category>().orderBy(.ascending(\.name)))
+	private var dataSource: EditableListDataSource<String, Category>!
     
     let goodName = CurrentValueSubject<String?, Never>("")
     let goodCategory = CurrentValueSubject<String?, Never>("")
     let rating = CurrentValueSubject<Int, Never>(0)
+
+	deinit {
+		self.categoriesPublisher.removeObserver(self)
+	}
+
+	func setupTable(tableView: UITableView) {
+		dataSource = EditableListDataSource<String, Category>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
+			if let cell: CategorySelectionTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
+				cell.setup(withCategory: item)
+				return cell
+			} else {
+				fatalError()
+			}
+		}
+		categoriesPublisher.addObserver(self) {[weak self] publisher in
+			self?.reloadTable(publisher: publisher)
+		}
+		reloadTable(publisher: categoriesPublisher)
+	}
+
+	private func reloadTable(publisher: ListPublisher<Category>) {
+		var snapshot = NSDiffableDataSourceSnapshot<String, Category>()
+		let section = "Default"
+		snapshot.appendSections([section])
+		let items = publisher.snapshot.compactMap({ $0.object })
+		snapshot.appendItems(items, toSection: section)
+		self.dataSource.apply(snapshot, animatingDifferences: false)
+	}
     
     func applyData() {
         self.goodName.send(self.good?.name ?? "")
@@ -44,7 +75,7 @@ class AddGoodModel {
 			guard let self = self else { return }
 			let item = transaction.create(Into<Good>())
             item.name = name
-            item.category = transaction.edit(self.category)
+			item.category = transaction.edit(self.category)
             item.personalRating = Int16(self.rating.value)
 			}).eraseToAnyPublisher()
 	}
@@ -60,13 +91,10 @@ class AddGoodModel {
 	}
 
     func categoriesCount() -> Int {
-        return (try? CoreStoreDefaults.dataStack.fetchCount(From<Category>(), [])) ?? 0
+		return categoriesPublisher.snapshot.count
     }
     
     func getCategoryItem(forIndex: IndexPath) -> Category? {
-        return try? CoreStoreDefaults.dataStack.fetchOne(From<Category>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-            fetchRequest.fetchLimit = 1
-        }))
+		return categoriesPublisher.snapshot[forIndex.row].object
     }
 }

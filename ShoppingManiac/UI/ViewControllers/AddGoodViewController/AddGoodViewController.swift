@@ -10,7 +10,7 @@ import UIKit
 import CoreStore
 import Combine
 
-class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
+class AddGoodViewController: ShoppingManiacViewController, UITableViewDelegate {
 
     @IBOutlet private weak var goodNameEditField: UITextField!
     @IBOutlet private weak var goodCategoryEditField: UITextField!
@@ -39,6 +39,7 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
         self.ratingStar5Button.tagRatingBinding(variable: self.model.rating, store: &cancellables)
         self.goodNameEditField.becomeFirstResponder()
         self.goodCategoryEditField.inputView = self.categorySelectionPanel
+		self.model.setupTable(tableView: categoriesTable)
         self.model.applyData()
     }
 
@@ -67,19 +68,6 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDataSource
 			self?.performSegue(withIdentifier: "addGoodSaveSegue", sender: nil)
 		}).store(in: &cancellables)
 	}
-
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.model.categoriesCount()
-    }
-
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell: CategorySelectionTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
-            cell.setup(withCategory: self.model.getCategoryItem(forIndex: indexPath))
-            return cell
-        } else {
-            fatalError()
-        }
-    }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude

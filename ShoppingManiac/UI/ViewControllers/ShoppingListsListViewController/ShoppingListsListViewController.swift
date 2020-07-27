@@ -9,41 +9,21 @@
 import UIKit
 import CoreStore
 
-class ShoppingListsListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate {
+class ShoppingListsListViewController: ShoppingManiacViewController, UITableViewDelegate {
 
     @IBOutlet private weak var tableView: UITableView!
     
     private let model = ShoppingListsListModel()
-    private var selectedRow: Int = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.contentInsetAdjustmentBehavior = .never
-        self.model.onUpdate = {[weak self] in
-            self?.tableView.reloadData()
-        }
+		self.model.setupTable(tableView: tableView)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tableView.reloadData()
-    }
-
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return model.itemsCount()
-    }
-
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let item = self.model.getItem(forIndex: indexPath), let cell: ShoppingListsListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {            
-            cell.setup(withList: item, isSelected: self.selectedRow == indexPath.row)
-            return cell
-        } else {
-            fatalError()
-        }
-    }
-
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
     }
 
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -66,14 +46,14 @@ class ShoppingListsListViewController: ShoppingManiacViewController, UITableView
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let item = self.model.getItem(forIndex: indexPath) {
-            self.selectedRow = indexPath.row
+			self.model.selectedRow = indexPath.row
             self.showList(list: item)
         }
     }
     
     func showList(list: ShoppingList, isNew: Bool = false) {
         if isNew {
-            self.selectedRow = 0
+			self.model.selectedRow = 0
         }
         self.performSegue(withIdentifier: "shoppingListSegue", sender: list)
     }

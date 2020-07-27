@@ -9,42 +9,63 @@
 import Foundation
 import CoreStore
 import Combine
+import UIKit
+import CoreData
 
 class ShoppingListsListModel {
-    
+
+	var selectedRow: Int = 0
 	private var cancellables = Set<AnyCancellable>()
-    var onUpdate: (() -> Void)?
     private let cloudShare = CloudShare()
-    
-    init() {
-        LocalNotifications.newDataAvailable.listen().sink(receiveCompletion: {_ in }, receiveValue: self.updateNeeded).store(in: &cancellables)
-    }
-    
-    private func updateNeeded() {
-        self.onUpdate?()
-    }
-    
+	private var dataSource: EditableListDataSource<String, ShoppingList>!
+	private let listPublisher = CoreStoreDefaults.dataStack.publishList(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)))
+
+	deinit {
+		self.listPublisher.removeObserver(self)
+	}
+
+	func setupTable(tableView: UITableView) {
+		dataSource = EditableListDataSource<String, ShoppingList>(tableView: tableView) {[weak self] (tableView, indexPath, item) -> UITableViewCell? in
+			guard let self = self else { return nil }
+			if let cell: ShoppingListsListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
+				cell.setup(withList: item, isSelected: indexPath.row == self.selectedRow)
+				return cell
+			} else {
+				fatalError()
+			}
+		}
+		listPublisher.addObserver(self) {[weak self] publisher in
+			self?.reloadTable(publisher: publisher)
+		}
+		reloadTable(publisher: listPublisher)
+	}
+
+	private func reloadTable(publisher: ListPublisher<ShoppingList>) {
+		var snapshot = NSDiffableDataSourceSnapshot<String, ShoppingList>()
+		let section = "Default"
+		snapshot.appendSections([section])
+		let items = publisher.snapshot.compactMap({ $0.object })
+		snapshot.appendItems(items, toSection: section)
+		self.dataSource.apply(snapshot, animatingDifferences: false)
+	}
+
     func itemsCount() -> Int {
         return (try? CoreStoreDefaults.dataStack.fetchCount(From<ShoppingList>().where(Where("isRemoved == false")))) ?? 0
     }
     
     func getItem(forIndex: IndexPath) -> ShoppingList? {
-        return try? CoreStoreDefaults.dataStack.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)).tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-            fetchRequest.fetchLimit = 1
-        }))
+		return listPublisher.snapshot[forIndex.row].object
     }
     
     func deleteItem(shoppingList: ShoppingList) {
         CoreStoreDefaults.dataStack.perform(asynchronous: { transaction in
-            let list = transaction.edit(shoppingList)
+			let list = transaction.edit(shoppingList)
             list?.isRemoved = true
         }, completion: {[weak self] _ in
             guard let self = self else { return }
             if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
 				self.cloudShare.updateList(list: shoppingList).sink(receiveCompletion: {_ in}, receiveValue: {}).store(in: &self.cancellables)
             }
-            self.onUpdate?()
         })
     }
 }

@@ -9,40 +9,21 @@
 import UIKit
 import CoreStore
 
-class CategoriesListViewController: ShoppingManiacViewController, UITableViewDelegate, UITableViewDataSource {
+class CategoriesListViewController: ShoppingManiacViewController, UITableViewDelegate {
 
     @IBOutlet private weak var tableView: UITableView!
-    
+
     private let model = CategoriesListModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+		self.model.setupTable(tableView: tableView)
         self.tableView.contentInsetAdjustmentBehavior = .never
-        self.model.onUpdate = {[weak self] in
-            self?.tableView.reloadData()
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tableView.reloadData()
-    }
-
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.model.itemsCount()
-    }
-
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let item = self.model.getItem(forIndex: indexPath), let cell: CategoriesListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
-            cell.setup(withCategory: item)
-            return cell
-        } else {
-            fatalError()
-        }
-    }
-
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
     }
 
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {

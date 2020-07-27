@@ -120,7 +120,6 @@
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
-                                    <outlet property="dataSource" destination="9xc-GB-Xxp" id="KES-5T-u1j"/>
                                     <outlet property="delegate" destination="9xc-GB-Xxp" id="cyz-KX-iV9"/>
                                 </connections>
                             </tableView>
@@ -263,7 +262,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="BXI-LZ-CeD">
-                                <rect key="frame" x="0.0" y="88" width="375" height="530"/>
+                                <rect key="frame" x="0.0" y="44" width="375" height="574"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="ShoppingListTableViewCell" id="3Lb-Bg-7yd" customClass="ShoppingListTableViewCell" customModule="ShoppingManiac" customModuleProvider="target">
@@ -318,7 +317,6 @@
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
-                                    <outlet property="dataSource" destination="xGt-Cw-N2w" id="E8p-dw-Iei"/>
                                     <outlet property="delegate" destination="xGt-Cw-N2w" id="0A5-FT-q2D"/>
                                 </connections>
                             </tableView>
@@ -665,7 +663,6 @@
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
-                                    <outlet property="dataSource" destination="0gO-Ry-kRq" id="hhk-vZ-gu3"/>
                                     <outlet property="delegate" destination="0gO-Ry-kRq" id="yrb-07-nxe"/>
                                 </connections>
                             </tableView>
@@ -786,7 +783,6 @@
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
-                                    <outlet property="dataSource" destination="l4S-kG-6kq" id="QHh-Of-UIT"/>
                                     <outlet property="delegate" destination="l4S-kG-6kq" id="WEg-MH-wNn"/>
                                 </connections>
                             </tableView>
@@ -878,7 +874,6 @@
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
-                                    <outlet property="dataSource" destination="Skg-UJ-njl" id="4hK-KF-8IO"/>
                                     <outlet property="delegate" destination="Skg-UJ-njl" id="37J-ln-Y9m"/>
                                 </connections>
                             </tableView>
@@ -1208,7 +1203,6 @@
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
                             <connections>
-                                <outlet property="dataSource" destination="ihD-iJ-3RI" id="8sp-oS-EYf"/>
                                 <outlet property="delegate" destination="ihD-iJ-3RI" id="htj-z1-nAn"/>
                             </connections>
                         </tableView>
@@ -1432,7 +1426,7 @@
         <segue reference="ZO6-PV-dit"/>
         <segue reference="BXP-sM-UTE"/>
         <segue reference="9g7-tp-mJE"/>
-        <segue reference="62s-aW-7B2"/>
+        <segue reference="EOB-9P-BqK"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="add_purchase_large" width="33" height="33"/>

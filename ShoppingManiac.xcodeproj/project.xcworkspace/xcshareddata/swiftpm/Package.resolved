@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/JohnEstropia/CoreStore",
         "state": {
           "branch": null,
-          "revision": "73b7fcd9071616ead14d3c486e8d1076b29f8bf2",
-          "version": "7.1.0"
+          "revision": "e7205048559e839f4b428f732bde6c056a572fb1",
+          "version": "7.2.0"
         }
       },
       {
@@ -60,8 +60,8 @@
         "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver",
         "state": {
           "branch": null,
-          "revision": "97477264cd683a387e80fc2f9b0f0e8db8070ed2",
-          "version": "1.9.0"
+          "revision": "e0fb3a74cb993d7dcf1e56734cdc98ad6e6d8176",
+          "version": "1.9.1"
         }
       }
     ]

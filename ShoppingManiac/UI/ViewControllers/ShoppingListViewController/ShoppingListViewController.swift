@@ -14,7 +14,7 @@ import CloudKit
 import PKHUD
 import Combine
 
-class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate, UpdateDelegate {
+class ShoppingListViewController: ShoppingManiacViewController, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate {
 
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var totalLabel: UILabel!
@@ -29,58 +29,22 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
         if self.model.shoppingList == nil {
             self.model.setLatestList()
         }
+		self.model.setupTable(tableView: tableView)
         self.tableView.contentInsetAdjustmentBehavior = .never
         self.tableView.setBottomInset(inset: 70)
         self.navigationItem.rightBarButtonItem = self.editButtonItem
-        self.model.delegate = self
 		self.model.totalText.observeOnMain().assign(to: \.text, on: self.totalLabel).store(in: &model.cancellables)
-        self.model.reloadData()
         if let controllers = self.navigationController?.viewControllers {
             self.navigationController?.viewControllers = controllers.filter({!($0 is AddShoppingListViewController)})
         }
     }
-    
-    func reloadData() {
-        self.tableView.reloadData()
-    }
-    
-    func moveRow(fromPath: IndexPath, toPath: IndexPath) {
-        UIView.animate(withDuration: 0.5, animations: {[weak self] () -> Void in
-            self?.tableView.moveRow(at: fromPath, to: toPath)
-        }, completion: {[weak self] (_) -> Void in
-            self?.tableView.reloadRows(at: [fromPath, toPath], with: UITableView.RowAnimation.none)
-        })
-    }
-    
+
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: true)
         self.tableView.setEditing(editing, animated: animated)
     }
 
-    // MARK: - UITableViewDataSource
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return self.model.sectionsCount()
-    }
-
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.model.rowsCount(forSection: section)
-    }
-
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let cell: ShoppingListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
-            cell.setup(withItem: self.model.item(forIndexPath: indexPath))
-            return cell
-        } else {
-            fatalError()
-        }
-    }
-
     // MARK: - UITableViewDelegate
-
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return self.model.sectionTitle(forSection: section)
-    }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return self.model.sectionTitle(forSection: section) == nil ? 0.01 : 44
@@ -92,10 +56,6 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.model.togglePurchased(indexPath: indexPath)
-    }
-
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
     }
 
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
@@ -118,16 +78,6 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
 		return UISwipeActionsConfiguration(actions: [disableAction, editAction])
 	}
 
-    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-
-    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        if sourceIndexPath.section != destinationIndexPath.section {
-            self.model.moveItem(from: sourceIndexPath, toGroup: destinationIndexPath.section)
-        }
-    }
-
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -141,9 +91,6 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDataS
     }
 
     @IBAction private func shoppingList(unwindSegue: UIStoryboardSegue) {
-        if unwindSegue.identifier == "addShoppingItemSaveSegue" {
-            self.model.resyncData()
-        }
     }
 
     @IBAction private func shareAction(_ sender: Any) {

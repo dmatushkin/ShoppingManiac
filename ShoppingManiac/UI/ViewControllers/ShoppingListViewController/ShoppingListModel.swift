@@ -9,6 +9,7 @@
 import Foundation
 import CoreStore
 import Combine
+import UIKit
 
 class ShoppingListModel {
 
@@ -16,94 +17,88 @@ class ShoppingListModel {
     private let cloudShare = CloudShare()
 	let totalText = CurrentValueSubject<String?, Never>("")
 
-    weak var delegate: UpdateDelegate?
-    
     var shoppingList: ShoppingList!
-    var shoppingGroups: [ShoppingGroup] = []
-    
-    init() {
-        LocalNotifications.newDataAvailable.listen().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
-			self?.reloadData()
-		}).store(in: &cancellables)
-    }
-        
+
+	private var dataSource: EditableListDataSource<ShoppingGroup, GroupItem>!
+	private var listPublisher: ListPublisher<ShoppingListItem>!
+
+	deinit {
+		self.listPublisher.removeObserver(self)
+	}
+
+	func setupTable(tableView: UITableView) {
+		listPublisher = CoreStoreDefaults.dataStack.publishList(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", shoppingList!)).orderBy(.descending(\.good?.name)))
+		dataSource = EditableListDataSource<ShoppingGroup, GroupItem>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
+			if let cell: ShoppingListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
+				cell.setup(withItem: item)
+				return cell
+			} else {
+				fatalError()
+			}
+		}
+		listPublisher.addObserver(self) {[weak self] publisher in
+			self?.reloadTable(publisher: publisher)
+		}
+		dataSource.canMoveRow = true
+		dataSource.moveRow = {[weak self] from, to in
+			guard let self = self else { return }
+			if from.section != to.section {
+				self.moveItem(from: from, toGroup: to.section)
+			} else {
+				self.reloadTable(publisher: self.listPublisher)
+			}
+		}
+		dataSource.titleForSection = {[weak self] section in
+			guard let self = self else { return nil }
+			return self.sectionTitle(forSection: section)
+		}
+		reloadTable(publisher: listPublisher)
+	}
+
+	private func reloadTable(publisher: ListPublisher<ShoppingListItem>) {
+		var snapshot = NSDiffableDataSourceSnapshot<ShoppingGroup, GroupItem>()
+
+		let items = self.listPublisher.snapshot.compactMap({ $0.object })
+		let totalPrice = items.reduce(0.0) { acc, curr in
+			return acc + curr.totalPrice
+		}
+		let groups = Set<Store?>(items.map({ $0.store })).sorted(by: {
+			($0?.name ?? "") < ($1?.name ?? "")
+		}).map({ ShoppingGroup(name: $0?.name, objectId: $0?.objectID)})
+		snapshot.appendSections(groups)
+		for group in groups {
+			let groupItems = items.filter({ $0.store?.objectID == group.objectId }).map({ GroupItem(shoppingListItem: $0) }).sorted(by: { $0.lessThan(item: $1) })
+			snapshot.appendItems(groupItems, toSection: group)
+		}
+		self.totalText.send(String(format: "Total: %.2f", totalPrice))
+		self.dataSource.apply(snapshot, animatingDifferences: false)
+	}
+
     func syncWithCloud() {
         if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
 			self.cloudShare.updateList(list: self.shoppingList).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
         }
     }
-    
-    func resyncData() {
-        self.syncWithCloud()
-        self.reloadData()
-    }
-    
+        
     func setLatestList() {
         if let list = try? CoreStoreDefaults.dataStack.fetchOne(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date))) {
             self.shoppingList = list
         }
     }
-    
-    private func processData(transaction: AsynchronousDataTransaction) throws {
-        if let list = self.shoppingList {
-            let items = try transaction.fetchAll(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", list)))
-            let totalPrice = items.reduce(0.0) { acc, curr in
-                return acc + curr.totalPrice
-            }
-            var groups: [ShoppingGroup] = []
-            for item in items {
-                let storeName = item.store?.name
-                let storeObjectId = item.store?.objectID
-                if let group = groups.filter({ $0.objectId == storeObjectId }).first {
-                    group.items.append(GroupItem(shoppingListItem: item))
-                } else {
-                    let group = ShoppingGroup(name: storeName, objectId: storeObjectId, items: [GroupItem(shoppingListItem: item)])
-                    groups.append(group)
-                }
-            }
-            self.shoppingGroups = self.sortGroups(groups: groups)
-			self.totalText.send(String(format: "Total: %.2f", totalPrice))
-        }
-    }
-    
-    func reloadData() {
-        CoreStoreDefaults.dataStack.perform(asynchronous: {[unowned self] transaction in
-			return try self.processData(transaction: transaction)
-		}, completion: {[unowned self] _ in
-            self.delegate?.reloadData()
-        })
-    }
-    
-    private func sortGroups(groups: [ShoppingGroup]) -> [ShoppingGroup] {
-        for group in groups {
-            group.items = self.sortItems(items: group.items)
-        }
-        return groups.sorted(by: {item1, item2 in (item1.groupName ?? "") < (item2.groupName ?? "")})
-    }
-    
-    private func sortItems(items: [GroupItem]) -> [GroupItem] {
-        return items.sorted(by: {item1, item2 in item1.lessThan(item: item2) })
-    }
-    
-    func sectionsCount() -> Int {
-        return self.shoppingGroups.count
-    }
-    
-    func rowsCount(forSection section: Int) -> Int {
-        return self.shoppingGroups[section].items.count
-    }
-    
+
     func item(forIndexPath indexPath: IndexPath) -> GroupItem {
-        return self.shoppingGroups[indexPath.section].items[indexPath.row]
+		let section = self.dataSource.snapshot().sectionIdentifiers[indexPath.section]
+		return self.dataSource.snapshot().itemIdentifiers(inSection: section)[indexPath.row]
     }
     
     func sectionTitle(forSection section: Int) -> String? {
-        return self.shoppingGroups[section].groupName
+		let section = self.dataSource.snapshot().sectionIdentifiers[section]
+		return section.groupName
     }
     
     func moveItem(from: IndexPath, toGroup: Int) {
+		let group = self.dataSource.snapshot().sectionIdentifiers[toGroup]
         let item = self.item(forIndexPath: from)
-        let group = self.shoppingGroups[toGroup]
 
 		CoreDataOperationPublisher(operation: {transaction -> Void in
 			if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
@@ -114,13 +109,12 @@ class ShoppingListModel {
                 }
             }
 			}).observeOnMain().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] in
-				self?.resyncData()
+				self?.syncWithCloud()
 			}).store(in: &cancellables)
     }
     
     func togglePurchased(indexPath: IndexPath) {
-        let group = self.shoppingGroups[indexPath.section]
-        let item = group.items[indexPath.row]
+		var item = self.item(forIndexPath: indexPath)
 
 		item.purchased = !item.purchased
 
@@ -131,28 +125,9 @@ class ShoppingListModel {
                 shoppingListItem.list = shoppingList
             }
 			}).observeOnMain().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] in
-				self?.updateToggledData(indexPath: indexPath)
+				self?.syncWithCloud()
 			}).store(in: &cancellables)
     }
-
-	private func updateToggledData(indexPath: IndexPath) {
-		self.syncWithCloud()
-		let group = self.shoppingGroups[indexPath.section]
-		let item = group.items[indexPath.row]
-        let sortedItems = self.sortItems(items: group.items)
-        var itemFound: Bool = false
-        for (idx, sortedItem) in sortedItems.enumerated() where item.objectId == sortedItem.objectId {
-            let sortedIndexPath = IndexPath(row: idx, section: indexPath.section)
-            itemFound = true
-            group.items = sortedItems
-            self.delegate?.moveRow(fromPath: indexPath, toPath: sortedIndexPath)
-            break
-        }
-        if itemFound == false {
-            group.items = sortedItems
-            self.delegate?.reloadData()
-        }
-	}
 
 	func removeItem(from: IndexPath) {
 		let item = self.item(forIndexPath: from)
@@ -161,7 +136,7 @@ class ShoppingListModel {
                 shoppingListItem.isRemoved = true
             }
 			}).observeOnMain().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] in
-				self?.resyncData()
+				self?.syncWithCloud()
 			}).store(in: &cancellables)
 	}
 }

@@ -99,6 +99,7 @@
 		56B0719624C8D75100E26A23 /* CloudKitUpdateSubscriptionsPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B0718E24C8D3C100E26A23 /* CloudKitUpdateSubscriptionsPublisher.swift */; };
 		56C7334C208EF05800E085FF /* CKContainerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C7334B208EF05800E085FF /* CKContainerExtension.swift */; };
 		56CDEE5C24701695006C52C2 /* SwiftEntryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 56CDEE5B24701695006C52C2 /* SwiftEntryKit */; };
+		56CF400924CED21200D9D176 /* EditableListDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CF400824CED21200D9D176 /* EditableListDataSource.swift */; };
 		56CFDB5324C8631A0098CFE6 /* Autowired.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDB5224C8631A0098CFE6 /* Autowired.swift */; };
 		56CFDB5424C8631A0098CFE6 /* Autowired.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDB5224C8631A0098CFE6 /* Autowired.swift */; };
 		56CFDB5624C8742F0098CFE6 /* DIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56CFDB5524C8742F0098CFE6 /* DIProvider.swift */; };
@@ -262,6 +263,7 @@
 		56B0718B24C8D0C800E26A23 /* CloudKitCreateSharePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitCreateSharePublisher.swift; sourceTree = "<group>"; };
 		56B0718E24C8D3C100E26A23 /* CloudKitUpdateSubscriptionsPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUpdateSubscriptionsPublisher.swift; sourceTree = "<group>"; };
 		56C7334B208EF05800E085FF /* CKContainerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKContainerExtension.swift; sourceTree = "<group>"; };
+		56CF400824CED21200D9D176 /* EditableListDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableListDataSource.swift; sourceTree = "<group>"; };
 		56CFDB5224C8631A0098CFE6 /* Autowired.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Autowired.swift; sourceTree = "<group>"; };
 		56CFDB5524C8742F0098CFE6 /* DIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DIProvider.swift; sourceTree = "<group>"; };
 		56CFDB5924C8B6F20098CFE6 /* CloudKitFetchRecordsPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitFetchRecordsPublisher.swift; sourceTree = "<group>"; };
@@ -588,6 +590,7 @@
 				56F51FC5233097DD000055CA /* UpdateDelegate.swift */,
 				56E0C5AA24C9CDF1003AB178 /* CoreDataOperationPublisher.swift */,
 				56E0C5B024CAABF9003AB178 /* UIControlPublisher.swift */,
+				56CF400824CED21200D9D176 /* EditableListDataSource.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -943,6 +946,7 @@
 				565C3BCA1ED1FEFF003D8EE8 /* ShoppingListTableViewCell.swift in Sources */,
 				56CFDB5D24C8B85D0098CFE6 /* CloudKitUpdateRecordsPublisher.swift in Sources */,
 				56E0C5AE24CA1D04003AB178 /* UITextFieldExtension.swift in Sources */,
+				56CF400924CED21200D9D176 /* EditableListDataSource.swift in Sources */,
 				568ADB2420A2C1260005B14C /* AddShoppingListModel.swift in Sources */,
 				5666997B20948B700053F39E /* CloudKitUtils.swift in Sources */,
 				560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */,

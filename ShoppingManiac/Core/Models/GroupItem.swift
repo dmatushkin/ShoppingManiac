@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 import CoreStore
 
-class GroupItem {
+struct GroupItem: Hashable {
     let objectId: NSManagedObjectID
     let itemName: String
     let itemCategoryName: String?

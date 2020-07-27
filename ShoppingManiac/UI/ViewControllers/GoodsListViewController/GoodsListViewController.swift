@@ -9,7 +9,7 @@
 import UIKit
 import CoreStore
 
-class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate, UITableViewDataSource {
+class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate {
 
     @IBOutlet private weak var tableView: UITableView!
     
@@ -18,31 +18,12 @@ class GoodsListViewController: ShoppingManiacViewController, UITableViewDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tableView.contentInsetAdjustmentBehavior = .never
-        self.model.onUpdate = {[weak self] in
-            self?.tableView.reloadData()
-        }
+		self.model.setupTable(tableView: tableView)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.tableView.reloadData()
-    }
-
-    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return model.itemsCount()
-    }
-
-    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let item = self.model.getItem(forIndex: indexPath), let cell: GoodsListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
-            cell.setup(withGood: item)
-            return cell
-        } else {
-            fatalError()
-        }
-    }
-
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
     }
 
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {

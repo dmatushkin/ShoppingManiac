@@ -9,36 +9,50 @@
 import Foundation
 import CoreStore
 import Combine
+import CoreData
+import UIKit
 
 class StoresListModel {
     
-    private var cancellables = Set<AnyCancellable>()
-    var onUpdate: (() -> Void)?
-    
-    init() {
-        LocalNotifications.newDataAvailable.listen().sink(receiveCompletion: {_ in }, receiveValue: self.updateNeeded).store(in: &cancellables)
-    }
-    
-    private func updateNeeded() {
-        self.onUpdate?()
-    }
-        
-    func itemsCount() -> Int {
-        return (try? CoreStoreDefaults.dataStack.fetchCount(From<Store>(), [])) ?? 0
-    }
+    private var dataSource: EditableListDataSource<String, Store>!
+	private let listPublisher = CoreStoreDefaults.dataStack.publishList(From<Store>().orderBy(.ascending(\.name)))
+
+	deinit {
+		self.listPublisher.removeObserver(self)
+	}
+
+	func setupTable(tableView: UITableView) {
+		dataSource = EditableListDataSource<String, Store>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
+			if let cell: StoresListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
+				cell.setup(withStore: item)
+				return cell
+			} else {
+				fatalError()
+			}
+		}
+		listPublisher.addObserver(self) {[weak self] publisher in
+			self?.reloadTable(publisher: publisher)
+		}
+		reloadTable(publisher: listPublisher)
+	}
+
+	private func reloadTable(publisher: ListPublisher<Store>) {
+		var snapshot = NSDiffableDataSourceSnapshot<String, Store>()
+		let section = "Default"
+		snapshot.appendSections([section])
+		let items = publisher.snapshot.compactMap({ $0.object })
+		snapshot.appendItems(items, toSection: section)
+		self.dataSource.apply(snapshot, animatingDifferences: false)
+	}
     
     func getItem(forIndex: IndexPath) -> Store? {
-        return try? CoreStoreDefaults.dataStack.fetchOne(From<Store>().orderBy(.ascending(\.name)).tweak({ fetchRequest in
-            fetchRequest.fetchOffset = forIndex.row
-            fetchRequest.fetchLimit = 1
-        }))
+		return listPublisher.snapshot[forIndex.row].object
     }
     
     func deleteItem(item: Store) {
         CoreStoreDefaults.dataStack.perform(asynchronous: { transaction in
             transaction.delete(item)
-        }, completion: {[weak self] _ in
-            self?.onUpdate?()
+        }, completion: { _ in
         })
     }
 }
