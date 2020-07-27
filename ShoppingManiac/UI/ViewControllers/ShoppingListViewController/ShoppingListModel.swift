@@ -21,13 +21,13 @@ class ShoppingListModel {
 
 	private var dataSource: EditableListDataSource<ShoppingGroup, GroupItem>!
 	private var listPublisher: ListPublisher<ShoppingListItem>!
-
-	deinit {
-		self.listPublisher.removeObserver(self)
-	}
+	private var goodsPublisher = CoreStoreDefaults.dataStack.publishList(From<Good>().orderBy(.ascending(\.name)))
+	private var storesPublisher = CoreStoreDefaults.dataStack.publishList(From<Store>().orderBy(.ascending(\.name)))
+	private var categoriesPublisher = CoreStoreDefaults.dataStack.publishList(From<Category>().orderBy(.ascending(\.name)))
 
 	func setupTable(tableView: UITableView) {
 		listPublisher = CoreStoreDefaults.dataStack.publishList(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", shoppingList!)).orderBy(.descending(\.good?.name)))
+		
 		dataSource = EditableListDataSource<ShoppingGroup, GroupItem>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
 			if let cell: ShoppingListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
 				cell.setup(withItem: item)
@@ -36,9 +36,22 @@ class ShoppingListModel {
 				fatalError()
 			}
 		}
-		listPublisher.addObserver(self) {[weak self] publisher in
-			self?.reloadTable(publisher: publisher)
-		}
+		listPublisher.objectWillChange.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
+			guard let self = self else { return }
+			self.reloadTable(publisher: self.listPublisher)
+		}).store(in: &cancellables)
+		goodsPublisher.objectWillChange.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
+			guard let self = self else { return }
+			self.reloadTable(publisher: self.listPublisher)
+		}).store(in: &cancellables)
+		storesPublisher.objectWillChange.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
+			guard let self = self else { return }
+			self.reloadTable(publisher: self.listPublisher)
+		}).store(in: &cancellables)
+		categoriesPublisher.objectWillChange.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
+			guard let self = self else { return }
+			self.reloadTable(publisher: self.listPublisher)
+		}).store(in: &cancellables)
 		dataSource.canMoveRow = true
 		dataSource.moveRow = {[weak self] from, to in
 			guard let self = self else { return }

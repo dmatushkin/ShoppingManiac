@@ -29,7 +29,11 @@ struct GroupItem: Hashable {
 
     func lessThan(item: GroupItem) -> Bool {
         if self.purchased == item.purchased {
-            return self.itemName < item.itemName
+			if self.itemCategoryName == item.itemCategoryName {
+				return self.itemName < item.itemName
+			} else {
+				return (self.itemCategoryName ?? "") < (item.itemCategoryName ?? "")
+			}
         } else {
             return (self.purchased ? 0 : 1) > (item.purchased ? 0 : 1)
         }
