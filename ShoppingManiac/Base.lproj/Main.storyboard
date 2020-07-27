@@ -1212,7 +1212,7 @@
                             <constraints>
                                 <constraint firstAttribute="height" constant="40" id="UJU-Ic-1E0"/>
                             </constraints>
-                            <state key="normal" title="Cancel">
+                            <state key="normal" title="Clear">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </state>
                             <userDefinedRuntimeAttributes>

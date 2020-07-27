@@ -49,6 +49,7 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDelegate {
     }
 
     @IBAction private func cancelCategorySelectionAction(_ sender: Any) {
+		self.model.clearCategory()
         self.goodCategoryEditField.endEditing(true)
     }
 

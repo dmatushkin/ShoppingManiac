@@ -90,6 +90,10 @@ class AddGoodModel {
 		}).eraseToAnyPublisher()
 	}
 
+	func clearCategory() {
+		self.category = nil
+	}
+
     func categoriesCount() -> Int {
 		return dataSource.snapshot().numberOfItems
     }
