@@ -58,7 +58,7 @@ class ShoppingListModel {
 	private func reloadTable(publisher: ListPublisher<ShoppingListItem>) {
 		var snapshot = NSDiffableDataSourceSnapshot<ShoppingGroup, GroupItem>()
 
-		let items = self.listPublisher.snapshot.compactMap({ $0.object })
+		let items = listPublisher.snapshot.compactMap({ $0.object })
 		let totalPrice = items.reduce(0.0) { acc, curr in
 			return acc + curr.totalPrice
 		}

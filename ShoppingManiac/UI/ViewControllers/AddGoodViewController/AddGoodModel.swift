@@ -91,10 +91,10 @@ class AddGoodModel {
 	}
 
     func categoriesCount() -> Int {
-		return categoriesPublisher.snapshot.count
+		return dataSource.snapshot().numberOfItems
     }
     
     func getCategoryItem(forIndex: IndexPath) -> Category? {
-		return categoriesPublisher.snapshot[forIndex.row].object
+		return dataSource.snapshot().itemIdentifiers(inSection: "Default")[forIndex.row]
     }
 }

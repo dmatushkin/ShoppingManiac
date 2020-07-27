@@ -54,7 +54,7 @@ class ShoppingListsListModel {
     }
     
     func getItem(forIndex: IndexPath) -> ShoppingList? {
-		return listPublisher.snapshot[forIndex.row].object
+		return dataSource.snapshot().itemIdentifiers(inSection: "Default")[forIndex.row]
     }
     
     func deleteItem(shoppingList: ShoppingList) {

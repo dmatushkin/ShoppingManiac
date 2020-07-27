@@ -46,7 +46,7 @@ class GoodsListModel {
 	}
     
     func getItem(forIndex: IndexPath) -> Good? {
-        return listPublisher.snapshot[forIndex.row].object
+		return dataSource.snapshot().itemIdentifiers(inSection: "Default")[forIndex.row]
     }
     
     func deleteItem(good: Good) {
