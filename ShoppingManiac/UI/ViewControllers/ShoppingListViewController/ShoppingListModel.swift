@@ -25,6 +25,13 @@ class ShoppingListModel {
 	private var storesPublisher = CoreStoreDefaults.dataStack.publishList(From<Store>().orderBy(.ascending(\.name)))
 	private var categoriesPublisher = CoreStoreDefaults.dataStack.publishList(From<Category>().orderBy(.ascending(\.name)))
 
+	deinit {
+		listPublisher?.removeObserver(self)
+		goodsPublisher.removeObserver(self)
+		storesPublisher.removeObserver(self)
+		categoriesPublisher.removeObserver(self)
+	}
+
 	func setupTable(tableView: UITableView) {
 		listPublisher = CoreStoreDefaults.dataStack.publishList(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", shoppingList!)).orderBy(.descending(\.good?.name)))
 
@@ -36,22 +43,22 @@ class ShoppingListModel {
 				fatalError()
 			}
 		}
-		listPublisher.objectWillChange.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
+		listPublisher.addObserver(self, {[weak self] publisher in
+			guard let self = self else { return }
+			self.reloadTable(publisher: publisher)
+		})
+		goodsPublisher.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
 			self.reloadTable(publisher: self.listPublisher)
-		}).store(in: &cancellables)
-		goodsPublisher.objectWillChange.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
+		})
+		storesPublisher.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
 			self.reloadTable(publisher: self.listPublisher)
-		}).store(in: &cancellables)
-		storesPublisher.objectWillChange.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
+		})
+		categoriesPublisher.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
 			self.reloadTable(publisher: self.listPublisher)
-		}).store(in: &cancellables)
-		categoriesPublisher.objectWillChange.sink(receiveCompletion: {_ in }, receiveValue: {[weak self] _ in
-			guard let self = self else { return }
-			self.reloadTable(publisher: self.listPublisher)
-		}).store(in: &cancellables)
+		})
 		dataSource.canMoveRow = true
 		dataSource.moveRow = {[weak self] from, to in
 			guard let self = self else { return }
@@ -69,8 +76,7 @@ class ShoppingListModel {
 	}
 
 	private func reloadTable(publisher: ListPublisher<ShoppingListItem>) {
-		//let items = listPublisher.snapshot.compactMap({ $0.object })
-		let items = (try? CoreStoreDefaults.dataStack.fetchAll(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", shoppingList!)))) ?? []
+		let items = listPublisher.snapshot.compactMap({ $0.object })
 		let totalPrice = items.reduce(0.0) { acc, curr in
 			return acc + curr.totalPrice
 		}
