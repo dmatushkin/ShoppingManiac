@@ -27,7 +27,7 @@ class ShoppingListModel {
 
 	func setupTable(tableView: UITableView) {
 		listPublisher = CoreStoreDefaults.dataStack.publishList(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", shoppingList!)).orderBy(.descending(\.good?.name)))
-		
+
 		dataSource = EditableListDataSource<ShoppingGroup, GroupItem>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
 			if let cell: ShoppingListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
 				cell.setup(withItem: item)
@@ -69,15 +69,15 @@ class ShoppingListModel {
 	}
 
 	private func reloadTable(publisher: ListPublisher<ShoppingListItem>) {
-		var snapshot = NSDiffableDataSourceSnapshot<ShoppingGroup, GroupItem>()
-
-		let items = listPublisher.snapshot.compactMap({ $0.object })
+		//let items = listPublisher.snapshot.compactMap({ $0.object })
+		let items = (try? CoreStoreDefaults.dataStack.fetchAll(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", shoppingList!)))) ?? []
 		let totalPrice = items.reduce(0.0) { acc, curr in
 			return acc + curr.totalPrice
 		}
 		let groups = Set<Store?>(items.map({ $0.store })).sorted(by: {
 			($0?.name ?? "") < ($1?.name ?? "")
 		}).map({ ShoppingGroup(name: $0?.name, objectId: $0?.objectID)})
+		var snapshot = NSDiffableDataSourceSnapshot<ShoppingGroup, GroupItem>()
 		snapshot.appendSections(groups)
 		for group in groups {
 			let groupItems = items.filter({ $0.store?.objectID == group.objectId }).map({ GroupItem(shoppingListItem: $0) }).sorted(by: { $0.lessThan(item: $1) })

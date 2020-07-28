@@ -49,29 +49,33 @@ class AddShoppingListItemModel {
     
 	func persistDataAsync() -> AnyPublisher<Void, Error> {
 		return CoreDataOperationPublisher(operation: {transaction -> Void in
-			let item = self.shoppingListItem == nil ? transaction.create(Into<ShoppingListItem>()) : transaction.edit(self.shoppingListItem)
-			item?.good = try Good.item(forName: self.itemName.value ?? "", inTransaction: transaction)
-			item?.isWeight = self.isWeight.value
-			item?.good?.personalRating = Int16(self.rating.value)
+			let item = self.shoppingListItem.flatMap({ transaction.edit($0) }) ?? transaction.create(Into<ShoppingListItem>())
+			item.list = transaction.edit(self.shoppingList)
+			item.good = try Good.item(forName: self.itemName.value ?? "", inTransaction: transaction)
+			item.isWeight = self.isWeight.value
+			item.good?.personalRating = Int16(self.rating.value)
 			if self.storeName.value?.isEmpty ?? true {
-				item?.store = nil
+				item.store = nil
 			} else {
-				item?.store = try Store.item(forName: self.storeName.value ?? "", inTransaction: transaction)
+				item.store = try Store.item(forName: self.storeName.value ?? "", inTransaction: transaction)
 			}
 			let amount = self.amountText.value?.replacingOccurrences(of: ",", with: ".") ?? ""
 			if amount.count > 0, let value = Float(amount) {
-				item?.quantity = value
+				item.quantity = value
 			} else {
-				item?.quantity = 1
+				item.quantity = 1
 			}
 			let price = self.priceText.value?.replacingOccurrences(of: ",", with: ".") ?? ""
 			if price.count > 0, let value = Float(price) {
-				item?.price = value
+				item.price = value
 			} else {
-				item?.price = 0
+				item.price = 0
 			}
-			item?.isCrossListItem = self.crossListItem.value
-			item?.list = transaction.edit(self.shoppingList)
+			item.isCrossListItem = self.crossListItem.value
+			item.isRemoved = false
+			if self.shoppingListItem == nil {
+				item.purchased = false
+			}
 		}).eraseToAnyPublisher()
 	}
 }

@@ -23,24 +23,10 @@ class AddStoreModel {
     }
     
 	func persistDataAsync() -> AnyPublisher<Void, Error> {
-		if let store = self.store {
-			return self.updateItemAssync(item: store, withName: self.storeName.value)
-		} else {
-			return self.createItemAsync(withName: self.storeName.value)
-		}
-	}
-
-	func createItemAsync(withName name: String?) -> AnyPublisher<Void, Error> {
-		return CoreDataOperationPublisher(operation: {transaction -> Void in
-			let item = transaction.create(Into<Store>())
-            item.name = name
-		}).eraseToAnyPublisher()
-	}
-
-	func updateItemAssync(item: Store, withName name: String?) -> AnyPublisher<Void, Error> {
-		return CoreDataOperationPublisher(operation: {transaction -> Void in
-			let item = transaction.edit(item)
-            item?.name = name
+		return CoreDataOperationPublisher(operation: {[weak self] transaction -> Void in
+			guard let self = self else { return }
+			let item = self.store.flatMap({ transaction.edit($0) }) ?? transaction.create(Into<Store>())
+			item.name = self.storeName.value
 		}).eraseToAnyPublisher()
 	}
 }

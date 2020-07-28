@@ -23,24 +23,10 @@ class AddCategoryModel {
     }
     
 	func persistDataAsync() -> AnyPublisher<Void, Error> {
-		if let category = self.category {
-			return self.updateItemAssync(item: category, withName: self.categoryName.value)
-		} else {
-			return self.createItemAsync(withName: self.categoryName.value)
-		}
-	}
-
-	func createItemAsync(withName name: String?) -> AnyPublisher<Void, Error> {
-		return CoreDataOperationPublisher(operation: {transaction -> Void in
-			let item = transaction.create(Into<Category>())
-            item.name = name
-		}).eraseToAnyPublisher()
-	}
-
-	func updateItemAssync(item: Category, withName name: String?) -> AnyPublisher<Void, Error> {
-		return CoreDataOperationPublisher(operation: {transaction -> Void in
-			let item = transaction.edit(item)
-            item?.name = name
+		return CoreDataOperationPublisher(operation: {[weak self] transaction -> Void in
+			guard let self = self else { return }
+			let item = self.category.flatMap({ transaction.edit($0) }) ?? transaction.create(Into<Category>())
+			item.name = self.categoryName.value
 		}).eraseToAnyPublisher()
 	}
 }

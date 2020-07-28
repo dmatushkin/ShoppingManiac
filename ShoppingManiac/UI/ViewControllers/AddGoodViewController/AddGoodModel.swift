@@ -63,30 +63,12 @@ class AddGoodModel {
     }
     
 	func persistChangesAsync() -> AnyPublisher<Void, Error> {
-		if let good = self.good {
-			return self.updateItemAsync(item: good, withName: self.goodName.value)
-		} else {
-			return self.createItemAsync(withName: self.goodName.value)
-		}
-	}
-
-	private func createItemAsync(withName name: String?) -> AnyPublisher<Void, Error> {
 		return CoreDataOperationPublisher(operation: {[weak self] transaction -> Void in
 			guard let self = self else { return }
-			let item = transaction.create(Into<Good>())
-            item.name = name
-			item.category = transaction.edit(self.category)
+			let item = self.good.flatMap({ transaction.edit($0) }) ?? transaction.create(Into<Good>())
+			item.name = self.goodName.value
+            item.category = transaction.edit(self.category)
             item.personalRating = Int16(self.rating.value)
-			}).eraseToAnyPublisher()
-	}
-
-	private func updateItemAsync(item: Good, withName name: String?) -> AnyPublisher<Void, Error> {
-		return CoreDataOperationPublisher(operation: {[weak self] transaction -> Void in
-			guard let self = self else { return }
-			let item = transaction.edit(item)
-            item?.name = name
-            item?.category = transaction.edit(self.category)
-            item?.personalRating = Int16(self.rating.value)
 		}).eraseToAnyPublisher()
 	}
 
