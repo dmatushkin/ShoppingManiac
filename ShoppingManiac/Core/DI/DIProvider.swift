@@ -17,6 +17,7 @@ class DIProvider {
 	enum DIRegistrationType {
 		case dependency(type: DIDependency.Type)
 		case lambda(value: () -> Any)
+		case singleton(type: DIDependency.Type)
 	}
 
 	private init() {}
@@ -24,6 +25,7 @@ class DIProvider {
 	static let shared = DIProvider()
 
 	private var diMap: [String: DIRegistrationType] = [:]
+	private var singletons: [String: DIDependency] = [:]
 
 	func inject(forType type: Any) -> Any? {
 		let className = String(describing: type.self)
@@ -33,6 +35,14 @@ class DIProvider {
 			return type.init()
 		case .lambda(let value):
 			return value()
+		case .singleton(let type):
+			if let obj = singletons[className] {
+				return obj
+			} else {
+				let obj = type.init()
+				singletons[className] = obj
+				return obj
+			}
 		}
 	}
 
