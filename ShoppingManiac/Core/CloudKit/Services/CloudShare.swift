@@ -63,8 +63,17 @@ class CloudShare {
     }
 
     func shareList(list: ShoppingList) -> AnyPublisher<CKShare, Error> {
-		return getListWrapper(list: list).flatMap({ wrapper in
-			return CloudKitCreateSharePublisher(wrapper: wrapper).eraseToAnyPublisher()
+		return CoreDataOperationPublisher(operation: { transaction -> ShoppingList in
+			guard let shoppingList = transaction.fetchExisting(list) else { fatalError() }
+			let items = try transaction.fetchAll(list.itemsFetchBuilder)
+			for item in items {
+				item.list = shoppingList
+			}
+			return shoppingList
+		}).flatMap({[unowned self] list in
+			self.getListWrapper(list: list).flatMap({ wrapper in
+				return CloudKitCreateSharePublisher(wrapper: wrapper).eraseToAnyPublisher()
+			})
 		}).eraseToAnyPublisher()
     }
 
@@ -107,8 +116,9 @@ class CloudShare {
             let recordName = CKRecord.ID().recordName
             let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
             let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
-            list.setRecordId(recordId: recordName)
-			return updateListWrapper(record: record, list: list)
+			return list.setRecordId(recordId: recordName).flatMap({[unowned self] in
+				return self.updateListWrapper(record: record, list: list)
+			}).eraseToAnyPublisher()
         }
     }
 

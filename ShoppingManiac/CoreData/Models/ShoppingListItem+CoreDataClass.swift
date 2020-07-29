@@ -10,16 +10,17 @@ import Foundation
 import CoreData
 import CoreStore
 import SwiftyBeaver
+import Combine
 
 public class ShoppingListItem: NSManagedObject {
 
-    func setRecordId(recordId: String) {
-        _ = try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction -> Void in
-            guard let self = self else { return }
+    func setRecordId(recordId: String) -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {[weak self] transaction in
+			guard let self = self else { return }
             if let shoppingListItem: ShoppingListItem = transaction.edit(self) {
                 shoppingListItem.recordid = recordId
             }
-        })
+		}).eraseToAnyPublisher()
     }
     
     var quantityText: String {

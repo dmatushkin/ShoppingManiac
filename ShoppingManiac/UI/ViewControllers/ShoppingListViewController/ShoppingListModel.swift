@@ -33,7 +33,7 @@ class ShoppingListModel {
 	}
 
 	func setupTable(tableView: UITableView) {
-		listPublisher = CoreStoreDefaults.dataStack.publishList(From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", shoppingList!)).orderBy(.descending(\.good?.name)))
+		listPublisher = CoreStoreDefaults.dataStack.publishList(shoppingList.itemsFetchBuilder.orderBy(.descending(\.good?.name)))
 
 		dataSource = EditableListDataSource<ShoppingGroup, GroupItem>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
 			if let cell: ShoppingListTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
@@ -76,7 +76,7 @@ class ShoppingListModel {
 	}
 
 	private func reloadTable(publisher: ListPublisher<ShoppingListItem>) {
-		let items = listPublisher.snapshot.compactMap({ $0.object })
+		let items = publisher.snapshot.compactMap({ $0.object })
 		let totalPrice = items.reduce(0.0) { acc, curr in
 			return acc + curr.totalPrice
 		}
@@ -131,7 +131,7 @@ class ShoppingListModel {
 				self?.syncWithCloud()
 			}).store(in: &cancellables)
     }
-    
+
     func togglePurchased(indexPath: IndexPath) {
 		var item = self.item(forIndexPath: indexPath)
 

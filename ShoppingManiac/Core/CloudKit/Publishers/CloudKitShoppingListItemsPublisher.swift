@@ -17,7 +17,7 @@ struct CloudKitShoppingListItemsPublisher: Publisher {
 		private var cloudKitUtils: CloudKitUtilsProtocol
 		private let list: ShoppingList
 		private var subscriber: S?
-		private var cancellable: Cancellable?
+		private var cancellables = Set<AnyCancellable>()
 
 		init(list: ShoppingList, subscriber: S) {
 			self.list = list
@@ -48,25 +48,32 @@ struct CloudKitShoppingListItemsPublisher: Publisher {
             })
             let listIsRemote = list.isRemote
 			let recordZone = CKRecordZone(ownerName: list.ownerName).zoneID
+			let group = DispatchGroup()
             for local in locals {
                 let recordName = CKRecord.ID().recordName
                 let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
                 let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
-                local.setRecordId(recordId: recordName)
-				_ = subscriber.receive(self.updateItemRecord(record: record, item: local))
+				group.enter()
+				local.setRecordId(recordId: recordName).sink(receiveCompletion: {_ in}, receiveValue: {
+					_ = subscriber.receive(self.updateItemRecord(record: record, item: local))
+					group.leave()
+				}).store(in: &cancellables)
             }
-            if shares.count > 0 {
-				let publisher: AnyPublisher<CKRecord, Error> = self.cloudKitUtils.fetchRecords(recordIds: shares.keys.map({CKRecord.ID(recordName: $0, zoneID: recordZone)}), localDb: !listIsRemote).eraseToAnyPublisher()
-				self.cancellable = publisher.sink(receiveCompletion: {completion in
-					subscriber.receive(completion: completion)
-				}, receiveValue: {record in
-					if let item = shares[record.recordID.recordName] {
-						_ = subscriber.receive(self.updateItemRecord(record: record, item: item))
-					}
-				})
-            } else {
-				subscriber.receive(completion: .finished)
-            }
+			group.notify(queue: .main, execute: {[weak self] in
+				guard let self = self else { return }
+				if shares.count > 0 {
+					let publisher: AnyPublisher<CKRecord, Error> = self.cloudKitUtils.fetchRecords(recordIds: shares.keys.map({CKRecord.ID(recordName: $0, zoneID: recordZone)}), localDb: !listIsRemote).eraseToAnyPublisher()
+					publisher.sink(receiveCompletion: {completion in
+						subscriber.receive(completion: completion)
+					}, receiveValue: {record in
+						if let item = shares[record.recordID.recordName] {
+							_ = subscriber.receive(self.updateItemRecord(record: record, item: item))
+						}
+					}).store(in: &self.cancellables)
+				} else {
+					subscriber.receive(completion: .finished)
+				}
+			})
 		}
 
 		func cancel() {

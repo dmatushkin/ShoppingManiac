@@ -10,6 +10,7 @@ import Foundation
 import CoreData
 import CoreStore
 import SwiftyBeaver
+import Combine
 
 public class ShoppingList: NSManagedObject {
 
@@ -17,13 +18,17 @@ public class ShoppingList: NSManagedObject {
         return (Array(self.items ?? []) as? [ShoppingListItem]) ?? []
     }
 
-    func setRecordId(recordId: String) {
-        _ = try? CoreStoreDefaults.dataStack.perform(synchronous: {[weak self] transaction -> Void in
-            guard let self = self else { return }
+	var itemsFetchBuilder: FetchChainBuilder<ShoppingListItem> {
+		return From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", self))
+	}
+
+    func setRecordId(recordId: String) -> AnyPublisher<Void, Error> {
+		return CoreDataOperationPublisher(operation: {[weak self] transaction in
+			guard let self = self else { return }
             if let shoppingList: ShoppingList = transaction.edit(self) {
                 shoppingList.recordid = recordId
             }
-        })
+		}).eraseToAnyPublisher()
     }
 
     var isPurchased: Bool {
