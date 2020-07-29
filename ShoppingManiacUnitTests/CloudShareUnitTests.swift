@@ -86,6 +86,68 @@ class CloudShareUnitTests: XCTestCase {
         XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
         XCTAssertEqual(recordsUpdateIteration, 2)
     }
+
+	func testShareCrossItemsShoppingList() throws {
+        let crossItemsListJson: NSDictionary = [
+            "name": "test test",
+            "date": "Jan 31, 2020 at 7:04:15 PM",
+            "items": [
+                [
+                    "good": "good1",
+                    "store": "store1",
+					"isCrossListItem": true
+                ],
+                [
+                    "good": "good2",
+                    "store": "store2",
+					"isCrossListItem": true
+                ]
+            ]
+        ]
+		let shoppingListJson: NSDictionary = [
+            "name": "test name",
+            "date": "Jan 31, 2020 at 7:04:15 PM",
+            "items": []
+        ]
+        var recordsUpdateIteration: Int = 0
+        self.utilsStub.onUpdateRecords = { records, localDb in
+            if recordsUpdateIteration == 0 {
+                XCTAssertEqual(records.count, 2)
+                XCTAssertTrue(localDb)
+                let listRecord = records[0]
+                XCTAssertEqual(listRecord.recordType, "ShoppingList")
+                XCTAssertNotEqual(listRecord.share, nil)
+                XCTAssertEqual(listRecord["name"] as? String, "test name")
+                XCTAssertEqual((listRecord["date"] as? Date)?.timeIntervalSinceReferenceDate, 602175855.0)
+                XCTAssertEqual(records[1].recordType, "cloudkit.share")
+            } else if recordsUpdateIteration == 1 {
+                XCTAssertEqual(records.count, 2)
+                XCTAssertTrue(localDb)
+                XCTAssertEqual(records[0].recordType, "ShoppingListItem")
+                XCTAssertEqual(records[1].recordType, "ShoppingListItem")
+                if records[0]["goodName"] as? String == "good1" {
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store1")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store2")
+                } else {
+                    XCTAssertEqual(records[0]["goodName"] as? String, "good2")
+                    XCTAssertEqual(records[0]["storeName"] as? String, "store2")
+                    XCTAssertEqual(records[1]["goodName"] as? String, "good1")
+                    XCTAssertEqual(records[1]["storeName"] as? String, "store1")
+                }
+            } else {
+                XCTAssertTrue(false)
+            }
+            recordsUpdateIteration += 1
+        }
+        _ = ShoppingList.importShoppingList(fromJsonData: crossItemsListJson)!
+		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
+		let share = try self.cloudShare.shareList(list: shoppingList).getValue(test: self, timeout: 10)
+        XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
+        XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
+        XCTAssertEqual(recordsUpdateIteration, 2)
+    }
     
     func testUpdateLocalShoppingList() throws {
         let shoppingListJson: NSDictionary = [
