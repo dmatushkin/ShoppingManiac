@@ -59,7 +59,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     }
 
 	func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-		let item = self.model.item(forIndexPath: indexPath)
+		guard let item = self.model.item(forIndexPath: indexPath) else { return nil }
 		let disableAction = UIContextualAction(style: .destructive, title: "Delete") {[weak self] (_, _, actionPerformed) in
 			tableView.isEditing = false
 			let alertController = UIAlertController(title: "Delete purchase", message: "Are you sure you want to delete \(item.itemName) from your purchase list?", confirmActionTitle: "Delete") {[weak self] in
@@ -83,8 +83,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "addShoppingListItemSegue", let destination = segue.destination as? AddShoppingItemViewController {
             destination.model.shoppingList = self.model.shoppingList
-        } else if segue.identifier == "editShoppingListItemSegue", let indexPath = sender as? IndexPath, let destination = segue.destination as? AddShoppingItemViewController {
-            let item = self.model.item(forIndexPath: indexPath)
+        } else if segue.identifier == "editShoppingListItemSegue", let indexPath = sender as? IndexPath, let destination = segue.destination as? AddShoppingItemViewController, let item = self.model.item(forIndexPath: indexPath) {
             destination.model.shoppingListItem = CoreStoreDefaults.dataStack.fetchExisting(item.objectId)
             destination.model.shoppingList = self.model.shoppingList
         }
@@ -117,13 +116,14 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     }
 
     private func smsShare() {
+		guard let shoppingList = self.model.shoppingList else { return }
         if MFMessageComposeViewController.canSendText() {
             let picker = MFMessageComposeViewController()
             picker.messageComposeDelegate = self
-            picker.body = self.model.shoppingList.textData()
+            picker.body = shoppingList.textData()
             if MFMessageComposeViewController.canSendAttachments() {
-                if let data = self.model.shoppingList.jsonData() {
-                    picker.addAttachmentData(data as Data, typeIdentifier: "public.json", filename: "\(self.model.shoppingList.title).smstorage")
+                if let data = shoppingList.jsonData() {
+                    picker.addAttachmentData(data as Data, typeIdentifier: "public.json", filename: "\(shoppingList.title).smstorage")
                 }
             }
             self.present(picker, animated: true, completion: nil)
@@ -138,8 +138,9 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     }
 
     private func icloudShare() {
+		guard let shoppingList = self.model.shoppingList else { return }
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
-		self.cloudShare.shareList(list: self.model.shoppingList).observeOnMain().sink(receiveCompletion: { completion in
+		self.cloudShare.shareList(list: shoppingList).observeOnMain().sink(receiveCompletion: { completion in
 			switch completion {
 			case .failure(let error):
 				HUD.flash(.labeledError(title: "iCloud sharing error", subtitle: error.localizedDescription), delay: 3)

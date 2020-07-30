@@ -17,10 +17,10 @@ class ShoppingListModel {
     private let cloudShare = CloudShare()
 	let totalText = CurrentValueSubject<String?, Never>("")
 
-    var shoppingList: ShoppingList!
+    var shoppingList: ShoppingList?
 
-	private var dataSource: EditableListDataSource<ShoppingGroup, GroupItem>!
-	private var listPublisher: ListPublisher<ShoppingListItem>!
+	private var dataSource: EditableListDataSource<ShoppingGroup, GroupItem>?
+	private var listPublisher: ListPublisher<ShoppingListItem>?
 	private var goodsPublisher = CoreStoreDefaults.dataStack.publishList(From<Good>().orderBy(.ascending(\.name)))
 	private var storesPublisher = CoreStoreDefaults.dataStack.publishList(From<Store>().orderBy(.ascending(\.name)))
 	private var categoriesPublisher = CoreStoreDefaults.dataStack.publishList(From<Category>().orderBy(.ascending(\.name)))
@@ -33,6 +33,7 @@ class ShoppingListModel {
 	}
 
 	func setupTable(tableView: UITableView) {
+		guard let shoppingList = self.shoppingList else { return }
 		listPublisher = CoreStoreDefaults.dataStack.publishList(shoppingList.itemsFetchBuilder.orderBy(.descending(\.good?.name)))
 
 		dataSource = EditableListDataSource<ShoppingGroup, GroupItem>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
@@ -43,36 +44,36 @@ class ShoppingListModel {
 				fatalError()
 			}
 		}
-		listPublisher.addObserver(self, {[weak self] publisher in
+		listPublisher!.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
 			self.reloadTable(publisher: publisher)
 		})
 		goodsPublisher.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
-			self.reloadTable(publisher: self.listPublisher)
+			self.reloadTable(publisher: self.listPublisher!)
 		})
 		storesPublisher.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
-			self.reloadTable(publisher: self.listPublisher)
+			self.reloadTable(publisher: self.listPublisher!)
 		})
 		categoriesPublisher.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
-			self.reloadTable(publisher: self.listPublisher)
+			self.reloadTable(publisher: self.listPublisher!)
 		})
-		dataSource.canMoveRow = true
-		dataSource.moveRow = {[weak self] from, to in
+		dataSource!.canMoveRow = true
+		dataSource!.moveRow = {[weak self] from, to in
 			guard let self = self else { return }
 			if from.section != to.section {
 				self.moveItem(from: from, toGroup: to.section)
 			} else {
-				self.reloadTable(publisher: self.listPublisher)
+				self.reloadTable(publisher: self.listPublisher!)
 			}
 		}
-		dataSource.titleForSection = {[weak self] section in
+		dataSource!.titleForSection = {[weak self] section in
 			guard let self = self else { return nil }
 			return self.sectionTitle(forSection: section)
 		}
-		reloadTable(publisher: listPublisher)
+		reloadTable(publisher: listPublisher!)
 	}
 
 	private func reloadTable(publisher: ListPublisher<ShoppingListItem>) {
@@ -90,12 +91,13 @@ class ShoppingListModel {
 			snapshot.appendItems(groupItems, toSection: group)
 		}
 		self.totalText.send(String(format: "Total: %.2f", totalPrice))
-		self.dataSource.apply(snapshot, animatingDifferences: false)
+		self.dataSource?.apply(snapshot, animatingDifferences: false)
 	}
 
     func syncWithCloud() {
-        if AppDelegate.discoverabilityStatus && self.shoppingList.recordid != nil {
-			self.cloudShare.updateList(list: self.shoppingList).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
+		guard let shoppingList = self.shoppingList else { return }
+        if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
+			self.cloudShare.updateList(list: shoppingList).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
         }
     }
         
@@ -105,19 +107,18 @@ class ShoppingListModel {
         }
     }
 
-    func item(forIndexPath indexPath: IndexPath) -> GroupItem {
-		let section = self.dataSource.snapshot().sectionIdentifiers[indexPath.section]
-		return self.dataSource.snapshot().itemIdentifiers(inSection: section)[indexPath.row]
+    func item(forIndexPath indexPath: IndexPath) -> GroupItem? {
+		guard let dataSource = self.dataSource else { return nil }
+		let section = dataSource.snapshot().sectionIdentifiers[indexPath.section]
+		return dataSource.snapshot().itemIdentifiers(inSection: section)[indexPath.row]
     }
     
     func sectionTitle(forSection section: Int) -> String? {
-		let section = self.dataSource.snapshot().sectionIdentifiers[section]
-		return section.groupName
+		return self.dataSource?.snapshot().sectionIdentifiers[section].groupName
     }
     
     func moveItem(from: IndexPath, toGroup: Int) {
-		let group = self.dataSource.snapshot().sectionIdentifiers[toGroup]
-        let item = self.item(forIndexPath: from)
+		guard let group = self.dataSource?.snapshot().sectionIdentifiers[toGroup], let item = self.item(forIndexPath: from) else { return }
 
 		CoreDataOperationPublisher(operation: {transaction -> Void in
 			if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
@@ -133,7 +134,7 @@ class ShoppingListModel {
     }
 
     func togglePurchased(indexPath: IndexPath) {
-		var item = self.item(forIndexPath: indexPath)
+		guard var item = self.item(forIndexPath: indexPath) else { return }
 
 		item.purchased = !item.purchased
 
@@ -149,7 +150,7 @@ class ShoppingListModel {
     }
 
 	func removeItem(from: IndexPath) {
-		let item = self.item(forIndexPath: from)
+		guard let item = self.item(forIndexPath: from) else { return }
 		CoreDataOperationPublisher(operation: {transaction -> Void in
 			if let shoppingListItem: ShoppingListItem = transaction.edit(Into<ShoppingListItem>(), item.objectId) {
                 shoppingListItem.isRemoved = true

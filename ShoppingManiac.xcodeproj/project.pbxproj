@@ -277,6 +277,7 @@
 		56D1216720A712010044C486 /* CategoriesListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesListModel.swift; sourceTree = "<group>"; };
 		56D1216920A713800044C486 /* AddCategoryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCategoryModel.swift; sourceTree = "<group>"; };
 		56D540561F9A73180036C646 /* UIKeyboardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKeyboardInfo.swift; sourceTree = "<group>"; };
+		56D739A924D29F3E00352D80 /* ShoppingManiac copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "ShoppingManiac copy-Info.plist"; path = "/Users/dmatushkin/Projects/Personal/ShoppingManiac/ShoppingManiac copy-Info.plist"; sourceTree = "<absolute>"; };
 		56E0C5A224C9AC30003AB178 /* CloudKitShoppingListItemsPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitShoppingListItemsPublisher.swift; sourceTree = "<group>"; };
 		56E0C5A524C9C374003AB178 /* PublisherExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublisherExtension.swift; sourceTree = "<group>"; };
 		56E0C5A824C9C679003AB178 /* CloudKitUtilsPublishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUtilsPublishers.swift; sourceTree = "<group>"; };
@@ -602,6 +603,7 @@
 				56E798AC23DACB2700461F96 /* ShoppingManiacUnitTests */,
 				566A7DD51ED1759C005F9D31 /* Products */,
 				00FC28521D62CDE8F963675C /* Frameworks */,
+				56D739A924D29F3E00352D80 /* ShoppingManiac copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
