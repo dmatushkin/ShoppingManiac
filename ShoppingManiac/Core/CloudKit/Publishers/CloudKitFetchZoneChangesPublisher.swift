@@ -62,7 +62,12 @@ struct CloudKitFetchZoneChangesPublisher: Publisher {
 		}
 
 		func request() {
-			guard subscriber != nil else { return }
+			guard let subscriber = subscriber else { return }
+			guard wrapper.zoneIds.count > 0 else {
+				_ = subscriber.receive([])
+				subscriber.receive(completion: .finished)
+				return
+			}
 			var moreComingFlag: Bool = false
 			let optionsByRecordZoneID = wrapper.zoneIds.reduce(into: [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration](), { $0[$1] = zoneIdFetchOption(zoneId: $1, localDb: wrapper.localDb) })
 			let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: wrapper.zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)

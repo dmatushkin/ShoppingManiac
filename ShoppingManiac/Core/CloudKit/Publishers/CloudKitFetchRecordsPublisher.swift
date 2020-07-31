@@ -29,6 +29,10 @@ struct CloudKitFetchRecordsPublisher: Publisher {
 
 		func request(_ demand: Subscribers.Demand) {
 			guard let subscriber = subscriber else { return }
+			guard recordIds.count > 0 else {
+				subscriber.receive(completion: .finished)
+				return
+			}
 			let operation = CKFetchRecordsOperation(recordIDs: recordIds)
 			operation.perRecordCompletionBlock = { record, recordid, error in
 				error?.log()

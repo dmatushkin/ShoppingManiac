@@ -29,6 +29,11 @@ struct CloudKitUpdateSubscriptionsPublisher: Publisher {
 
 		func request(_ demand: Subscribers.Demand) {
 			guard let subscriber = subscriber else { return }
+			guard subscriptions.count > 0 else {
+				_ = subscriber.receive(())
+				subscriber.receive(completion: .finished)
+				return
+			}
 			let operation = CKModifySubscriptionsOperation(subscriptionsToSave: subscriptions, subscriptionIDsToDelete: [])
 			operation.modifySubscriptionsCompletionBlock = { (_, _, error) in
 				if let error = error {

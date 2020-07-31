@@ -29,6 +29,11 @@ struct CloudKitUpdateRecordsPublisher: Publisher {
 
 		func request(_ demand: Subscribers.Demand) {
 			guard let subscriber = subscriber else { return }
+			guard records.count > 0 else {
+				_ = subscriber.receive(())
+				subscriber.receive(completion: .finished)
+				return
+			}
 			let operation = CKModifyRecordsOperation(recordsToSave: records, recordIDsToDelete: nil)
 			operation.perRecordCompletionBlock = { _, error in
 				error?.log()

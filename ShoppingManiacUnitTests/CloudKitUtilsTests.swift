@@ -50,6 +50,11 @@ class CloudKitUtilsTests: XCTestCase {
         XCTAssertEqual(records[2].recordID.recordName, "cccc")
     }
 
+	func testFetchLocalRecordsCombineSuccessNoRecords() throws {
+		let records = try self.utils.fetchRecords(recordIds: [], localDb: true).collect().getValue(test: self, timeout: 10)
+		XCTAssertEqual(records.count, 0)
+	}
+
 	func testFetchLocalRecordsCombineRetry() throws {
         let recordIds = [CKRecord.ID(recordName: "aaaa"), CKRecord.ID(recordName: "bbbb"), CKRecord.ID(recordName: "cccc")]
         self.operations.onAddOperation = { operation, localOperations, sharedOperations in
@@ -95,6 +100,11 @@ class CloudKitUtilsTests: XCTestCase {
         }
 		try self.utils.updateRecords(records: records, localDb: true).wait(test: self, timeout: 10)
         XCTAssertEqual(self.operations.localOperations.count, 1)
+    }
+
+	func testUpdateRecordsCombineSuccessNoRecords() throws {
+		try self.utils.updateRecords(records: [], localDb: true).wait(test: self, timeout: 10)
+        XCTAssertEqual(self.operations.localOperations.count, 0)
     }
 
 	func testUpdateRecordCombineRetry() throws {
@@ -297,6 +307,13 @@ class CloudKitUtilsTests: XCTestCase {
         for zoneId in zoneIds {
             XCTAssertEqual((self.storage.getZoneToken(zoneId: zoneId, localDb: true) as? TestServerChangeToken)?.key, zoneId.zoneName)
         }
+    }
+
+	func testFetchZoneChangesCombineSuccessNoZones() throws {
+        let wrapper = ZonesToFetchWrapper(localDb: true, zoneIds: [])
+		let resultRecords = try self.utils.fetchZoneChanges(wrapper: wrapper).getValue(test: self, timeout: 10)
+        XCTAssertEqual(self.operations.localOperations.count, 0)
+        XCTAssertEqual(resultRecords.count, 0)
     }
 
 	func testFetchZoneChangesCombineSuccessHasTokenNoMore() throws {
