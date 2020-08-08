@@ -26,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
 
 	private var cancellables = Set<AnyCancellable>()
+	private let cloudLoader = CloudLoader()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.registerForRemoteNotifications()
@@ -49,11 +50,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-			CloudLoader().fetchChanges(localDb: false).append(CloudLoader().fetchChanges(localDb: true)).observeOnMain().sink(receiveCompletion: {completion in
+			self.cloudLoader.fetchChanges(localDb: false).append(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().sink(receiveCompletion: {completion in
 				switch completion {
 				case .finished:
 					SwiftyBeaver.debug("loading updates done")
-					LocalNotifications.newDataAvailable.post(value: ())
 					completionHandler(.newData)
 				case .failure(let error):
 					SwiftyBeaver.debug(error.localizedDescription)
@@ -92,11 +92,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 DispatchQueue.main.async {
                     HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
                 }
-				CloudLoader().loadShare(metadata: metadata).observeOnMain().sink(receiveCompletion: {completion in
+				self.cloudLoader.loadShare(metadata: metadata).observeOnMain().sink(receiveCompletion: {completion in
 					switch completion {
 					case .finished:
 						SwiftyBeaver.debug("loading lists done")
-						LocalNotifications.newDataAvailable.post(value: ())
 					case .failure(let error):
 						HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
 					}

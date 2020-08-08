@@ -50,5 +50,4 @@ struct LocalNotifications {
     
     static let keyboardWillChangeFrame = LocalNotification<UIKeyboardInfo>(notificationName: UIResponder.keyboardWillChangeFrameNotification)
     static let keyboardWillHide = LocalNotification<UIKeyboardInfo>(notificationName: UIResponder.keyboardWillHideNotification)
-    static let newDataAvailable = LocalNotification<Void>()
 }
