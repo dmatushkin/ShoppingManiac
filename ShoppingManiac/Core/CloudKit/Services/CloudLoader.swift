@@ -11,6 +11,7 @@ import CloudKit
 import CoreStore
 import SwiftyBeaver
 import Combine
+import DependencyInjection
 
 class CloudLoader {
 

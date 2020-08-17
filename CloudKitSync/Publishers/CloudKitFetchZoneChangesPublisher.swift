@@ -1,15 +1,15 @@
 //
 //  CloudKitFetchZoneChangesPublisher.swift
-//  ShoppingManiac
+//  CloudKitSync
 //
-//  Created by Dmitry Matyushkin on 7/22/20.
+//  Created by Dmitry Matyushkin on 8/14/20.
 //  Copyright © 2020 Dmitry Matyushkin. All rights reserved.
 //
 
 import Foundation
 import Combine
 import CloudKit
-import SwiftyBeaver
+import CommonError
 import DependencyInjection
 
 struct CloudKitFetchZoneChangesPublisher: Publisher {
@@ -17,15 +17,17 @@ struct CloudKitFetchZoneChangesPublisher: Publisher {
 	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == [CKRecord], S.Failure == Error {
 
 		@Autowired
-		private var operations: CloudKitOperationsProtocol
+		private var operations: CloudKitSyncOperationsProtocol
 		@Autowired
-		private var storage: CloudKitTokenStorageProtocol
+		private var storage: CloudKitSyncTokenStorageProtocol
 		private var records: [CKRecord] = []
-		private let wrapper: ZonesToFetchWrapper
+		private let zoneIds: [CKRecordZone.ID]
+		private let localDb: Bool
 		private var subscriber: S?
 
-		init(wrapper: ZonesToFetchWrapper, subscriber: S) {
-			self.wrapper = wrapper
+		init(zoneIds: [CKRecordZone.ID], localDb: Bool, subscriber: S) {
+			self.zoneIds = zoneIds
+			self.localDb = localDb
 			self.subscriber = subscriber
 		}
 
@@ -38,9 +40,9 @@ struct CloudKitFetchZoneChangesPublisher: Publisher {
 		private func handleFetchZoneChangesDone(moreComingFlag: Bool, error: Error?) {
 			guard let subscriber = subscriber else { return }
 			error?.log()
-			switch CloudKitErrorType.errorType(forError: error) {
+			switch CloudKitSyncErrorType.errorType(forError: error) {
 			case .retry(let timeout):
-				CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+				CloudKitSyncUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
 					self?.request()
 				}
 			case .tokenReset:
@@ -49,7 +51,7 @@ struct CloudKitFetchZoneChangesPublisher: Publisher {
 				if moreComingFlag {
 					self.request()
 				} else {
-					SwiftyBeaver.debug("\(self.records.count) updated records found")
+					CommonError.logDebug("\(self.records.count) updated records found")
 					_ = subscriber.receive(self.records)
 					subscriber.receive(completion: .finished)
 				}
@@ -64,29 +66,29 @@ struct CloudKitFetchZoneChangesPublisher: Publisher {
 
 		func request() {
 			guard let subscriber = subscriber else { return }
-			guard wrapper.zoneIds.count > 0 else {
+			guard zoneIds.count > 0 else {
 				_ = subscriber.receive([])
 				subscriber.receive(completion: .finished)
 				return
 			}
 			var moreComingFlag: Bool = false
-			let optionsByRecordZoneID = wrapper.zoneIds.reduce(into: [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration](), { $0[$1] = zoneIdFetchOption(zoneId: $1, localDb: wrapper.localDb) })
-			let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: wrapper.zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
+			let optionsByRecordZoneID = zoneIds.reduce(into: [CKRecordZone.ID: CKFetchRecordZoneChangesOperation.ZoneConfiguration](), { $0[$1] = zoneIdFetchOption(zoneId: $1, localDb: localDb) })
+			let operation = CKFetchRecordZoneChangesOperation(recordZoneIDs: zoneIds, configurationsByRecordZoneID: optionsByRecordZoneID)
 			operation.fetchAllChanges = true
 			operation.recordChangedBlock = { record in self.records.append(record) }
 			operation.recordZoneChangeTokensUpdatedBlock = {[weak self] zoneId, token, data in
 				guard let self = self else { return }
-				self.storage.setZoneToken(zoneId: zoneId, localDb: self.wrapper.localDb, token: token)
+				self.storage.setZoneToken(zoneId: zoneId, localDb: self.localDb, token: token)
 			}
 			operation.recordZoneFetchCompletionBlock = {[weak self] zoneId, changeToken, data, moreComing, error in
 				guard let self = self else { return }
 				error?.log()
-				switch CloudKitErrorType.errorType(forError: error) {
+				switch CloudKitSyncErrorType.errorType(forError: error) {
 				case .tokenReset:
-					self.storage.setZoneToken(zoneId: zoneId, localDb: self.wrapper.localDb, token: nil)
+					self.storage.setZoneToken(zoneId: zoneId, localDb: self.localDb, token: nil)
 				case .noError:
 					if let token = changeToken {
-						self.storage.setZoneToken(zoneId: zoneId, localDb: self.wrapper.localDb, token: token)
+						self.storage.setZoneToken(zoneId: zoneId, localDb: self.localDb, token: token)
 					}
 				default:
 					break
@@ -100,7 +102,7 @@ struct CloudKitFetchZoneChangesPublisher: Publisher {
 			}
 			operation.qualityOfService = .utility
 			operation.fetchAllChanges = true
-			self.operations.run(operation: operation, localDb: wrapper.localDb)
+			self.operations.run(operation: operation, localDb: self.localDb)
 		}
 
 		func cancel() {
@@ -111,14 +113,17 @@ struct CloudKitFetchZoneChangesPublisher: Publisher {
 	typealias Output = [CKRecord]
 	typealias Failure = Error
 
-	private let wrapper: ZonesToFetchWrapper
+	private let zoneIds: [CKRecordZone.ID]
+	private let localDb: Bool
 
-	init(wrapper: ZonesToFetchWrapper) {
-		self.wrapper = wrapper
+	init(zoneIds: [CKRecordZone.ID], localDb: Bool) {
+		self.zoneIds = zoneIds
+		self.localDb = localDb
 	}
 
 	func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
-			let subscription = CloudKitSubscription(wrapper: wrapper,
+			let subscription = CloudKitSubscription(zoneIds: zoneIds,
+													localDb: localDb,
 													subscriber: subscriber)
 			subscriber.receive(subscription: subscription)
 	}

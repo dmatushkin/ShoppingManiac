@@ -9,11 +9,11 @@
 import Foundation
 
 @propertyWrapper
-struct Autowired<T> {
-	init() {
+public struct Autowired<T> {
+	public init() {
 	}
 	private var value: T?
-	var wrappedValue: T {
+	public var wrappedValue: T {
 		mutating get {
 			if let value = value {
 				return value

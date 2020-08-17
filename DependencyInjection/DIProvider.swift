@@ -8,26 +8,27 @@
 
 import Foundation
 
-protocol DIDependency {
+public protocol DIDependency {
 	init()
 }
 
-class DIProvider {
+public class DIProvider {
 
 	enum DIRegistrationType {
 		case dependency(type: DIDependency.Type)
 		case lambda(value: () -> Any)
 		case singleton(type: DIDependency.Type)
+		case object(value: Any)
 	}
 
 	private init() {}
 
-	static let shared = DIProvider()
+	public static let shared = DIProvider()
 
 	private var diMap: [String: DIRegistrationType] = [:]
 	private var singletons: [String: DIDependency] = [:]
 
-	func inject(forType type: Any) -> Any? {
+	public func inject(forType type: Any) -> Any? {
 		let className = String(describing: type.self)
 		guard let registration = diMap[className] else { return nil }
 		switch registration {
@@ -43,24 +44,33 @@ class DIProvider {
 				singletons[className] = obj
 				return obj
 			}
+		case .object(let value):
+			return value
 		}
 	}
 
 	@discardableResult
-	func register(forType type: Any, lambda: @escaping () -> Any) -> DIProvider {
+	public func register(forType type: Any, lambda: @escaping () -> Any) -> DIProvider {
 		let className = String(describing: type.self)
 		diMap[className] = .lambda(value: lambda)
 		return self
 	}
 
 	@discardableResult
-	func register(forType type: Any, dependency: DIDependency.Type) -> DIProvider {
+	public func register(forType type: Any, object: Any) -> DIProvider {
+		let className = String(describing: type.self)
+		diMap[className] = .object(value: object)
+		return self
+	}
+
+	@discardableResult
+	public func register(forType type: Any, dependency: DIDependency.Type) -> DIProvider {
 		let className = String(describing: type.self)
 		diMap[className] = .dependency(type: dependency)
 		return self
 	}
 
-	func clear() {
+	public func clear() {
 		diMap = [:]
 	}
 }

@@ -1,15 +1,15 @@
 //
 //  CloudKitFetchRecordsPublisher.swift
-//  ShoppingManiac
+//  CloudKitSync
 //
-//  Created by Dmitry Matyushkin on 7/22/20.
+//  Created by Dmitry Matyushkin on 8/14/20.
 //  Copyright © 2020 Dmitry Matyushkin. All rights reserved.
 //
 
 import Foundation
 import Combine
 import CloudKit
-import SwiftyBeaver
+import CommonError
 import DependencyInjection
 
 struct CloudKitFetchRecordsPublisher: Publisher {
@@ -17,7 +17,7 @@ struct CloudKitFetchRecordsPublisher: Publisher {
 	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == CKRecord, S.Failure == Error {
 
 		@Autowired
-		private var operations: CloudKitOperationsProtocol
+		private var operations: CloudKitSyncOperationsProtocol
 		private let recordIds: [CKRecord.ID]
 		private let localDb: Bool
 		private var subscriber: S?
@@ -38,15 +38,15 @@ struct CloudKitFetchRecordsPublisher: Publisher {
 			operation.perRecordCompletionBlock = { record, recordid, error in
 				error?.log()
 				if let record = record {
-					SwiftyBeaver.debug("Successfully loaded record \(recordid?.recordName ?? "no record name")")
+					CommonError.logDebug("Successfully loaded record \(recordid?.recordName ?? "no record name")")
 					_ = subscriber.receive(record)
 				}
 			}
 			operation.fetchRecordsCompletionBlock = { _, error in
 				error?.log()
-				switch CloudKitErrorType.errorType(forError: error) {
+				switch CloudKitSyncErrorType.errorType(forError: error) {
 				case .retry(let timeout):
-					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+					CloudKitSyncUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
 						self?.request(demand)
 					}
 				case .noError:

@@ -1,9 +1,9 @@
 //
-//  CloudKitUtils.swift
-//  ShoppingManiac
+//  CloudKitSyncUtils.swift
+//  CloudKitSync
 //
-//  Created by Dmitry Matyushkin on 28/04/2018.
-//  Copyright © 2018 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 8/14/20.
+//  Copyright © 2020 Dmitry Matyushkin. All rights reserved.
 //
 
 import Foundation
@@ -12,21 +12,17 @@ import SwiftyBeaver
 import Combine
 import DependencyInjection
 
-protocol CloudKitUtilsProtocol {
+protocol CloudKitSyncUtilsProtocol {
 	func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> AnyPublisher<CKRecord, Error>
 	func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> AnyPublisher<Void, Error>
 	func updateRecords(records: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error>
-	func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<ZonesToFetchWrapper, Error>
-	func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> AnyPublisher<[CKRecord], Error>
+	func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<[CKRecordZone.ID], Error>
+	func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error>
 }
 
-class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
-    
+class CloudKitSyncUtils: CloudKitSyncUtilsProtocol, DIDependency {
+
     static let retryQueue = DispatchQueue(label: "CloudKitUtils.retryQueue", attributes: .concurrent)
-    
-    static let zoneName = "ShareZone"
-    static let listRecordType = "ShoppingList"
-    static let itemRecordType = "ShoppingListItem"
 
 	required init() {}
 
@@ -42,11 +38,11 @@ class CloudKitUtils: CloudKitUtilsProtocol, DIDependency {
 		return CloudKitUpdateRecordsPublisher(records: records, localDb: localDb).eraseToAnyPublisher()
 	}
 
-	func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<ZonesToFetchWrapper, Error> {
+	func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<[CKRecordZone.ID], Error> {
 		return CloudKitFetchDatabaseChangesPublisher(localDb: localDb).eraseToAnyPublisher()
 	}
 
-	func fetchZoneChanges(wrapper: ZonesToFetchWrapper) -> AnyPublisher<[CKRecord], Error> {
-		return CloudKitFetchZoneChangesPublisher(wrapper: wrapper).eraseToAnyPublisher()
+	func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error> {
+		return CloudKitFetchZoneChangesPublisher(zoneIds: zoneIds, localDb: localDb).eraseToAnyPublisher()
 	}
 }

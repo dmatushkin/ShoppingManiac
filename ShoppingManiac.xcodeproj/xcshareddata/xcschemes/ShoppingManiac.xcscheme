@@ -47,6 +47,16 @@
                ReferencedContainer = "container:ShoppingManiac.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "566B8A2924E68AD000B87A63"
+               BuildableName = "CloudKitSyncTests.xctest"
+               BlueprintName = "CloudKitSyncTests"
+               ReferencedContainer = "container:ShoppingManiac.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

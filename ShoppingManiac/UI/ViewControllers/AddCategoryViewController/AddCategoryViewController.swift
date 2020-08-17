@@ -9,6 +9,7 @@
 import UIKit
 import CoreStore
 import Combine
+import CommonError
 
 class AddCategoryViewController: ShoppingManiacViewController {
 

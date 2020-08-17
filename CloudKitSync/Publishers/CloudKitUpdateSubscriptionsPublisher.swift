@@ -1,24 +1,23 @@
 //
 //  CloudKitUpdateSubscriptionsPublisher.swift
-//  ShoppingManiac
+//  CloudKitSync
 //
-//  Created by Dmitry Matyushkin on 7/23/20.
+//  Created by Dmitry Matyushkin on 8/14/20.
 //  Copyright © 2020 Dmitry Matyushkin. All rights reserved.
 //
 
 import Foundation
 import Combine
 import CloudKit
-import SwiftyBeaver
-import DependencyInjection
 import CommonError
+import DependencyInjection
 
 struct CloudKitUpdateSubscriptionsPublisher: Publisher {
 
 	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == Void, S.Failure == Error {
 
 		@Autowired
-		private var operations: CloudKitOperationsProtocol
+		private var operations: CloudKitSyncOperationsProtocol
 		private let subscriptions: [CKSubscription]
 		private let localDb: Bool
 		private var subscriber: S?

@@ -1,26 +1,25 @@
 //
 //  CloudKitFetchDatabaseChangesPublisher.swift
-//  ShoppingManiac
+//  CloudKitSync
 //
-//  Created by Dmitry Matyushkin on 7/22/20.
+//  Created by Dmitry Matyushkin on 8/14/20.
 //  Copyright © 2020 Dmitry Matyushkin. All rights reserved.
 //
 
 import Foundation
 import Combine
 import CloudKit
-import SwiftyBeaver
 import DependencyInjection
 import CommonError
 
 struct CloudKitFetchDatabaseChangesPublisher: Publisher {
 
-	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == ZonesToFetchWrapper, S.Failure == Error {
+	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == [CKRecordZone.ID], S.Failure == Error {
 
 		@Autowired
-		private var operations: CloudKitOperationsProtocol
+		private var operations: CloudKitSyncOperationsProtocol
 		@Autowired
-		private var storage: CloudKitTokenStorageProtocol
+		private var storage: CloudKitSyncTokenStorageProtocol
 		private var loadedZoneIds: [CKRecordZone.ID] = []
 		private let localDb: Bool
 		private var subscriber: S?
@@ -44,9 +43,9 @@ struct CloudKitFetchDatabaseChangesPublisher: Publisher {
 			operation.fetchDatabaseChangesCompletionBlock = {[weak self] token, moreComing, error in
 				guard let self = self else { return }
 				error?.log()
-				switch CloudKitErrorType.errorType(forError: error) {
+				switch CloudKitSyncErrorType.errorType(forError: error) {
 				case .retry(let timeout):
-					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+					CloudKitSyncUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
 						self?.request(demand)
 					}
 				case .tokenReset:
@@ -58,8 +57,8 @@ struct CloudKitFetchDatabaseChangesPublisher: Publisher {
 						if moreComing {
 							self.request(demand)
 						} else {
-							_ = subscriber.receive(ZonesToFetchWrapper(localDb: self.localDb, zoneIds: self.loadedZoneIds))
-							SwiftyBeaver.debug("Update zones request finished")
+							_ = subscriber.receive(self.loadedZoneIds)
+							CommonError.logDebug("Update zones request finished")
 							subscriber.receive(completion: .finished)
 						}
 					} else {
@@ -82,7 +81,7 @@ struct CloudKitFetchDatabaseChangesPublisher: Publisher {
 		}
 	}
 
-	typealias Output = ZonesToFetchWrapper
+	typealias Output = [CKRecordZone.ID]
 	typealias Failure = Error
 
 	private let localDb: Bool

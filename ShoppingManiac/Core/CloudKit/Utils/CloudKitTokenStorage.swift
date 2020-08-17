@@ -8,8 +8,9 @@
 
 import Foundation
 import CloudKit
+import DependencyInjection
 
-class CloudKitTokenStorage: CloudKitTokenStorgeProtocol, DIDependency {
+class CloudKitTokenStorage: CloudKitTokenStorageProtocol, DIDependency {
 
 	required init() {}
 	

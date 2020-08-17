@@ -1,15 +1,15 @@
 //
-//  CloudKitTokenStorgeProtocol.swift
-//  ShoppingManiac
+//  CloudKitSyncTokenStorgeProtocol.swift
+//  CloudKitSync
 //
-//  Created by Dmitry Matyushkin on 1/24/20.
+//  Created by Dmitry Matyushkin on 8/14/20.
 //  Copyright © 2020 Dmitry Matyushkin. All rights reserved.
 //
 
 import Foundation
 import CloudKit
 
-protocol CloudKitTokenStorgeProtocol {
+public protocol CloudKitSyncTokenStorageProtocol {
     func getZoneToken(zoneId: CKRecordZone.ID, localDb: Bool) -> CKServerChangeToken?
     func setZoneToken(zoneId: CKRecordZone.ID, localDb: Bool, token: CKServerChangeToken?)
     func getDbToken(localDb: Bool) -> CKServerChangeToken?

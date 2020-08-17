@@ -10,6 +10,8 @@ import XCTest
 import CloudKit
 import CoreStore
 import Combine
+import DependencyInjection
+import CommonError
 
 //swiftlint:disable type_body_length function_body_length superfluous_disable_command
 

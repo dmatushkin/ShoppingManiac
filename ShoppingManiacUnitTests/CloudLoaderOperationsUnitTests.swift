@@ -9,6 +9,8 @@
 import XCTest
 import CloudKit
 import CoreStore
+import DependencyInjection
+import CommonError
 
 //swiftlint:disable type_body_length file_length function_body_length cyclomatic_complexity
 class CloudLoaderOperationsUnitTests: XCTestCase {
@@ -19,8 +21,8 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 
     override func setUp() {
 		DIProvider.shared
-			.register(forType: CloudKitOperationsProtocol.self, lambda: { self.operations })
-			.register(forType: CloudKitTokenStorgeProtocol.self, lambda: { self.storage })
+			.register(forType: CloudKitOperationsProtocol.self, object: self.operations)
+			.register(forType: CloudKitTokenStorageProtocol.self, object: self.storage)
 			.register(forType: CloudKitUtilsProtocol.self, dependency: CloudKitUtils.self)
 		TestDbWrapper.setup()
         self.operations.cleanup()

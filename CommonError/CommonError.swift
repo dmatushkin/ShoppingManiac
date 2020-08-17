@@ -9,22 +9,30 @@
 import Foundation
 import SwiftyBeaver
 
-class CommonError: LocalizedError {
+public class CommonError: LocalizedError {
     
     private let description: String
     
-    init(description: String) {
+    public init(description: String) {
         self.description = description
     }
     
-    var errorDescription: String? {
+    public var errorDescription: String? {
         return self.description
-    }    
+    }
+
+	public class func logDebug(_ text: String) {
+		SwiftyBeaver.debug(text)
+	}
+
+	public static func logError(_ text: String) {
+		SwiftyBeaver.error(text)
+	}
 }
 
-extension Error {
+public extension Error {
     
     func log() {
-        SwiftyBeaver.error(self.localizedDescription)
+		CommonError.logError(self.localizedDescription)
     }
 }

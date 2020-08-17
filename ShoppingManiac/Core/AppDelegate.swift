@@ -13,6 +13,7 @@ import SwiftyBeaver
 import PKHUD
 import SwiftEntryKit
 import Combine
+import DependencyInjection
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -32,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         application.registerForRemoteNotifications()
 		DIProvider.shared
 			.register(forType: CloudKitOperationsProtocol.self, dependency: CloudKitOperations.self)
-			.register(forType: CloudKitTokenStorgeProtocol.self, dependency: CloudKitTokenStorage.self)
+			.register(forType: CloudKitTokenStorageProtocol.self, dependency: CloudKitTokenStorage.self)
 			.register(forType: CloudKitUtilsProtocol.self, dependency: CloudKitUtils.self)
 		
         let log = SwiftyBeaver.self

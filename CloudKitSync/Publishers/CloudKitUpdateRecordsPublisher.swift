@@ -1,15 +1,15 @@
 //
 //  CloudKitUpdateRecordsPublisher.swift
-//  ShoppingManiac
+//  CloudKitSync
 //
-//  Created by Dmitry Matyushkin on 7/22/20.
+//  Created by Dmitry Matyushkin on 8/14/20.
 //  Copyright © 2020 Dmitry Matyushkin. All rights reserved.
 //
 
 import Foundation
 import Combine
 import CloudKit
-import SwiftyBeaver
+import CommonError
 import DependencyInjection
 
 struct CloudKitUpdateRecordsPublisher: Publisher {
@@ -17,7 +17,7 @@ struct CloudKitUpdateRecordsPublisher: Publisher {
 	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == Void, S.Failure == Error {
 
 		@Autowired
-		private var operations: CloudKitOperationsProtocol
+		private var operations: CloudKitSyncOperationsProtocol
 		private let records: [CKRecord]
 		private let localDb: Bool
 		private var subscriber: S?
@@ -41,17 +41,17 @@ struct CloudKitUpdateRecordsPublisher: Publisher {
 			}
 			operation.modifyRecordsCompletionBlock = { _, recordIds, error in
 				error?.log()
-				switch CloudKitErrorType.errorType(forError: error) {
+				switch CloudKitSyncErrorType.errorType(forError: error) {
 				case .retry(let timeout):
-					CloudKitUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
+					CloudKitSyncUtils.retryQueue.asyncAfter(deadline: .now() + timeout) {[weak self] in
 						self?.request(demand)
 					}
 				case .noError:
-					SwiftyBeaver.debug("Records modification done successfully")
+					CommonError.logDebug("Records modification done successfully")
 					_ = subscriber.receive(())
 					subscriber.receive(completion: .finished)
 				default:
-					error?.showError(title: "Sharing error")
+					error?.log()
 					subscriber.receive(completion: .failure(error!))
 				}
 			}

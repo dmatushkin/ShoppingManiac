@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CloudKit
 import SwiftyBeaver
+import DependencyInjection
 
 struct CloudKitCreateSharePublisher: Publisher {
 

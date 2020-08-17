@@ -8,6 +8,7 @@
 
 import Combine
 import CloudKit
+import DependencyInjection
 
 struct CloudKitShoppingListItemsPublisher: Publisher {
 
@@ -54,7 +55,8 @@ struct CloudKitShoppingListItemsPublisher: Publisher {
                 let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZone)
                 let record = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordId)
 				group.enter()
-				local.setRecordId(recordId: recordName).sink(receiveCompletion: {_ in}, receiveValue: {
+				local.setRecordId(recordId: recordName).sink(receiveCompletion: {_ in}, receiveValue: {[weak self] in
+					guard let self = self else { return }
 					_ = subscriber.receive(self.updateItemRecord(record: record, item: local))
 					group.leave()
 				}).store(in: &cancellables)

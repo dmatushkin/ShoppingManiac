@@ -10,6 +10,7 @@ import XCTest
 import CoreStore
 import CloudKit
 import Combine
+import DependencyInjection
 
 //swiftlint:disable type_body_length function_body_length
 
