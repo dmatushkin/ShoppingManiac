@@ -12,7 +12,7 @@ import SwiftyBeaver
 import Combine
 import DependencyInjection
 
-protocol CloudKitSyncUtilsProtocol {
+public protocol CloudKitSyncUtilsProtocol {
 	func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> AnyPublisher<CKRecord, Error>
 	func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> AnyPublisher<Void, Error>
 	func updateRecords(records: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error>
@@ -20,11 +20,11 @@ protocol CloudKitSyncUtilsProtocol {
 	func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error>
 }
 
-class CloudKitSyncUtils: CloudKitSyncUtilsProtocol, DIDependency {
+final class CloudKitSyncUtils: CloudKitSyncUtilsProtocol, DIDependency {
 
     static let retryQueue = DispatchQueue(label: "CloudKitUtils.retryQueue", attributes: .concurrent)
 
-	required init() {}
+	init() {}
 
 	func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> AnyPublisher<CKRecord, Error> {
 		return CloudKitFetchRecordsPublisher(recordIds: recordIds, localDb: localDb).eraseToAnyPublisher()

@@ -11,7 +11,12 @@
 		4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */; };
 		4521D1DD23D9DFB300775CC5 /* CloudKitErrorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */; };
 		456EDE1523E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456EDE1423E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift */; };
+		45B3041624F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */; };
+		45B3041824F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */; };
+		45B3041A24F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041924F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift */; };
+		45B3041C24F6A85000AB4C35 /* PersistModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041B24F6A85000AB4C35 /* PersistModels.swift */; };
 		45B78AE123E9827F00C77A52 /* CloudShareOperationsUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B78AE023E9827F00C77A52 /* CloudShareOperationsUnitTests.swift */; };
+		45BBC64024F6716300B2FA8A /* CloudKitSyncLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45BBC63F24F6716300B2FA8A /* CloudKitSyncLoader.swift */; };
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
 		561BA786232BF73800381E02 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA785232BF73800381E02 /* SwiftDate */; };
 		561BA789232BF7C600381E02 /* Hero in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA788232BF7C600381E02 /* Hero */; };
@@ -269,7 +274,12 @@
 		4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitTokenStorage.swift; sourceTree = "<group>"; };
 		4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorType.swift; sourceTree = "<group>"; };
 		456EDE1423E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLoaderOperationsUnitTests.swift; sourceTree = "<group>"; };
+		45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncLoaderTests.swift; sourceTree = "<group>"; };
+		45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncUtilsStub.swift; sourceTree = "<group>"; };
+		45B3041924F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncUtilsPublishers.swift; sourceTree = "<group>"; };
+		45B3041B24F6A85000AB4C35 /* PersistModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistModels.swift; sourceTree = "<group>"; };
 		45B78AE023E9827F00C77A52 /* CloudShareOperationsUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShareOperationsUnitTests.swift; sourceTree = "<group>"; };
+		45BBC63F24F6716300B2FA8A /* CloudKitSyncLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncLoader.swift; sourceTree = "<group>"; };
 		560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShoppingListsListViewController.swift; sourceTree = "<group>"; };
 		561ED324233003F10045457B /* ZonesToFetchWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZonesToFetchWrapper.swift; sourceTree = "<group>"; };
 		562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListItemModel.swift; sourceTree = "<group>"; };
@@ -810,6 +820,10 @@
 				566B8A3324E68AD000B87A63 /* Info.plist */,
 				566B8A9224E6D64900B87A63 /* CloudKitSyncTestOperations.swift */,
 				566B8A9424E6D72B00B87A63 /* CloudKitSyncTestTokenStorage.swift */,
+				45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */,
+				45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */,
+				45B3041924F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift */,
+				45B3041B24F6A85000AB4C35 /* PersistModels.swift */,
 			);
 			path = CloudKitSyncTests;
 			sourceTree = "<group>";
@@ -829,6 +843,7 @@
 			isa = PBXGroup;
 			children = (
 				566B8A5424E6905E00B87A63 /* CloudKitSyncUtils.swift */,
+				45BBC63F24F6716300B2FA8A /* CloudKitSyncLoader.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -1378,6 +1393,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				566B8A5524E6905E00B87A63 /* CloudKitSyncUtils.swift in Sources */,
+				45BBC64024F6716300B2FA8A /* CloudKitSyncLoader.swift in Sources */,
 				566B8A5824E6926300B87A63 /* CloudKitFetchRecordsPublisher.swift in Sources */,
 				566B8A6024E6941D00B87A63 /* CloudKitSyncErrorType.swift in Sources */,
 				566B8A6624E6968700B87A63 /* CloudKitSyncTokenStorageProtocol.swift in Sources */,
@@ -1394,10 +1410,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				45B3041824F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift in Sources */,
+				45B3041624F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift in Sources */,
 				566B8A9324E6D64900B87A63 /* CloudKitSyncTestOperations.swift in Sources */,
 				566B8A3224E68AD000B87A63 /* CloudKitSyncUtilsTests.swift in Sources */,
 				566B8A9624E6DAD500B87A63 /* TestPublisherExtension.swift in Sources */,
 				566B8A9724E6DB1F00B87A63 /* TestServerChangeToken.swift in Sources */,
+				45B3041A24F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift in Sources */,
+				45B3041C24F6A85000AB4C35 /* PersistModels.swift in Sources */,
 				566B8A9524E6D72B00B87A63 /* CloudKitSyncTestTokenStorage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
