@@ -169,6 +169,8 @@ class CloudKitSyncLoaderTests: XCTestCase {
 		XCTAssertEqual(items2[0].storeName, "Test store 21")
 		XCTAssertEqual(items2[1].goodName, "Test good 22")
 		XCTAssertEqual(items2[1].storeName, "Test store 22")
+		XCTAssertEqual(items1.count, 2)
+		XCTAssertEqual(items2.count, 2)
 		XCTAssertEqual(items3.count, 0)
 	}
 
@@ -236,5 +238,7 @@ class CloudKitSyncLoaderTests: XCTestCase {
 		XCTAssertEqual(items2[0].storeName, "Test store 21")
 		XCTAssertEqual(items2[1].goodName, "Test good 22")
 		XCTAssertEqual(items2[1].storeName, "Test store 22")
+		XCTAssertEqual(items1.count, 2)
+		XCTAssertEqual(items2.count, 2)
 	}
 }
