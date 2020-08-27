@@ -9,24 +9,29 @@
 import UIKit
 import PKHUD
 import Combine
+import CloudKitSync
+import DependencyInjection
 
 class FetchChangesViewController: UIViewController {
     
 	private var cancellables = Set<AnyCancellable>()
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
-    private let cloudLoader = CloudLoader()
+	@Autowired
+	private var cloudLoader: CloudKitSyncLoaderProtocol
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.activityIndicator.startAnimating()
-		self.cloudLoader.fetchChanges(localDb: false).append(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().sink(receiveCompletion: {completion in
+		self.cloudLoader.fetchChanges(localDb: false, itemType: ShoppingList.self)
+			.flatMap({[unowned self] _ in self.cloudLoader.fetchChanges(localDb: true, itemType: ShoppingList.self)})
+			.observeOnMain().sink(receiveCompletion: {completion in
 			switch completion {
 			case .finished:
 				self.proceed()
 			case .failure(let error):
 				self.hasError(error: error)
 			}
-		}, receiveValue: {}).store(in: &self.cancellables)
+		}, receiveValue: {_ in }).store(in: &self.cancellables)
     }
     
     private func proceed() {

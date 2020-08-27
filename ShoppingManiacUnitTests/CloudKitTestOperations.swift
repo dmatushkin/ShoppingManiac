@@ -8,8 +8,9 @@
 
 import Foundation
 import CloudKit
+import CloudKitSync
 
-class CloudKitTestOperations: CloudKitOperationsProtocol {
+class CloudKitTestOperations: CloudKitSyncOperationsProtocol {
     
     private let operationsQueue = DispatchQueue(label: "CloudKitTestOperations.operationsQueue", attributes: .concurrent)
     

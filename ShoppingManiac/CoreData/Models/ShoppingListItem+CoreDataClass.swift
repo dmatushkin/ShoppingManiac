@@ -13,15 +13,6 @@ import SwiftyBeaver
 import Combine
 
 public class ShoppingListItem: NSManagedObject {
-
-    func setRecordId(recordId: String) -> AnyPublisher<Void, Error> {
-		return CoreDataOperationPublisher(operation: {[weak self] transaction in
-			guard let self = self else { return }
-            if let shoppingListItem: ShoppingListItem = transaction.edit(self) {
-                shoppingListItem.recordid = recordId
-            }
-		}).eraseToAnyPublisher()
-    }
     
     var quantityText: String {
         return self.isWeight ? "\(self.quantity)" : "\(Int(self.quantity))"

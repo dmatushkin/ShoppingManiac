@@ -22,15 +22,6 @@ public class ShoppingList: NSManagedObject {
 		return From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", self))
 	}
 
-    func setRecordId(recordId: String) -> AnyPublisher<Void, Error> {
-		return CoreDataOperationPublisher(operation: {[weak self] transaction in
-			guard let self = self else { return }
-            if let shoppingList: ShoppingList = transaction.edit(self) {
-                shoppingList.recordid = recordId
-            }
-		}).eraseToAnyPublisher()
-    }
-
     var isPurchased: Bool {
         guard let items = self.items else { return false }
         return items.count > 0 && (items.allObjects as? [ShoppingListItem] ?? []).filter({ $0.purchased == false }).isEmpty
@@ -128,6 +119,8 @@ public class ShoppingList: NSManagedObject {
                 let list = transaction.create(Into<ShoppingList>())
                 list.name = jsonData["name"] as? String
                 list.jsonDate = (jsonData["date"] as? String) ?? ""
+				list.recordid = jsonData["recordId"] as? String
+				list.isRemote = (jsonData["isRemote"] as? NSNumber)?.boolValue ?? false
                 if let itemsArray = jsonData["items"] as? [NSDictionary] {
                     for itemDict in itemsArray {
                         let shoppingListItem = transaction.create(Into<ShoppingListItem>())
@@ -155,6 +148,7 @@ public class ShoppingList: NSManagedObject {
                         shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
                         shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
                         shoppingListItem.isCrossListItem = (itemDict["isCrossListItem"] as? NSNumber)?.boolValue ?? false
+						shoppingListItem.recordid = itemDict["recordId"] as? String
                         shoppingListItem.list = list
                     }
                 }

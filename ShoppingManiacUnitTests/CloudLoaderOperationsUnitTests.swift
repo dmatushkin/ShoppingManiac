@@ -11,23 +11,24 @@ import CloudKit
 import CoreStore
 import DependencyInjection
 import CommonError
+import CloudKitSync
 
 //swiftlint:disable type_body_length file_length function_body_length cyclomatic_complexity
 class CloudLoaderOperationsUnitTests: XCTestCase {
 
     private let operations = CloudKitTestOperations()
     private let storage = CloudKitTestTokenStorage()
-	private var cloudLoader: CloudLoader!
+	private var cloudLoader: CloudKitSyncLoader!
 
     override func setUp() {
 		DIProvider.shared
-			.register(forType: CloudKitOperationsProtocol.self, object: self.operations)
-			.register(forType: CloudKitTokenStorageProtocol.self, object: self.storage)
-			.register(forType: CloudKitUtilsProtocol.self, dependency: CloudKitUtils.self)
+			.register(forType: CloudKitSyncOperationsProtocol.self, object: self.operations)
+			.register(forType: CloudKitSyncTokenStorageProtocol.self, object: self.storage)
+			.register(forType: CloudKitSyncUtilsProtocol.self, dependency: CloudKitSyncUtils.self)
 		TestDbWrapper.setup()
         self.operations.cleanup()
         self.storage.cleanup()
-		self.cloudLoader = CloudLoader()
+		self.cloudLoader = CloudKitSyncLoader()
     }
 
     override func tearDown() {
@@ -49,7 +50,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 XCTAssertEqual(recordIds[0].zoneID.zoneName, "testRecordZone")
                 XCTAssertEqual(recordIds[0].zoneID.ownerName, "testRecordOwner")
 				for recordId in recordIds {
-					let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
+					let record = CKRecord(recordType: ShoppingList.recordType, recordID: recordId)
 					record["name"] = "Test Shopping List"
 					record["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
 					record["items"] = [CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem1"), action: .none), CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem2"), action: .none)]
@@ -62,10 +63,10 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 				XCTAssertEqual(recordIds.count, 2)
                 XCTAssertEqual(recordIds[0].recordName, "testItem1")
                 XCTAssertEqual(recordIds[1].recordName, "testItem2")
-                let record1 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordIds[0])
+				let record1 = CKRecord(recordType: ShoppingListItem.recordType, recordID: recordIds[0])
                 record1["goodName"] = "Test good 1"
                 record1["storeName"] = "Test store 1"
-                let record2 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordIds[1])
+                let record2 = CKRecord(recordType: ShoppingListItem.recordType, recordID: recordIds[1])
                 record2["goodName"] = "Test good 2"
                 record2["storeName"] = "Test store 2"
 				operation.perRecordCompletionBlock?(record1, record1.recordID, nil)
@@ -75,7 +76,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 				fatalError()
 			}
 		}
-        let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata).getValue(test: self, timeout: 10)
+		let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
         let shoppingList = CoreStoreDefaults.dataStack.fetchExisting(shoppingListLink)!
         XCTAssertEqual(shoppingList.name, "Test Shopping List")
         XCTAssertEqual(shoppingList.ownerName, "testRecordOwner")
@@ -114,7 +115,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 XCTAssertEqual(recordIds[0].zoneID.zoneName, "testRecordZone")
                 XCTAssertEqual(recordIds[0].zoneID.ownerName, "testRecordOwner")
 				for recordId in recordIds {
-					let record = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: recordId)
+					let record = CKRecord(recordType: ShoppingList.recordType, recordID: recordId)
 					record["name"] = "Test Shopping List"
 					record["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
 					record["items"] = [CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem1"), action: .none), CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem2"), action: .none)]
@@ -130,10 +131,10 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 				XCTAssertEqual(recordIds.count, 2)
                 XCTAssertEqual(recordIds[0].recordName, "testItem1")
                 XCTAssertEqual(recordIds[1].recordName, "testItem2")
-                let record1 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordIds[0])
+                let record1 = CKRecord(recordType: ShoppingListItem.recordType, recordID: recordIds[0])
                 record1["goodName"] = "Test good 1"
                 record1["storeName"] = "Test store 1"
-                let record2 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: recordIds[1])
+                let record2 = CKRecord(recordType: ShoppingListItem.recordType, recordID: recordIds[1])
                 record2["goodName"] = "Test good 2"
                 record2["storeName"] = "Test store 2"
 				operation.perRecordCompletionBlock?(record1, record1.recordID, nil)
@@ -143,7 +144,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 				fatalError()
 			}
 		}
-        let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata).getValue(test: self, timeout: 10)
+        let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
         let shoppingList = CoreStoreDefaults.dataStack.fetchExisting(shoppingListLink)!
         XCTAssertEqual(shoppingList.name, "Test Shopping List")
         XCTAssertEqual(shoppingList.ownerName, "testRecordOwner")
@@ -193,9 +194,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 				XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
 				XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
 				XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
-				let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
-				let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
-				let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+				let listRecord1 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+				let listItem11 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+				let listItem12 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
 				listRecord1["name"] = "Test Shopping List"
 				listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
 				listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
@@ -206,9 +207,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 				listItem12["storeName"] = "Test store 12"
 				listItem12.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
 				
-				let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
-				let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
-				let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+				let listRecord2 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+				let listItem21 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+				let listItem22 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
 				listRecord2["name"] = "Test Shopping List 2"
 				listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
 				listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
@@ -237,7 +238,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 			}
 		}
 		
-		_ = try self.cloudLoader.fetchChanges(localDb: true).getValue(test: self, timeout: 10)
+		_ = try self.cloudLoader.fetchChanges(localDb: true, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
 		let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
 		let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
 		let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
@@ -295,9 +296,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
                 XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
                 XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
-                let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
-                let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
-                let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+                let listRecord1 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+                let listItem11 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+                let listItem12 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
                 listRecord1["name"] = "Test Shopping List"
                 listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
@@ -308,9 +309,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 listItem12["storeName"] = "Test store 12"
                 listItem12.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
                 
-                let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
-                let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
-                let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+                let listRecord2 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+                let listItem21 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+                let listItem22 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
                 listRecord2["name"] = "Test Shopping List 2"
                 listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
@@ -339,7 +340,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
             }
         }
         
-        _ = try self.cloudLoader.fetchChanges(localDb: true).getValue(test: self, timeout: 10)
+        _ = try self.cloudLoader.fetchChanges(localDb: true, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
         let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
         let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
         let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
@@ -411,9 +412,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
                 XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
                 XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
-                let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
-                let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
-                let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+                let listRecord1 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+                let listItem11 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+                let listItem12 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
                 listRecord1["name"] = "Test Shopping List"
                 listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
@@ -424,9 +425,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 listItem12["storeName"] = "Test store 12"
                 listItem12.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
                 
-                let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
-                let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
-                let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+                let listRecord2 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+                let listItem21 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+                let listItem22 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
                 listRecord2["name"] = "Test Shopping List 2"
                 listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
@@ -455,7 +456,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
             }
         }
         
-        _ = try self.cloudLoader.fetchChanges(localDb: true).getValue(test: self, timeout: 10)
+        _ = try self.cloudLoader.fetchChanges(localDb: true, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
         let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
         let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
         let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
@@ -527,9 +528,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
                 XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
                 XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
-                let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
-                let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
-                let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+                let listRecord1 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+                let listItem11 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+                let listItem12 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
                 listRecord1["name"] = "Test Shopping List"
                 listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
@@ -540,9 +541,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 listItem12["storeName"] = "Test store 12"
                 listItem12.parent = CKRecord.Reference(recordID: listRecord1.recordID, action: .none)
                 
-                let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
-                let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
-                let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+                let listRecord2 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+                let listItem21 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+                let listItem22 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
                 listRecord2["name"] = "Test Shopping List 2"
                 listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
@@ -571,7 +572,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
             }
         }
         
-        _ = try self.cloudLoader.fetchChanges(localDb: true).getValue(test: self, timeout: 10)
+        _ = try self.cloudLoader.fetchChanges(localDb: true, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
         let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
         let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
         let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
@@ -624,9 +625,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
                 XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
                 XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
-                let listRecord1 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
-                let listItem11 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
-                let listItem12 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
+                let listRecord1 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord1", zoneID: zoneIds[0]))
+                let listItem11 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord11", zoneID: zoneIds[0]))
+                let listItem12 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord12", zoneID: zoneIds[0]))
                 listRecord1["name"] = "Test Shopping List"
                 listRecord1["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 listRecord1["items"] = [CKRecord.Reference(recordID: listItem11.recordID, action: .none), CKRecord.Reference(recordID: listItem12.recordID, action: .none)]
@@ -657,9 +658,9 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
                 XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
                 XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
                 XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
-                let listRecord2 = CKRecord(recordType: CloudKitUtils.listRecordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
-                let listItem21 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
-                let listItem22 = CKRecord(recordType: CloudKitUtils.itemRecordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
+                let listRecord2 = CKRecord(recordType: ShoppingList.recordType, recordID: CKRecord.ID(recordName: "testListRecord2", zoneID: zoneIds[1]))
+                let listItem21 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord21", zoneID: zoneIds[1]))
+                let listItem22 = CKRecord(recordType: ShoppingListItem.recordType, recordID: CKRecord.ID(recordName: "testItemRecord22", zoneID: zoneIds[1]))
                 listRecord2["name"] = "Test Shopping List 2"
                 listRecord2["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 listRecord2["items"] = [CKRecord.Reference(recordID: listItem21.recordID, action: .none), CKRecord.Reference(recordID: listItem22.recordID, action: .none)]
@@ -688,7 +689,7 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
             }
         }
         
-        _ = try self.cloudLoader.fetchChanges(localDb: true).getValue(test: self, timeout: 10)
+        _ = try self.cloudLoader.fetchChanges(localDb: true, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
         let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
         let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
         let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})

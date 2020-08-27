@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CloudKit
 import SwiftyBeaver
+import CloudKitSync
 
 struct FetchRecordsTestPublisher: Publisher {
 
@@ -177,14 +178,14 @@ struct UpdateSubscriptionsTestPublisher: Publisher {
 
 struct FetchDatabaseChangesTestPublisher: Publisher {
 
-	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == ZonesToFetchWrapper, S.Failure == Error {
+	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == [CKRecordZone.ID], S.Failure == Error {
 
 		private var loadedZoneIds: [CKRecordZone.ID] = []
 		private let localDb: Bool
 		private var subscriber: S?
-		private let onFetchDatabaseChanges: ((Bool) -> ZonesToFetchWrapper)
+		private let onFetchDatabaseChanges: ((Bool) -> [CKRecordZone.ID])
 
-		init(localDb: Bool, subscriber: S, onFetchDatabaseChanges: @escaping ((Bool) -> ZonesToFetchWrapper)) {
+		init(localDb: Bool, subscriber: S, onFetchDatabaseChanges: @escaping ((Bool) -> [CKRecordZone.ID])) {
 			self.localDb = localDb
 			self.subscriber = subscriber
 			self.onFetchDatabaseChanges = onFetchDatabaseChanges
@@ -206,13 +207,13 @@ struct FetchDatabaseChangesTestPublisher: Publisher {
 		}
 	}
 
-	typealias Output = ZonesToFetchWrapper
+	typealias Output = [CKRecordZone.ID]
 	typealias Failure = Error
 
 	private let localDb: Bool
-	private let onFetchDatabaseChanges: ((Bool) -> ZonesToFetchWrapper)
+	private let onFetchDatabaseChanges: ((Bool) -> [CKRecordZone.ID])
 
-	init(localDb: Bool, onFetchDatabaseChanges: @escaping ((Bool) -> ZonesToFetchWrapper)) {
+	init(localDb: Bool, onFetchDatabaseChanges: @escaping ((Bool) -> [CKRecordZone.ID])) {
 		self.localDb = localDb
 		self.onFetchDatabaseChanges = onFetchDatabaseChanges
 	}
@@ -230,12 +231,12 @@ struct FetchZoneChangesTestPublisher: Publisher {
 	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == [CKRecord], S.Failure == Error {
 
 		private var records: [CKRecord] = []
-		private let wrapper: ZonesToFetchWrapper
+		private let zoneIds: [CKRecordZone.ID]
 		private var subscriber: S?
-		private let onFetchZoneChanges: ((ZonesToFetchWrapper) -> [CKRecord])
+		private let onFetchZoneChanges: (([CKRecordZone.ID]) -> [CKRecord])
 
-		init(wrapper: ZonesToFetchWrapper, subscriber: S, onFetchZoneChanges: @escaping ((ZonesToFetchWrapper) -> [CKRecord])) {
-			self.wrapper = wrapper
+		init(zoneIds: [CKRecordZone.ID], subscriber: S, onFetchZoneChanges: @escaping (([CKRecordZone.ID]) -> [CKRecord])) {
+			self.zoneIds = zoneIds
 			self.subscriber = subscriber
 			self.onFetchZoneChanges = onFetchZoneChanges
 		}
@@ -244,8 +245,8 @@ struct FetchZoneChangesTestPublisher: Publisher {
 			guard let subscriber = subscriber else { return }
 			CloudKitUtilsStub.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
-				SwiftyBeaver.debug("about to fetch zone changes \(self.wrapper.zoneIds)")
-				let result = self.onFetchZoneChanges(self.wrapper)
+				SwiftyBeaver.debug("about to fetch zone changes \(self.zoneIds)")
+				let result = self.onFetchZoneChanges(self.zoneIds)
 				_ = subscriber.receive(result)
 				subscriber.receive(completion: .finished)
             }
@@ -259,16 +260,16 @@ struct FetchZoneChangesTestPublisher: Publisher {
 	typealias Output = [CKRecord]
 	typealias Failure = Error
 
-	private let wrapper: ZonesToFetchWrapper
-	private let onFetchZoneChanges: ((ZonesToFetchWrapper) -> [CKRecord])
+	private let zoneIds: [CKRecordZone.ID]
+	private let onFetchZoneChanges: (([CKRecordZone.ID]) -> [CKRecord])
 
-	init(wrapper: ZonesToFetchWrapper, onFetchZoneChanges: @escaping ((ZonesToFetchWrapper) -> [CKRecord])) {
-		self.wrapper = wrapper
+	init(zoneIds: [CKRecordZone.ID], onFetchZoneChanges: @escaping (([CKRecordZone.ID]) -> [CKRecord])) {
+		self.zoneIds = zoneIds
 		self.onFetchZoneChanges = onFetchZoneChanges
 	}
 
 	func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
-			let subscription = CloudKitSubscription(wrapper: wrapper,
+			let subscription = CloudKitSubscription(zoneIds: zoneIds,
 													subscriber: subscriber,
 													onFetchZoneChanges: onFetchZoneChanges)
 			subscriber.receive(subscription: subscription)

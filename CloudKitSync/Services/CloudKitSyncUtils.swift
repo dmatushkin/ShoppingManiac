@@ -20,29 +20,29 @@ public protocol CloudKitSyncUtilsProtocol {
 	func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error>
 }
 
-final class CloudKitSyncUtils: CloudKitSyncUtilsProtocol, DIDependency {
+public final class CloudKitSyncUtils: CloudKitSyncUtilsProtocol, DIDependency {
 
     static let retryQueue = DispatchQueue(label: "CloudKitUtils.retryQueue", attributes: .concurrent)
 
-	init() {}
+	public init() {}
 
-	func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> AnyPublisher<CKRecord, Error> {
+	public func fetchRecords(recordIds: [CKRecord.ID], localDb: Bool) -> AnyPublisher<CKRecord, Error> {
 		return CloudKitFetchRecordsPublisher(recordIds: recordIds, localDb: localDb).eraseToAnyPublisher()
 	}
 
-	func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> AnyPublisher<Void, Error> {
+	public func updateSubscriptions(subscriptions: [CKSubscription], localDb: Bool) -> AnyPublisher<Void, Error> {
 		return CloudKitUpdateSubscriptionsPublisher(subscriptions: subscriptions, localDb: localDb).eraseToAnyPublisher()
 	}
 
-	func updateRecords(records: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error> {
+	public func updateRecords(records: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error> {
 		return CloudKitUpdateRecordsPublisher(records: records, localDb: localDb).eraseToAnyPublisher()
 	}
 
-	func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<[CKRecordZone.ID], Error> {
+	public func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<[CKRecordZone.ID], Error> {
 		return CloudKitFetchDatabaseChangesPublisher(localDb: localDb).eraseToAnyPublisher()
 	}
 
-	func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error> {
+	public func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error> {
 		return CloudKitFetchZoneChangesPublisher(zoneIds: zoneIds, localDb: localDb).eraseToAnyPublisher()
 	}
 }

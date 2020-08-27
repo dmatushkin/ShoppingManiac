@@ -9,8 +9,9 @@
 import Foundation
 import CloudKit
 import DependencyInjection
+import CloudKitSync
 
-class CloudKitOperations: CloudKitOperationsProtocol, DIDependency {
+class CloudKitOperations: CloudKitSyncOperationsProtocol, DIDependency {
 
 	required init() {}
 

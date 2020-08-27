@@ -8,8 +8,9 @@
 
 import Foundation
 import CloudKit
+import CloudKitSync
 
-class CloudKitTestTokenStorage: CloudKitTokenStorageProtocol {
+class CloudKitTestTokenStorage: CloudKitSyncTokenStorageProtocol {
     
     var zoneStorage: [String: CKServerChangeToken] = [:]
     var localToken: CKServerChangeToken?

@@ -10,11 +10,14 @@ import Foundation
 import CoreStore
 import Combine
 import UIKit
+import CloudKitSync
+import DependencyInjection
 
 class ShoppingListModel {
 
 	var cancellables = Set<AnyCancellable>()
-    private let cloudShare = CloudShare()
+    @Autowired
+	private var cloudShare: CloudKitSyncShareProtocol
 	let totalText = CurrentValueSubject<String?, Never>("")
 
     var shoppingList: ShoppingList?
@@ -97,7 +100,7 @@ class ShoppingListModel {
     func syncWithCloud() {
 		guard let shoppingList = self.shoppingList else { return }
         if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
-			self.cloudShare.updateList(list: shoppingList).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
+			self.cloudShare.updateItem(item: shoppingList).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
         }
     }
         

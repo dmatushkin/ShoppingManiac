@@ -12,20 +12,20 @@ import DependencyInjection
 import Combine
 import CommonError
 
-protocol CloudKitSyncLoaderProtocol {
+public protocol CloudKitSyncLoaderProtocol {
 
 	func loadShare<T>(metadata: CKShare.Metadata, itemType: T.Type) -> AnyPublisher<T, Error> where T: CloudKitSyncItemProtocol
 	func fetchChanges<T>(localDb: Bool, itemType: T.Type) -> AnyPublisher<[T], Error> where T: CloudKitSyncItemProtocol
 }
 
-final class CloudKitSyncLoader: CloudKitSyncLoaderProtocol, DIDependency {
+public final class CloudKitSyncLoader: CloudKitSyncLoaderProtocol, DIDependency {
 
 	@Autowired
     private var cloudKitUtils: CloudKitSyncUtilsProtocol
 
-	init() { }
+	public init() { }
 
-	func loadShare<T>(metadata: CKShare.Metadata, itemType: T.Type) -> AnyPublisher<T, Error> where T: CloudKitSyncItemProtocol {
+	public func loadShare<T>(metadata: CKShare.Metadata, itemType: T.Type) -> AnyPublisher<T, Error> where T: CloudKitSyncItemProtocol {
 		return self.cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
 			.flatMap({[unowned self] record in
 				self.storeRecord(record: record, itemType: itemType, parent: nil)
@@ -48,7 +48,7 @@ final class CloudKitSyncLoader: CloudKitSyncLoaderProtocol, DIDependency {
 		}
 	}
 
-	func fetchChanges<T>(localDb: Bool, itemType: T.Type) -> AnyPublisher<[T], Error> where T: CloudKitSyncItemProtocol {
+	public func fetchChanges<T>(localDb: Bool, itemType: T.Type) -> AnyPublisher<[T], Error> where T: CloudKitSyncItemProtocol {
 		return self.cloudKitUtils.fetchDatabaseChanges(localDb: localDb)
 			.flatMap({[unowned self] zoneIds in
 			self.cloudKitUtils.fetchZoneChanges(zoneIds: zoneIds, localDb: localDb)
@@ -73,8 +73,7 @@ final class CloudKitSyncLoader: CloudKitSyncLoaderProtocol, DIDependency {
 			}.eraseToAnyPublisher()
 		}
 		let storeItems = Publishers.Sequence(sequence: itemRecords)
-			.flatMap({ itemType.store(record: $0, isRemote: !localDb) })
-			.flatMap({ $0.setParent(item: parent) })
+			.flatMap({ itemType.store(record: $0, isRemote: !localDb).flatMap({ $0.setParent(item: parent)}) })
 		if itemType.hasDependentItems {
 			return storeItems
 				.flatMap({[unowned self] item in

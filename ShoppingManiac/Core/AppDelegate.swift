@@ -14,6 +14,7 @@ import PKHUD
 import SwiftEntryKit
 import Combine
 import DependencyInjection
+import CloudKitSync
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -27,14 +28,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
 
 	private var cancellables = Set<AnyCancellable>()
-	private let cloudLoader = CloudLoader()
+	private let cloudLoader = CloudKitSyncLoader()
+	private let cloudShare = CloudKitSyncShare()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         application.registerForRemoteNotifications()
 		DIProvider.shared
-			.register(forType: CloudKitOperationsProtocol.self, dependency: CloudKitOperations.self)
-			.register(forType: CloudKitTokenStorageProtocol.self, dependency: CloudKitTokenStorage.self)
-			.register(forType: CloudKitUtilsProtocol.self, dependency: CloudKitUtils.self)
+			.register(forType: CloudKitSyncOperationsProtocol.self, dependency: CloudKitOperations.self)
+			.register(forType: CloudKitSyncTokenStorageProtocol.self, dependency: CloudKitTokenStorage.self)
+			.register(forType: CloudKitSyncUtilsProtocol.self, dependency: CloudKitSyncUtils.self)
+			.register(forType: CloudKitSyncShareProtocol.self, dependency: CloudKitSyncShare.self)
+			.register(forType: CloudKitSyncLoaderProtocol.self, dependency: CloudKitSyncLoader.self)
 		
         let log = SwiftyBeaver.self
         log.addDestination(FileDestination())
@@ -43,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
         _ = try? CoreStoreDefaults.dataStack.addStorageAndWait(store)
-        CloudShare.setupUserPermissions()
+		cloudShare.setupUserPermissions(itemType: ShoppingList.self).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
         CloudSubscriptions.setupSubscriptions()
         return true
     }
@@ -51,7 +55,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-			self.cloudLoader.fetchChanges(localDb: false).append(self.cloudLoader.fetchChanges(localDb: true)).observeOnMain().sink(receiveCompletion: {completion in
+			self.cloudLoader.fetchChanges(localDb: false, itemType: ShoppingList.self)
+				.flatMap({[unowned self] _ in self.cloudLoader.fetchChanges(localDb: true, itemType: ShoppingList.self)})
+					.observeOnMain()
+					.sink(receiveCompletion: {completion in
 				switch completion {
 				case .finished:
 					SwiftyBeaver.debug("loading updates done")
@@ -60,7 +67,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 					SwiftyBeaver.debug(error.localizedDescription)
 					completionHandler(.noData)
 				}
-			}, receiveValue: {}).store(in: &self.cancellables)
+			}, receiveValue: {_ in }).store(in: &self.cancellables)
         } else {
             completionHandler(.noData)
         }
@@ -93,7 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 DispatchQueue.main.async {
                     HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
                 }
-				self.cloudLoader.loadShare(metadata: metadata).observeOnMain().sink(receiveCompletion: {completion in
+				self.cloudLoader.loadShare(metadata: metadata, itemType: ShoppingList.self).observeOnMain().sink(receiveCompletion: {completion in
 					switch completion {
 					case .finished:
 						SwiftyBeaver.debug("loading lists done")

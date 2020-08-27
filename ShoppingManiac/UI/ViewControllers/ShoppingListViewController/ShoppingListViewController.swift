@@ -13,6 +13,8 @@ import SwiftyBeaver
 import CloudKit
 import PKHUD
 import Combine
+import DependencyInjection
+import CloudKitSync
 
 class ShoppingListViewController: ShoppingManiacViewController, UITableViewDelegate, MFMessageComposeViewControllerDelegate, UICloudSharingControllerDelegate {
 
@@ -21,7 +23,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     @IBOutlet private weak var shareButton: UIButton!
     
     let model = ShoppingListModel()
-    private let cloudShare = CloudShare()
+	@Autowired
+	private var cloudShare: CloudKitSyncShareProtocol
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -140,7 +143,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     private func icloudShare() {
 		guard let shoppingList = self.model.shoppingList else { return }
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
-		self.cloudShare.shareList(list: shoppingList).observeOnMain().sink(receiveCompletion: { completion in
+		self.cloudShare.shareItem(item: shoppingList, shareTitle: "Shopping List", shareType: "org.md.ShoppingManiac").observeOnMain().sink(receiveCompletion: { completion in
 			switch completion {
 			case .failure(let error):
 				HUD.flash(.labeledError(title: "iCloud sharing error", subtitle: error.localizedDescription), delay: 3)

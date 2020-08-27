@@ -9,10 +9,11 @@
 import Foundation
 import CloudKit
 import Combine
+import CloudKitSync
 
 class CloudSubscriptions {
     
-    private static let cloudKitUtils = CloudKitUtils()
+    private static let cloudKitUtils = CloudKitSyncUtils()
     
     private init() {}
     
@@ -43,8 +44,8 @@ class CloudSubscriptions {
     }
     
     private class func setupLocalSubscriptions() -> AnyPublisher<Void, Error> {
-        let listsSubscription = createSubscription(forType: CloudKitUtils.listRecordType)
-        let itemsSubscription = createSubscription(forType: CloudKitUtils.itemRecordType)
+        let listsSubscription = createSubscription(forType: ShoppingList.recordType)
+        let itemsSubscription = createSubscription(forType: ShoppingListItem.recordType)
         return cloudKitUtils.updateSubscriptions(subscriptions: [listsSubscription, itemsSubscription], localDb: true)
     }
     
@@ -54,7 +55,7 @@ class CloudSubscriptions {
         let notificationInfo = CKSubscription.NotificationInfo()
         notificationInfo.shouldSendContentAvailable = true
         subscription.notificationInfo = notificationInfo
-        subscription.zoneID = CKRecordZone(zoneName: CloudKitUtils.zoneName).zoneID
+        subscription.zoneID = CKRecordZone(zoneName: ShoppingList.zoneName).zoneID
         return subscription
     }
 }

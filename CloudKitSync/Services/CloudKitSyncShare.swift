@@ -23,20 +23,20 @@ extension CKRecordZone {
 	}
 }
 
-protocol CloudKitSyncShareProtocol {
+public protocol CloudKitSyncShareProtocol {
 	func setupUserPermissions(itemType: CloudKitSyncItemProtocol.Type) -> AnyPublisher<Void, Error>
 	func shareItem(item: CloudKitSyncItemProtocol, shareTitle: String, shareType: String) -> AnyPublisher<CKShare, Error>
 	func updateItem(item: CloudKitSyncItemProtocol) -> AnyPublisher<Void, Error>
 }
 
-final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
+public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 
 	@Autowired
 	private var cloudKitUtils: CloudKitSyncUtilsProtocol
 
-	init() { }
+	public init() { }
 
-	func setupUserPermissions(itemType: CloudKitSyncItemProtocol.Type) -> AnyPublisher<Void, Error> {
+	public func setupUserPermissions(itemType: CloudKitSyncItemProtocol.Type) -> AnyPublisher<Void, Error> {
 		return Future { promise in
 			CKContainer.default().accountStatus { (status, error) in
 				if let error = error {
@@ -171,7 +171,7 @@ final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 			}).eraseToAnyPublisher()
 	}
 
-	func shareItem(item: CloudKitSyncItemProtocol, shareTitle: String, shareType: String) -> AnyPublisher<CKShare, Error> {
+	public func shareItem(item: CloudKitSyncItemProtocol, shareTitle: String, shareType: String) -> AnyPublisher<CKShare, Error> {
 		self.setItemParents(item: item).flatMap({[unowned self] updatedItem in
 			self.updateItemRecordId(item: updatedItem)
 		}).flatMap({[unowned self] record in
@@ -189,7 +189,7 @@ final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 		}).eraseToAnyPublisher()
 	}
 
-	func updateItem(item: CloudKitSyncItemProtocol) -> AnyPublisher<Void, Error> {
+	public func updateItem(item: CloudKitSyncItemProtocol) -> AnyPublisher<Void, Error> {
 		self.setItemParents(item: item).flatMap({[unowned self] updatedItem in
 			self.updateItemRecordId(item: updatedItem)
 		}).flatMap({[unowned self] record -> AnyPublisher<(CKRecord, CKRecord?), Error> in

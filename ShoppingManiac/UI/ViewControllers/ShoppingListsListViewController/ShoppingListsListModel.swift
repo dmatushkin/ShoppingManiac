@@ -11,12 +11,15 @@ import CoreStore
 import Combine
 import UIKit
 import CoreData
+import CloudKitSync
+import DependencyInjection
 
 class ShoppingListsListModel {
 
 	var selectedRow: Int = 0
 	private var cancellables = Set<AnyCancellable>()
-    private let cloudShare = CloudShare()
+	@Autowired
+	private var cloudShare: CloudKitSyncShareProtocol
 	private var dataSource: EditableListDataSource<String, ShoppingList>!
 	private let listPublisher = CoreStoreDefaults.dataStack.publishList(From<ShoppingList>().where(Where("isRemoved == false")).orderBy(.descending(\.date)))
 
@@ -64,7 +67,7 @@ class ShoppingListsListModel {
         }, completion: {[weak self] _ in
             guard let self = self else { return }
             if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
-				self.cloudShare.updateList(list: shoppingList).sink(receiveCompletion: {_ in}, receiveValue: {}).store(in: &self.cancellables)
+				self.cloudShare.updateItem(item: shoppingList).sink(receiveCompletion: {_ in}, receiveValue: {}).store(in: &self.cancellables)
             }
         })
     }
