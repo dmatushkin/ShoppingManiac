@@ -148,19 +148,13 @@ final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 					return nil
 				}
 			}).eraseToAnyPublisher()
-		return localItems.merge(with: remoteItems)
-			.collect()
-			.flatMap({tuples -> AnyPublisher<[CKRecord], Error> in
+		return localItems.merge(with: remoteItems).collect().flatMap({tuples -> AnyPublisher<[CKRecord], Error> in
 				let records = tuples.map({ $0.1 })
 				rootRecord[type(of: rootItem).dependentItemsRecordAttribute] = records.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
 				return Publishers.Sequence(sequence: tuples).flatMap({[unowned self] tuple in
 					self.updateDependentRecords(rootItem: tuple.0, rootRecord: tuple.1)
 				}).collect().map({ allData -> [CKRecord] in
-					var total = records
-					for part in allData {
-						total += part
-					}
-					return total
+					return records + allData.flatMap({ $0 })
 				}).eraseToAnyPublisher()
 			}).eraseToAnyPublisher()
 	}
