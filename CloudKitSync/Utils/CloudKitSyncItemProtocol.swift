@@ -11,7 +11,7 @@ import CloudKit
 import Combine
 import CommonError
 
-public protocol CloudKitSyncItemProtocol {
+public protocol CloudKitSyncItemProtocol: class {
 	static var zoneName: String { get } // Name of the record zone
 	static var recordType: String { get } // Type of the record
 	static var hasDependentItems: Bool { get } // If this item has dependable items
