@@ -18,12 +18,27 @@ class TestShareMetadata: CKShare.Metadata {
     }
 }
 
+class SharedRecord: CKRecord {
+
+    override var share: CKRecord.Reference? {
+        let recordId = CKRecord.ID(recordName: "shareTestRecord")
+        let record = CKRecord(recordType: "cloudkit.share", recordID: recordId)
+        return CKRecord.Reference(record: record, action: .none)
+    }
+}
+
 class TestShoppingList: CloudKitSyncItemProtocol {
 
 	var items = [TestShoppingItem]()
 	var name: String?
 	var ownerName: String?
 	var date: TimeInterval = 0
+
+	func appendItem(item: TestShoppingItem) {
+		if !items.contains(item) {
+			items.append(item)
+		}
+	}
 
 	static var zoneName: String {
 		return "testZone"
@@ -83,7 +98,11 @@ class TestShoppingList: CloudKitSyncItemProtocol {
 	}
 }
 
-class TestShoppingItem: CloudKitSyncItemProtocol {
+class TestShoppingItem: CloudKitSyncItemProtocol, Equatable {
+
+	static func == (lhs: TestShoppingItem, rhs: TestShoppingItem) -> Bool {
+		return lhs.recordId == rhs.recordId && lhs.ownerName == rhs.ownerName && lhs.goodName == rhs.goodName && lhs.storeName == rhs.storeName && lhs.isRemote == rhs.isRemote
+	}
 
 	var goodName: String?
 	var storeName: String?
@@ -142,7 +161,7 @@ class TestShoppingItem: CloudKitSyncItemProtocol {
 	}
 
 	func setParent(item: CloudKitSyncItemProtocol) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
-		(item as? TestShoppingList)?.items.append(self)
+		(item as? TestShoppingList)?.appendItem(item: self)
 		return Future {[unowned self] promise in
 			return promise(.success(self))
 		}.eraseToAnyPublisher()

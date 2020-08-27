@@ -104,15 +104,41 @@ final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 		if let recordName = item.recordId {
 			let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZoneID)
 			return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !item.isRemote)
-				.eraseToAnyPublisher()
+				.map({ record in
+				item.populate(record: record)
+				return record
+			}).eraseToAnyPublisher()
 		} else {
 			let recordName = CKRecord.ID().recordName
 			let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZoneID)
 			let record = CKRecord(recordType: type(of: item).recordType, recordID: recordId)
+			item.populate(record: record)
 			return item.setRecordId(recordName)
 				.map({ _ in record})
 				.eraseToAnyPublisher()
 		}
+	}
+
+	private func fetchRemoteRecords(rootItem: CloudKitSyncItemProtocol, rootRecord: CKRecord, recordZoneID: CKRecordZone.ID) -> AnyPublisher<(CloudKitSyncItemProtocol, CKRecord), Error> {
+		let remoteRecordIds = rootItem.dependentItems().compactMap({ $0.recordId }).map({ CKRecord.ID(recordName: $0, zoneID: recordZoneID) })
+		if remoteRecordIds.count == 0 {
+			return Empty(completeImmediately: true, outputType: (CloudKitSyncItemProtocol, CKRecord).self, failureType: Error.self).eraseToAnyPublisher()
+		}
+		let remoteItemsMap = rootItem.dependentItems().filter({ $0.recordId != nil }).reduce(into: [String: CloudKitSyncItemProtocol](), {result, item in
+			if let recordId = item.recordId {
+				result[recordId] = item
+			}
+		})
+		return self.cloudKitUtils.fetchRecords(recordIds: remoteRecordIds, localDb: !rootItem.isRemote)
+		.compactMap({ record -> (CloudKitSyncItemProtocol, CKRecord)? in
+			if let item = remoteItemsMap[record.recordID.recordName] {
+				item.populate(record: record)
+				record.setParent(rootRecord)
+				return (item, record)
+			} else {
+				return nil
+			}
+		}).eraseToAnyPublisher()
 	}
 
 	private func updateDependentRecords(rootItem: CloudKitSyncItemProtocol, rootRecord: CKRecord) -> AnyPublisher<[CKRecord], Error> {
@@ -133,21 +159,7 @@ final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 					return (item, record)
 				}).eraseToAnyPublisher()
 			}).eraseToAnyPublisher()
-		let remoteItemsMap = rootItem.dependentItems().filter({ $0.recordId != nil }).reduce(into: [String: CloudKitSyncItemProtocol](), {result, item in
-			if let recordId = item.recordId {
-				result[recordId] = item
-			}
-		})
-		let remoteRecordIds = rootItem.dependentItems().compactMap({ $0.recordId }).map({ CKRecord.ID(recordName: $0, zoneID: recordZoneID) })
-		let remoteItems = self.cloudKitUtils.fetchRecords(recordIds: remoteRecordIds, localDb: !rootItem.isRemote)
-			.compactMap({ record -> (CloudKitSyncItemProtocol, CKRecord)? in
-				if let item = remoteItemsMap[record.recordID.recordName] {
-					item.populate(record: record)
-					return (item, record)
-				} else {
-					return nil
-				}
-			}).eraseToAnyPublisher()
+		let remoteItems = self.fetchRemoteRecords(rootItem: rootItem, rootRecord: rootRecord, recordZoneID: recordZoneID)
 		return localItems.merge(with: remoteItems).collect().flatMap({tuples -> AnyPublisher<[CKRecord], Error> in
 				let records = tuples.map({ $0.1 })
 				rootRecord[type(of: rootItem).dependentItemsRecordAttribute] = records.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue

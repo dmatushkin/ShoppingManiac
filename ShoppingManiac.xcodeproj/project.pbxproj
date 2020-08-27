@@ -10,6 +10,7 @@
 		4521D1D923D9D85B00775CC5 /* CloudKitOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */; };
 		4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */; };
 		4521D1DD23D9DFB300775CC5 /* CloudKitErrorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */; };
+		456C324D24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */; };
 		456EDE1523E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456EDE1423E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift */; };
 		45B3041624F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */; };
 		45B3041824F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */; };
@@ -274,6 +275,7 @@
 		4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitOperations.swift; sourceTree = "<group>"; };
 		4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitTokenStorage.swift; sourceTree = "<group>"; };
 		4521D1DC23D9DFB300775CC5 /* CloudKitErrorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitErrorType.swift; sourceTree = "<group>"; };
+		456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncShareTests.swift; sourceTree = "<group>"; };
 		456EDE1423E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLoaderOperationsUnitTests.swift; sourceTree = "<group>"; };
 		45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncLoaderTests.swift; sourceTree = "<group>"; };
 		45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncUtilsStub.swift; sourceTree = "<group>"; };
@@ -804,7 +806,6 @@
 		566B8A2324E68AD000B87A63 /* CloudKitSync */ = {
 			isa = PBXGroup;
 			children = (
-				566B8A7324E6A1CE00B87A63 /* Extensions */,
 				566B8A5E24E6940A00B87A63 /* Models */,
 				566B8A5924E6930600B87A63 /* Utils */,
 				566B8A5624E6921B00B87A63 /* Publishers */,
@@ -826,6 +827,7 @@
 				45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */,
 				45B3041924F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift */,
 				45B3041B24F6A85000AB4C35 /* PersistModels.swift */,
+				456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */,
 			);
 			path = CloudKitSyncTests;
 			sourceTree = "<group>";
@@ -879,13 +881,6 @@
 				566B8A5F24E6941D00B87A63 /* CloudKitSyncErrorType.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		566B8A7324E6A1CE00B87A63 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 		566B8A7C24E6A28200B87A63 /* CommonError */ = {
@@ -1417,6 +1412,7 @@
 				45B3041824F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift in Sources */,
 				45B3041624F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift in Sources */,
 				566B8A9324E6D64900B87A63 /* CloudKitSyncTestOperations.swift in Sources */,
+				456C324D24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift in Sources */,
 				566B8A3224E68AD000B87A63 /* CloudKitSyncUtilsTests.swift in Sources */,
 				566B8A9624E6DAD500B87A63 /* TestPublisherExtension.swift in Sources */,
 				566B8A9724E6DB1F00B87A63 /* TestServerChangeToken.swift in Sources */,
