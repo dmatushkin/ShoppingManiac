@@ -36,50 +36,59 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 
 	public init() { }
 
+	private func processAccountStatus(status: CKAccountStatus) -> AnyPublisher<CKContainer_Application_PermissionStatus, Error> {
+		switch status {
+		case .couldNotDetermine:
+			return Future { promise in
+				return promise(.failure(CommonError(description: "CloudKit account status incorrect") as Error))
+			}.eraseToAnyPublisher()
+		case .available:
+			return CloudKitPermissionStatusPublisher(permission: .userDiscoverability).eraseToAnyPublisher()
+		case .restricted:
+			return Future { promise in
+				return promise(.failure(CommonError(description: "CloudKit account is restricted") as Error))
+			}.eraseToAnyPublisher()
+		case .noAccount:
+			return Future { promise in
+				return promise(.failure(CommonError(description: "CloudKit account does not exist") as Error))
+			}.eraseToAnyPublisher()
+		@unknown default:
+			return Future { promise in
+				return promise(.failure(CommonError(description: "CloudKit account status unknown") as Error))
+			}.eraseToAnyPublisher()
+		}
+	}
+
+	private func processPermissionStatus(status: CKContainer_Application_PermissionStatus, itemType: CloudKitSyncItemProtocol.Type) -> AnyPublisher<Void, Error> {
+		switch status {
+		case .initialState:
+			return CloudKitRequestPermissionPublisher(permission: .userDiscoverability)
+				.flatMap({[unowned self] status in self.processPermissionStatus(status: status, itemType: itemType) })
+				.eraseToAnyPublisher()
+		case .couldNotComplete:
+			return Future { promise in
+				return promise(.failure(CommonError(description: "CloudKit permission status could not complete") as Error))
+			}.eraseToAnyPublisher()
+		case .denied:
+			return Future { promise in
+				return promise(.failure(CommonError(description: "CloudKit permission status denied") as Error))
+			}.eraseToAnyPublisher()
+		case .granted:
+			let recordZone = CKRecordZone(zoneName: itemType.zoneName)
+			return CloudKitSaveZonePublisher(zone: recordZone).eraseToAnyPublisher()
+		@unknown default:
+			return Future { promise in
+				return promise(.failure(CommonError(description: "CloudKit account status unknown") as Error))
+			}.eraseToAnyPublisher()
+		}
+	}
+
 	public func setupUserPermissions(itemType: CloudKitSyncItemProtocol.Type) -> AnyPublisher<Void, Error> {
-		return Future { promise in
-			CKContainer.default().accountStatus { (status, error) in
-				if let error = error {
-					promise(.failure(error))
-				} else if status == .available {
-					CKContainer.default().status(forApplicationPermission: .userDiscoverability, completionHandler: { (status, error) in
-						if let error = error {
-							promise(.failure(error))
-						} else if status == .granted {
-							let recordZone = CKRecordZone(zoneName: itemType.zoneName)
-							CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
-								if let error = error {
-									promise(.failure(error))
-								} else {
-									promise(.success(()))
-								}
-							}
-						} else if status == .initialState {
-							CKContainer.default().requestApplicationPermission(.userDiscoverability, completionHandler: { (status, error) in
-								if let error = error {
-									promise(.failure(error))
-								} else if status == .granted {
-									let recordZone = CKRecordZone(zoneName: itemType.zoneName)
-									CKContainer.default().privateCloudDatabase.save(recordZone) { (_, error) in
-										if let error = error {
-											promise(.failure(error))
-										} else {
-											promise(.success(()))
-										}
-									}
-								} else {
-									promise(.failure(CommonError(description: "CloudKit discoverability status incorrect") as Error))
-								}
-							})
-						} else {
-							promise(.failure(CommonError(description: "CloudKit discoverability status incorrect") as Error))
-						}
-					})
-				} else {
-					promise(.failure(CommonError(description: "CloudKit account status incorrect") as Error))
-				}
-			}
-		}.eraseToAnyPublisher()
+		return CloudKitAccountStatusPublisher().flatMap({[unowned self] accountStatus -> AnyPublisher<CKContainer_Application_PermissionStatus, Error> in
+			self.processAccountStatus(status: accountStatus)
+			}).flatMap({[unowned self] permissionStatus -> AnyPublisher<Void, Error> in
+				self.processPermissionStatus(status: permissionStatus, itemType: itemType)
+			}).eraseToAnyPublisher()
 	}
 
 	private func setItemParents(item: CloudKitSyncItemProtocol) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {

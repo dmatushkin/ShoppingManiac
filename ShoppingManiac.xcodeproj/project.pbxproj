@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4507262424F8DB1400C4DBCF /* CloudKitAccountStatusPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4507262324F8DB1400C4DBCF /* CloudKitAccountStatusPublisher.swift */; };
+		4507262624F8E25500C4DBCF /* CloudKitPermissionStatusPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4507262524F8E25500C4DBCF /* CloudKitPermissionStatusPublisher.swift */; };
+		4507262824F8E3A200C4DBCF /* CloudKitSaveZonePublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4507262724F8E3A200C4DBCF /* CloudKitSaveZonePublisher.swift */; };
+		4507262A24F8E9AE00C4DBCF /* CloudKitRequestPermissionPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4507262924F8E9AE00C4DBCF /* CloudKitRequestPermissionPublisher.swift */; };
+		4507262C24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4507262B24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift */; };
 		4521D1D923D9D85B00775CC5 /* CloudKitOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */; };
 		4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */; };
 		456C324D24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */; };
@@ -239,6 +244,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4507262324F8DB1400C4DBCF /* CloudKitAccountStatusPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitAccountStatusPublisher.swift; sourceTree = "<group>"; };
+		4507262524F8E25500C4DBCF /* CloudKitPermissionStatusPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitPermissionStatusPublisher.swift; sourceTree = "<group>"; };
+		4507262724F8E3A200C4DBCF /* CloudKitSaveZonePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSaveZonePublisher.swift; sourceTree = "<group>"; };
+		4507262924F8E9AE00C4DBCF /* CloudKitRequestPermissionPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitRequestPermissionPublisher.swift; sourceTree = "<group>"; };
+		4507262B24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncSharePermissionsTests.swift; sourceTree = "<group>"; };
 		4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitOperations.swift; sourceTree = "<group>"; };
 		4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitTokenStorage.swift; sourceTree = "<group>"; };
 		456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncShareTests.swift; sourceTree = "<group>"; };
@@ -786,6 +796,7 @@
 				45B3041924F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift */,
 				45B3041B24F6A85000AB4C35 /* PersistModels.swift */,
 				456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */,
+				4507262B24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift */,
 			);
 			path = CloudKitSyncTests;
 			sourceTree = "<group>";
@@ -819,6 +830,10 @@
 				566B8A6324E695AC00B87A63 /* CloudKitFetchDatabaseChangesPublisher.swift */,
 				566B8A6724E6971600B87A63 /* CloudKitFetchZoneChangesPublisher.swift */,
 				566B8A6924E698C900B87A63 /* CloudKitUpdateSubscriptionsPublisher.swift */,
+				4507262324F8DB1400C4DBCF /* CloudKitAccountStatusPublisher.swift */,
+				4507262524F8E25500C4DBCF /* CloudKitPermissionStatusPublisher.swift */,
+				4507262724F8E3A200C4DBCF /* CloudKitSaveZonePublisher.swift */,
+				4507262924F8E9AE00C4DBCF /* CloudKitRequestPermissionPublisher.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -1301,15 +1316,19 @@
 			files = (
 				566B8A5524E6905E00B87A63 /* CloudKitSyncUtils.swift in Sources */,
 				45B3041E24F6D16900AB4C35 /* CloudKitSyncShare.swift in Sources */,
+				4507262A24F8E9AE00C4DBCF /* CloudKitRequestPermissionPublisher.swift in Sources */,
+				4507262824F8E3A200C4DBCF /* CloudKitSaveZonePublisher.swift in Sources */,
 				45BBC64024F6716300B2FA8A /* CloudKitSyncLoader.swift in Sources */,
 				566B8A5824E6926300B87A63 /* CloudKitFetchRecordsPublisher.swift in Sources */,
 				566B8A6024E6941D00B87A63 /* CloudKitSyncErrorType.swift in Sources */,
+				4507262424F8DB1400C4DBCF /* CloudKitAccountStatusPublisher.swift in Sources */,
 				566B8A6624E6968700B87A63 /* CloudKitSyncTokenStorageProtocol.swift in Sources */,
 				566B8A6224E694C500B87A63 /* CloudKitUpdateRecordsPublisher.swift in Sources */,
 				566B8A5B24E6931F00B87A63 /* CloudKitSyncOperationsProtocol.swift in Sources */,
 				566B8A6824E6971600B87A63 /* CloudKitFetchZoneChangesPublisher.swift in Sources */,
 				566B8A6424E695AC00B87A63 /* CloudKitFetchDatabaseChangesPublisher.swift in Sources */,
 				566B8A9124E6D2FE00B87A63 /* CloudKitSyncItemProtocol.swift in Sources */,
+				4507262624F8E25500C4DBCF /* CloudKitPermissionStatusPublisher.swift in Sources */,
 				566B8A6A24E698C900B87A63 /* CloudKitUpdateSubscriptionsPublisher.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1328,6 +1347,7 @@
 				45B3041A24F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift in Sources */,
 				45B3041C24F6A85000AB4C35 /* PersistModels.swift in Sources */,
 				566B8A9524E6D72B00B87A63 /* CloudKitSyncTestTokenStorage.swift in Sources */,
+				4507262C24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
