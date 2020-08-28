@@ -28,18 +28,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }()
 
 	private var cancellables = Set<AnyCancellable>()
-	private let cloudLoader = CloudKitSyncLoader()
-	private let cloudShare = CloudKitSyncShare()
+	@Autowired
+	private var cloudLoader: CloudKitSyncLoaderProtocol
+	@Autowired
+	private var cloudShare: CloudKitSyncShareProtocol
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        application.registerForRemoteNotifications()
 		DIProvider.shared
 			.register(forType: CloudKitSyncOperationsProtocol.self, dependency: CloudKitOperations.self)
 			.register(forType: CloudKitSyncTokenStorageProtocol.self, dependency: CloudKitTokenStorage.self)
 			.register(forType: CloudKitSyncUtilsProtocol.self, dependency: CloudKitSyncUtils.self)
 			.register(forType: CloudKitSyncShareProtocol.self, dependency: CloudKitSyncShare.self)
 			.register(forType: CloudKitSyncLoaderProtocol.self, dependency: CloudKitSyncLoader.self)
-		
+
+		application.registerForRemoteNotifications()
         let log = SwiftyBeaver.self
         log.addDestination(FileDestination())
         log.addDestination(ConsoleDestination())
