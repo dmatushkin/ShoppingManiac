@@ -85,9 +85,13 @@ class CloudShareUnitTests: XCTestCase {
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
 		let model = try shoppingList.toModel().getValue(test: self, timeout: 10)
 		let share = try self.cloudShare.shareItem(item: model, shareTitle: "Shopping list", shareType: "org.md.ShoppingManiac").getValue(test: self, timeout: 10)
+		let updatedList = try ShoppingList.storeModel(model: model).getValue(test: self, timeout: 10)
         XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
         XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
         XCTAssertEqual(recordsUpdateIteration, 2)
+		XCTAssertNotNil(updatedList.recordid)
+		XCTAssertNotNil(updatedList.listItems[0].recordid)
+		XCTAssertNotNil(updatedList.listItems[1].recordid)
     }
 
 	func testShareCrossItemsShoppingList() throws {
@@ -148,9 +152,13 @@ class CloudShareUnitTests: XCTestCase {
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
 		let model = try shoppingList.toModel().getValue(test: self, timeout: 10)
 		let share = try self.cloudShare.shareItem(item: model, shareTitle: "Shopping list", shareType: "org.md.ShoppingManiac").getValue(test: self, timeout: 10)
+		let updatedList = try ShoppingList.storeModel(model: model).getValue(test: self, timeout: 10)
         XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
         XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
         XCTAssertEqual(recordsUpdateIteration, 2)
+		XCTAssertNotNil(updatedList.recordid)
+		XCTAssertNotNil(updatedList.listItems[0].recordid)
+		XCTAssertNotNil(updatedList.listItems[1].recordid)
     }
     
     func testUpdateLocalShoppingList() throws {
@@ -202,7 +210,11 @@ class CloudShareUnitTests: XCTestCase {
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
 		let model = try shoppingList.toModel().getValue(test: self, timeout: 10)
         _ = try self.cloudShare.updateItem(item: model).getValue(test: self, timeout: 10)
+		let updatedList = try ShoppingList.storeModel(model: model).getValue(test: self, timeout: 10)
         XCTAssertEqual(recordsUpdateIteration, 2)
+		XCTAssertNotNil(updatedList.recordid)
+		XCTAssertNotNil(updatedList.listItems[0].recordid)
+		XCTAssertNotNil(updatedList.listItems[1].recordid)
     }
 
     func testUpdateRemoteShoppingListNoShare() throws {
