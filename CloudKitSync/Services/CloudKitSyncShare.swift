@@ -157,6 +157,7 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 			}.eraseToAnyPublisher()
 		}
 		let recordZoneID = CKRecordZone(ownerName: rootItem.ownerName, zoneName: type(of: rootItem).zoneName).zoneID
+		let remoteItems = self.fetchRemoteRecords(rootItem: rootItem, rootRecord: rootRecord, recordZoneID: recordZoneID)
 		let localItems = Publishers.Sequence<[CloudKitSyncItemProtocol], Error>(sequence: rootItem.dependentItems().filter({ $0.recordId == nil }))
 			.flatMap({ item -> AnyPublisher<(CloudKitSyncItemProtocol, CKRecord), Error> in
 				let recordName = CKRecord.ID().recordName
@@ -168,8 +169,7 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 					return (item, record)
 				}).eraseToAnyPublisher()
 			}).eraseToAnyPublisher()
-		let remoteItems = self.fetchRemoteRecords(rootItem: rootItem, rootRecord: rootRecord, recordZoneID: recordZoneID)
-		return localItems.merge(with: remoteItems).collect().flatMap({tuples -> AnyPublisher<[CKRecord], Error> in
+		return Publishers.Concatenate(prefix: remoteItems, suffix: localItems).collect().flatMap({tuples -> AnyPublisher<[CKRecord], Error> in
 				let records = tuples.map({ $0.1 })
 				rootRecord[type(of: rootItem).dependentItemsRecordAttribute] = records.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
 				return Publishers.Sequence(sequence: tuples).flatMap({[unowned self] tuple in
