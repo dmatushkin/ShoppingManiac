@@ -19,12 +19,10 @@ public protocol CloudKitSyncItemProtocol: class {
 	static var dependentItemsType: CloudKitSyncItemProtocol.Type { get } // Class for depentent items
 	var isRemote: Bool { get } // Is this item local or remote
 	func dependentItems() -> [CloudKitSyncItemProtocol] // List of dependent items
-	var recordId: String? { get } // Id of the record, if exists
+	var recordId: String? { get set } // Id of the record, if exists
 	var ownerName: String? { get } // Name of record zone owner, if exists
-	func setRecordId(_ recordId: String) -> AnyPublisher<CloudKitSyncItemProtocol, Error> // Set id of the record
 	func populate(record: CKRecord) // Populate record with data from item
-	static func store(record: CKRecord, isRemote: Bool) -> AnyPublisher<CloudKitSyncItemProtocol, Error> // Store record data locally in item
-	func setParent(item: CloudKitSyncItemProtocol) -> AnyPublisher<CloudKitSyncItemProtocol, Error> // Set parent item
+	static func store(record: CKRecord, isRemote: Bool, dependentItems: [CloudKitSyncItemProtocol]) -> CloudKitSyncItemProtocol // Store record data locally in item
 }
 
 extension CloudKitSyncItemProtocol {
@@ -38,16 +36,5 @@ extension CloudKitSyncItemProtocol {
 				return promise(.failure(CommonError(description: "Unable to map item") as Error))
 			}
 		}.eraseToAnyPublisher()
-	}
-
-	func setParent(item: CloudKitSyncItemProtocol?) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
-		let value = self
-		if let parent = item {
-			return self.setParent(item: parent)
-		} else {
-			return Future { promise in
-				return promise(.success(value))
-			}.eraseToAnyPublisher()
-		}
 	}
 }

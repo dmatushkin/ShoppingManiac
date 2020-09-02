@@ -100,7 +100,11 @@ class ShoppingListModel {
     func syncWithCloud() {
 		guard let shoppingList = self.shoppingList else { return }
         if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
-			self.cloudShare.updateItem(item: shoppingList).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
+			shoppingList.toModel().flatMap({[unowned self] model in
+				self.cloudShare.updateItem(item: model).flatMap({_ in
+					ShoppingList.storeModel(model: model)
+				})
+			}).sink(receiveCompletion: {_ in }, receiveValue: {_ in }).store(in: &self.cancellables)
         }
     }
         

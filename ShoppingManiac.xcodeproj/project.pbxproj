@@ -16,10 +16,12 @@
 		4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */; };
 		456C324D24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */; };
 		456C325024F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C324F24F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift */; };
-		456C325224F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C325124F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift */; };
 		456C325324F7D53500DA1E1B /* ShoppingListCloudKitSyncExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C324F24F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift */; };
-		456C325424F7D53800DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C325124F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift */; };
 		456EDE1523E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456EDE1423E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift */; };
+		458533BD24FFC61F0076F86E /* CloudKitShoppingList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458533BC24FFC61F0076F86E /* CloudKitShoppingList.swift */; };
+		458533BF24FFC6700076F86E /* CloudKitShoppingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458533BE24FFC6700076F86E /* CloudKitShoppingItem.swift */; };
+		458533C024FFE1DE0076F86E /* CloudKitShoppingList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458533BC24FFC61F0076F86E /* CloudKitShoppingList.swift */; };
+		458533C124FFE1E50076F86E /* CloudKitShoppingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 458533BE24FFC6700076F86E /* CloudKitShoppingItem.swift */; };
 		45B3041624F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */; };
 		45B3041824F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */; };
 		45B3041A24F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B3041924F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift */; };
@@ -253,8 +255,9 @@
 		4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitTokenStorage.swift; sourceTree = "<group>"; };
 		456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncShareTests.swift; sourceTree = "<group>"; };
 		456C324F24F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListCloudKitSyncExtension.swift; sourceTree = "<group>"; };
-		456C325124F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListItemCloudKitSyncExtension.swift; sourceTree = "<group>"; };
 		456EDE1423E9A948007E2D73 /* CloudLoaderOperationsUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudLoaderOperationsUnitTests.swift; sourceTree = "<group>"; };
+		458533BC24FFC61F0076F86E /* CloudKitShoppingList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitShoppingList.swift; sourceTree = "<group>"; };
+		458533BE24FFC6700076F86E /* CloudKitShoppingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitShoppingItem.swift; sourceTree = "<group>"; };
 		45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncLoaderTests.swift; sourceTree = "<group>"; };
 		45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncUtilsStub.swift; sourceTree = "<group>"; };
 		45B3041924F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncUtilsPublishers.swift; sourceTree = "<group>"; };
@@ -461,9 +464,17 @@
 			isa = PBXGroup;
 			children = (
 				456C324F24F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift */,
-				456C325124F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		458533BB24FFC6060076F86E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				458533BC24FFC61F0076F86E /* CloudKitShoppingList.swift */,
+				458533BE24FFC6700076F86E /* CloudKitShoppingItem.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		560E12201ED1786200E2529E /* UI */ = {
@@ -564,6 +575,7 @@
 		563E927E2086393C00933522 /* CloudKit */ = {
 			isa = PBXGroup;
 			children = (
+				458533BB24FFC6060076F86E /* Models */,
 				456C324E24F7C81F00DA1E1B /* Extensions */,
 				56E798E823DB284300461F96 /* Utils */,
 				56E798E723DB282C00461F96 /* Services */,
@@ -1244,6 +1256,7 @@
 				56E0C5A624C9C374003AB178 /* PublisherExtension.swift in Sources */,
 				565C3B951ED19EC5003D8EE8 /* ShoppingList+CoreDataClass.swift in Sources */,
 				565C3BC41ED1E05C003D8EE8 /* CategoriesListTableViewCell.swift in Sources */,
+				458533BD24FFC61F0076F86E /* CloudKitShoppingList.swift in Sources */,
 				565C3BAC1ED1A61B003D8EE8 /* GoodRating+CoreDataClass.swift in Sources */,
 				565C3BB31ED1B283003D8EE8 /* UIAlertControllerExtension.swift in Sources */,
 				565C3BA51ED1A5D1003D8EE8 /* ShoppingManiac.xcdatamodeld in Sources */,
@@ -1268,6 +1281,7 @@
 				56D540571F9A73180036C646 /* UIKeyboardInfo.swift in Sources */,
 				456C325024F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift in Sources */,
 				565C3BC21ED1E04A003D8EE8 /* StoresListTableViewCell.swift in Sources */,
+				458533BF24FFC6700076F86E /* CloudKitShoppingItem.swift in Sources */,
 				565C3B961ED19EC5003D8EE8 /* ShoppingList+CoreDataProperties.swift in Sources */,
 				565C3B891ED19938003D8EE8 /* ShoppingListsListTableViewCell.swift in Sources */,
 				565C3B9B1ED19EC5003D8EE8 /* Good+CoreDataClass.swift in Sources */,
@@ -1287,7 +1301,6 @@
 				56D1216420A70D5D0044C486 /* StoresListModel.swift in Sources */,
 				5650C1391EDBEF7B00977503 /* GroupItem.swift in Sources */,
 				565C3B811ED17DB5003D8EE8 /* CategoriesListViewController.swift in Sources */,
-				456C325224F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift in Sources */,
 				56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */,
 				56D1216020A700F40044C486 /* AddGoodModel.swift in Sources */,
 				565C3B981ED19EC5003D8EE8 /* Store+CoreDataProperties.swift in Sources */,
@@ -1372,6 +1385,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				458533C124FFE1E50076F86E /* CloudKitShoppingItem.swift in Sources */,
 				56E798CF23DAD75F00461F96 /* ShoppingList+CoreDataProperties.swift in Sources */,
 				56E798D623DAD76800461F96 /* ShoppingManiac.xcdatamodeld in Sources */,
 				45B78AE123E9827F00C77A52 /* CloudShareOperationsUnitTests.swift in Sources */,
@@ -1386,6 +1400,7 @@
 				56E0C5A924C9C679003AB178 /* CloudKitUtilsPublishers.swift in Sources */,
 				567D065C23E557A4008DB00D /* TestShareMetadata.swift in Sources */,
 				56E798CE23DAD75F00461F96 /* ShoppingList+CoreDataClass.swift in Sources */,
+				458533C024FFE1DE0076F86E /* CloudKitShoppingList.swift in Sources */,
 				567D065723E4CDCE008DB00D /* TestDbWrapper.swift in Sources */,
 				56E798E323DADB4D00461F96 /* ErrorExtension.swift in Sources */,
 				56E798D323DAD75F00461F96 /* ShoppingListItem+CoreDataProperties.swift in Sources */,
@@ -1398,7 +1413,6 @@
 				564FA22223E4343400E4B1CB /* CloudKitUtilsStub.swift in Sources */,
 				56E798D423DAD75F00461F96 /* Good+CoreDataClass.swift in Sources */,
 				56E798D123DAD75F00461F96 /* Store+CoreDataProperties.swift in Sources */,
-				456C325424F7D53800DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift in Sources */,
 				56E0C5AC24C9CDF1003AB178 /* CoreDataOperationPublisher.swift in Sources */,
 				56E798C923DAD75F00461F96 /* GoodRating+CoreDataProperties.swift in Sources */,
 				56E798C623DACDE300461F96 /* CloudKitTestTokenStorage.swift in Sources */,

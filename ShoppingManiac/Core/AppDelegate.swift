@@ -49,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
         let store = SQLiteStore(fileURL: defaultCoreDataFileURL, localStorageOptions: .allowSynchronousLightweightMigration)
         _ = try? CoreStoreDefaults.dataStack.addStorageAndWait(store)
-		cloudShare.setupUserPermissions(itemType: ShoppingList.self).sink(receiveCompletion: { completion in
+		cloudShare.setupUserPermissions(itemType: CloudKitShoppingList.self).sink(receiveCompletion: { completion in
 			switch completion {
 			case .finished:
 				break
@@ -64,9 +64,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-			self.cloudLoader.fetchChanges(localDb: false, itemType: ShoppingList.self)
-				.flatMap({[unowned self] _ in self.cloudLoader.fetchChanges(localDb: true, itemType: ShoppingList.self)})
-					.observeOnMain()
+			self.cloudLoader.fetchChanges(localDb: false, itemType: CloudKitShoppingList.self).flatMap({models in
+				ShoppingList.storeModels(models: models)
+			}).flatMap({[unowned self] _ in self.cloudLoader.fetchChanges(localDb: true, itemType: CloudKitShoppingList.self)})
+				.flatMap({models in
+				ShoppingList.storeModels(models: models)
+			}).observeOnMain()
 					.sink(receiveCompletion: {completion in
 				switch completion {
 				case .finished:
@@ -109,7 +112,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 DispatchQueue.main.async {
                     HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
                 }
-				self.cloudLoader.loadShare(metadata: metadata, itemType: ShoppingList.self).observeOnMain().sink(receiveCompletion: {completion in
+				self.cloudLoader.loadShare(metadata: metadata, itemType: CloudKitShoppingList.self).flatMap({model in
+					ShoppingList.storeModel(model: model)
+				}).observeOnMain().sink(receiveCompletion: {completion in
 					switch completion {
 					case .finished:
 						SwiftyBeaver.debug("loading lists done")

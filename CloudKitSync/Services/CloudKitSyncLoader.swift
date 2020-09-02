@@ -28,23 +28,22 @@ public final class CloudKitSyncLoader: CloudKitSyncLoaderProtocol, DIDependency 
 	public func loadShare<T>(metadata: CKShare.Metadata, itemType: T.Type) -> AnyPublisher<T, Error> where T: CloudKitSyncItemProtocol {
 		return self.cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
 			.flatMap({[unowned self] record in
-				self.storeRecord(record: record, itemType: itemType, parent: nil)
+				self.storeRecord(record: record, itemType: itemType)
 			}).flatMap({ item in
 				item.mapTo(type: T.self)
 			}).eraseToAnyPublisher()
 	}
 
-	private func storeRecord(record: CKRecord, itemType: CloudKitSyncItemProtocol.Type, parent: CloudKitSyncItemProtocol?) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
-		let storeItem = itemType.store(record: record, isRemote: true).flatMap({ $0.setParent(item: parent) })
+	private func storeRecord(record: CKRecord, itemType: CloudKitSyncItemProtocol.Type) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
 		if itemType.hasDependentItems {
 			let dependentRecordIDs = (record[itemType.dependentItemsRecordAttribute] as? [CKRecord.Reference])?.map({ $0.recordID }) ?? []
-			return storeItem.flatMap({[unowned self] item in
-				self.cloudKitUtils.fetchRecords(recordIds: dependentRecordIDs, localDb: false).flatMap({[unowned self] dependentRecord in
-					self.storeRecord(record: dependentRecord, itemType: itemType.dependentItemsType.self, parent: item)
-				}).collect().map({_ in item})
-			}).eraseToAnyPublisher()
+			return self.cloudKitUtils.fetchRecords(recordIds: dependentRecordIDs, localDb: false).flatMap({[unowned self] dependentRecord in
+				self.storeRecord(record: dependentRecord, itemType: itemType.dependentItemsType.self)
+				}).collect().map({items in itemType.store(record: record, isRemote: true, dependentItems: items)}).eraseToAnyPublisher()
 		} else {
-			return storeItem.eraseToAnyPublisher()
+			return Future { promise in
+				return promise(.success(itemType.store(record: record, isRemote: true, dependentItems: [])))
+			}.eraseToAnyPublisher()
 		}
 	}
 
@@ -52,7 +51,7 @@ public final class CloudKitSyncLoader: CloudKitSyncLoaderProtocol, DIDependency 
 		return self.cloudKitUtils.fetchDatabaseChanges(localDb: localDb)
 			.flatMap({[unowned self] zoneIds in
 			self.cloudKitUtils.fetchZoneChanges(zoneIds: zoneIds, localDb: localDb)
-			}).flatMap({[unowned self] records in
+			}).map({[unowned self] records in
 				return self.processChangesRecords(records: records, itemType: itemType, parent: nil, localDb: localDb)
 			}).flatMap({values in
 				return Future { promise in
@@ -65,22 +64,12 @@ public final class CloudKitSyncLoader: CloudKitSyncLoaderProtocol, DIDependency 
 			}).eraseToAnyPublisher()
 	}
 
-	private func processChangesRecords(records: [CKRecord], itemType: CloudKitSyncItemProtocol.Type, parent: CloudKitSyncItemProtocol?, localDb: Bool) -> AnyPublisher<[CloudKitSyncItemProtocol], Error> {
-		let itemRecords = records.filter({ $0.recordType == itemType.recordType && (parent == nil || $0.parent?.recordID.recordName == parent?.recordId) })
-		if itemRecords.count == 0 {
-			return Future { promise in
-				return promise(.success([]))
-			}.eraseToAnyPublisher()
-		}
-		let storeItems = Publishers.Sequence(sequence: itemRecords)
-			.flatMap({ itemType.store(record: $0, isRemote: !localDb).flatMap({ $0.setParent(item: parent)}) })
+	private func processChangesRecords(records: [CKRecord], itemType: CloudKitSyncItemProtocol.Type, parent: CKRecord?, localDb: Bool) -> [CloudKitSyncItemProtocol] {
+		let itemRecords = records.filter({ $0.recordType == itemType.recordType && (parent == nil || $0.parent?.recordID.recordName == parent?.recordID.recordName) })
 		if itemType.hasDependentItems {
-			return storeItems
-				.flatMap({[unowned self] item in
-					self.processChangesRecords(records: records, itemType: itemType.dependentItemsType.self, parent: item, localDb: localDb).map({_ in item})
-			}).collect().eraseToAnyPublisher()
+			return itemRecords.map({itemType.store(record: $0, isRemote: !localDb, dependentItems: processChangesRecords(records: records, itemType: itemType.dependentItemsType, parent: $0, localDb: localDb))})
 		} else {
-			return storeItems.collect().eraseToAnyPublisher()
+			return itemRecords.map({itemType.store(record: $0, isRemote: !localDb, dependentItems: [])})
 		}
 	}
 }

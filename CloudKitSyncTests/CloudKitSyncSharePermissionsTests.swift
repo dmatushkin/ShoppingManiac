@@ -14,6 +14,8 @@ import DependencyInjection
 import CommonError
 @testable import CloudKitSync
 
+//swiftlint:disable type_body_length
+
 class CloudKitSyncSharePermissionsTests: XCTestCase {
 
 	private let operations = CloudKitSyncTestOperations()

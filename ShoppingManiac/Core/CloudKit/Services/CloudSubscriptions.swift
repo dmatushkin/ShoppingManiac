@@ -44,8 +44,8 @@ class CloudSubscriptions {
     }
     
     private class func setupLocalSubscriptions() -> AnyPublisher<Void, Error> {
-        let listsSubscription = createSubscription(forType: ShoppingList.recordType)
-        let itemsSubscription = createSubscription(forType: ShoppingListItem.recordType)
+        let listsSubscription = createSubscription(forType: CloudKitShoppingList.recordType)
+        let itemsSubscription = createSubscription(forType: CloudKitShoppingItem.recordType)
         return cloudKitUtils.updateSubscriptions(subscriptions: [listsSubscription, itemsSubscription], localDb: true)
     }
     
@@ -55,7 +55,7 @@ class CloudSubscriptions {
         let notificationInfo = CKSubscription.NotificationInfo()
         notificationInfo.shouldSendContentAvailable = true
         subscription.notificationInfo = notificationInfo
-        subscription.zoneID = CKRecordZone(zoneName: ShoppingList.zoneName).zoneID
+        subscription.zoneID = CKRecordZone(zoneName: CloudKitShoppingList.zoneName).zoneID
         return subscription
     }
 }

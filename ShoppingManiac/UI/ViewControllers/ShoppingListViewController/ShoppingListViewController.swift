@@ -143,7 +143,11 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     private func icloudShare() {
 		guard let shoppingList = self.model.shoppingList else { return }
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
-		self.cloudShare.shareItem(item: shoppingList, shareTitle: "Shopping List", shareType: "org.md.ShoppingManiac").observeOnMain().sink(receiveCompletion: { completion in
+		shoppingList.toModel().flatMap({[unowned self] model in
+			self.cloudShare.shareItem(item: model, shareTitle: "Shopping List", shareType: "org.md.ShoppingManiac").flatMap({share in
+				ShoppingList.storeModel(model: model).map({_ in share})
+			})
+		}).observeOnMain().sink(receiveCompletion: { completion in
 			switch completion {
 			case .failure(let error):
 				HUD.flash(.labeledError(title: "iCloud sharing error", subtitle: error.localizedDescription), delay: 3)

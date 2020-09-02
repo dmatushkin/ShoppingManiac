@@ -83,7 +83,8 @@ class CloudShareUnitTests: XCTestCase {
             recordsUpdateIteration += 1
         }
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-		let share = try self.cloudShare.shareItem(item: shoppingList, shareTitle: "Shopping list", shareType: "org.md.ShoppingManiac").getValue(test: self, timeout: 10)
+		let model = try shoppingList.toModel().getValue(test: self, timeout: 10)
+		let share = try self.cloudShare.shareItem(item: model, shareTitle: "Shopping list", shareType: "org.md.ShoppingManiac").getValue(test: self, timeout: 10)
         XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
         XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
         XCTAssertEqual(recordsUpdateIteration, 2)
@@ -145,7 +146,8 @@ class CloudShareUnitTests: XCTestCase {
         }
         _ = ShoppingList.importShoppingList(fromJsonData: crossItemsListJson)!
 		let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-		let share = try self.cloudShare.shareItem(item: shoppingList, shareTitle: "Shopping list", shareType: "org.md.ShoppingManiac").getValue(test: self, timeout: 10)
+		let model = try shoppingList.toModel().getValue(test: self, timeout: 10)
+		let share = try self.cloudShare.shareItem(item: model, shareTitle: "Shopping list", shareType: "org.md.ShoppingManiac").getValue(test: self, timeout: 10)
         XCTAssertEqual(share[CKShare.SystemFieldKey.title] as? String, "Shopping list")
         XCTAssertEqual(share[CKShare.SystemFieldKey.shareType] as? String, "org.md.ShoppingManiac")
         XCTAssertEqual(recordsUpdateIteration, 2)
@@ -198,7 +200,8 @@ class CloudShareUnitTests: XCTestCase {
             recordsUpdateIteration += 1
         }
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-        _ = try self.cloudShare.updateItem(item: shoppingList).getValue(test: self, timeout: 10)
+		let model = try shoppingList.toModel().getValue(test: self, timeout: 10)
+        _ = try self.cloudShare.updateItem(item: model).getValue(test: self, timeout: 10)
         XCTAssertEqual(recordsUpdateIteration, 2)
     }
 
@@ -262,7 +265,7 @@ class CloudShareUnitTests: XCTestCase {
             if recordsFetchIteration == 1 {
                 XCTAssertEqual(recordIds.count, 1)
                 XCTAssertEqual(recordIds[0].recordName, "testListRecord")
-                return recordIds.map({CKRecord(recordType: ShoppingList.recordType, recordID: $0)})
+                return recordIds.map({CKRecord(recordType: CloudKitShoppingList.recordType, recordID: $0)})
             } else if recordsFetchIteration == 2 {
                 XCTAssertEqual(recordIds.count, 2)
                 if recordIds[0].recordName == "testItemRecord1" {
@@ -272,15 +275,15 @@ class CloudShareUnitTests: XCTestCase {
                     XCTAssertEqual(recordIds[0].recordName, "testItemRecord2")
                     XCTAssertEqual(recordIds[1].recordName, "testItemRecord1")
                 }
-                return recordIds.map({CKRecord(recordType: ShoppingListItem.recordType, recordID: $0)})
+                return recordIds.map({CKRecord(recordType: CloudKitShoppingItem.recordType, recordID: $0)})
             } else {
                 XCTAssertTrue(false)
                 return []
             }
         }
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-
-		_ = try self.cloudShare.updateItem(item: shoppingList).getValue(test: self, timeout: 10)
+		let model = try shoppingList.toModel().getValue(test: self, timeout: 10)
+		_ = try self.cloudShare.updateItem(item: model).getValue(test: self, timeout: 10)
         XCTAssertEqual(recordsUpdateIteration, 2)
         XCTAssertEqual(recordsFetchIteration, 2)
     }
@@ -346,7 +349,7 @@ class CloudShareUnitTests: XCTestCase {
             if recordsFetchIteration == 1 {
                 XCTAssertEqual(recordIds.count, 1)
                 XCTAssertEqual(recordIds[0].recordName, "testListRecord")
-				return recordIds.map({SharedRecord(recordType: ShoppingList.recordType, recordID: $0)})
+				return recordIds.map({SharedRecord(recordType: CloudKitShoppingList.recordType, recordID: $0)})
             } else if recordsFetchIteration == 2 {
 				XCTAssertEqual(recordIds.count, 1)
                 XCTAssertEqual(recordIds[0].recordName, "shareTestRecord")
@@ -360,15 +363,15 @@ class CloudShareUnitTests: XCTestCase {
                     XCTAssertEqual(recordIds[0].recordName, "testItemRecord2")
                     XCTAssertEqual(recordIds[1].recordName, "testItemRecord1")
                 }
-				return recordIds.map({CKRecord(recordType: ShoppingListItem.recordType, recordID: $0)})
+				return recordIds.map({CKRecord(recordType: CloudKitShoppingItem.recordType, recordID: $0)})
             } else {
                 XCTAssertTrue(false)
                 return []
             }
         }
         let shoppingList = ShoppingList.importShoppingList(fromJsonData: shoppingListJson)!
-
-		_ = try self.cloudShare.updateItem(item: shoppingList).getValue(test: self, timeout: 10)
+		let model = try shoppingList.toModel().getValue(test: self, timeout: 10)
+		_ = try self.cloudShare.updateItem(item: model).getValue(test: self, timeout: 10)
         XCTAssertEqual(recordsUpdateIteration, 2)
         XCTAssertEqual(recordsFetchIteration, 3)
     }

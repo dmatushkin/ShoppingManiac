@@ -91,23 +91,6 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 			}).eraseToAnyPublisher()
 	}
 
-	private func setItemParents(item: CloudKitSyncItemProtocol) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
-		let items = item.dependentItems()
-		return Publishers.Sequence(sequence: items)
-			.flatMap({ $0.setParent(item: item) })
-			.flatMap({[unowned self] item -> AnyPublisher<CloudKitSyncItemProtocol, Error> in
-				if type(of: item).hasDependentItems {
-					return self.setItemParents(item: item)
-				} else {
-					return Future { promise in
-						return promise(.success(item))
-					}.eraseToAnyPublisher()
-				}
-			}).collect()
-			.map({ _ in item })
-			.eraseToAnyPublisher()
-	}
-
 	private func updateItemRecordId(item: CloudKitSyncItemProtocol) -> AnyPublisher<CKRecord, Error> {
 		let recordZoneID = CKRecordZone(ownerName: item.ownerName, zoneName: type(of: item).zoneName).zoneID
 		if let recordName = item.recordId {
@@ -122,9 +105,10 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 			let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZoneID)
 			let record = CKRecord(recordType: type(of: item).recordType, recordID: recordId)
 			item.populate(record: record)
-			return item.setRecordId(recordName)
-				.map({ _ in record})
-				.eraseToAnyPublisher()
+			item.recordId = recordName
+			return Future { promise in
+				return promise(.success(record))
+			}.eraseToAnyPublisher()
 		}
 	}
 
@@ -157,18 +141,17 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 			}.eraseToAnyPublisher()
 		}
 		let recordZoneID = CKRecordZone(ownerName: rootItem.ownerName, zoneName: type(of: rootItem).zoneName).zoneID
+		let remoteItems = self.fetchRemoteRecords(rootItem: rootItem, rootRecord: rootRecord, recordZoneID: recordZoneID)
 		let localItems = Publishers.Sequence<[CloudKitSyncItemProtocol], Error>(sequence: rootItem.dependentItems().filter({ $0.recordId == nil }))
-			.flatMap({ item -> AnyPublisher<(CloudKitSyncItemProtocol, CKRecord), Error> in
+			.map({ item -> (CloudKitSyncItemProtocol, CKRecord) in
 				let recordName = CKRecord.ID().recordName
 				let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZoneID)
 				let record = CKRecord(recordType: type(of: item).recordType, recordID: recordId)
 				record.setParent(rootRecord)
-				return item.setRecordId(recordName).map({_ in
-					item.populate(record: record)
-					return (item, record)
-				}).eraseToAnyPublisher()
+				item.recordId = recordName
+				item.populate(record: record)
+				return (item, record)
 			}).eraseToAnyPublisher()
-		let remoteItems = self.fetchRemoteRecords(rootItem: rootItem, rootRecord: rootRecord, recordZoneID: recordZoneID)
 		return localItems.merge(with: remoteItems).collect().flatMap({tuples -> AnyPublisher<[CKRecord], Error> in
 				let records = tuples.map({ $0.1 })
 				rootRecord[type(of: rootItem).dependentItemsRecordAttribute] = records.map({ CKRecord.Reference(record: $0, action: .deleteSelf) }) as CKRecordValue
@@ -179,11 +162,9 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 				}).eraseToAnyPublisher()
 			}).eraseToAnyPublisher()
 	}
-
+	
 	public func shareItem(item: CloudKitSyncItemProtocol, shareTitle: String, shareType: String) -> AnyPublisher<CKShare, Error> {
-		self.setItemParents(item: item).flatMap({[unowned self] updatedItem in
-			self.updateItemRecordId(item: updatedItem)
-		}).flatMap({[unowned self] record in
+		self.updateItemRecordId(item: item).flatMap({[unowned self] record in
 			return self.updateDependentRecords(rootItem: item, rootRecord: record).flatMap({[unowned self] records -> AnyPublisher<CKShare, Error> in
 				let share = CKShare(rootRecord: record)
 				share[CKShare.SystemFieldKey.title] = shareTitle as CKRecordValue
@@ -199,9 +180,7 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 	}
 
 	public func updateItem(item: CloudKitSyncItemProtocol) -> AnyPublisher<Void, Error> {
-		self.setItemParents(item: item).flatMap({[unowned self] updatedItem in
-			self.updateItemRecordId(item: updatedItem)
-		}).flatMap({[unowned self] record -> AnyPublisher<(CKRecord, CKRecord?), Error> in
+		self.updateItemRecordId(item: item).flatMap({[unowned self] record -> AnyPublisher<(CKRecord, CKRecord?), Error> in
 			if let share = record.share {
 				return self.cloudKitUtils.fetchRecords(recordIds: [share.recordID], localDb: !item.isRemote).map({share in
 					return (record, share)
