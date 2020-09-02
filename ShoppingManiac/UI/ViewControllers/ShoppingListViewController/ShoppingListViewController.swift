@@ -145,7 +145,7 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
 		shoppingList.toModel().flatMap({[unowned self] model in
 			self.cloudShare.shareItem(item: model, shareTitle: "Shopping List", shareType: "org.md.ShoppingManiac").flatMap({share in
-				ShoppingList.storeModel(model: model).map({_ in share})
+				model.persistModelChanges().map({_ in share})
 			})
 		}).observeOnMain().sink(receiveCompletion: { completion in
 			switch completion {

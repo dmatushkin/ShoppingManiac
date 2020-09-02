@@ -100,4 +100,8 @@ class CloudKitShoppingItem: CloudKitSyncItemProtocol {
 				return promise(.success(value))
 		}.eraseToAnyPublisher()
 	}
+
+	func persistModelChanges() -> AnyPublisher<Void, Error> {
+		fatalError()
+	}
 }

@@ -23,12 +23,10 @@ class FetchChangesViewController: UIViewController {
         super.viewDidLoad()
         self.activityIndicator.startAnimating()
 		self.cloudLoader.fetchChanges(localDb: false, itemType: CloudKitShoppingList.self)
-			.flatMap({models in
-			ShoppingList.storeModels(models: models)
-		}).flatMap({[unowned self] _ in self.cloudLoader.fetchChanges(localDb: true, itemType: CloudKitShoppingList.self)})
-			.flatMap({models in
-			ShoppingList.storeModels(models: models)
-		}).observeOnMain().sink(receiveCompletion: {completion in
+			.flatMap({ $0.persistModelChanges() })
+			.flatMap({[unowned self] _ in self.cloudLoader.fetchChanges(localDb: true, itemType: CloudKitShoppingList.self)})
+			.flatMap({ $0.persistModelChanges() })
+			.observeOnMain().sink(receiveCompletion: {completion in
 			switch completion {
 			case .finished:
 				self.proceed()

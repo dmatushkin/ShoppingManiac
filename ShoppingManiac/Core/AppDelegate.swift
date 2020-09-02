@@ -64,12 +64,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) as? CKDatabaseNotification {
             SwiftyBeaver.debug(String(describing: notification))
-			self.cloudLoader.fetchChanges(localDb: false, itemType: CloudKitShoppingList.self).flatMap({models in
-				ShoppingList.storeModels(models: models)
-			}).flatMap({[unowned self] _ in self.cloudLoader.fetchChanges(localDb: true, itemType: CloudKitShoppingList.self)})
-				.flatMap({models in
-				ShoppingList.storeModels(models: models)
-			}).observeOnMain()
+			self.cloudLoader.fetchChanges(localDb: false, itemType: CloudKitShoppingList.self)
+				.flatMap({ $0.persistModelChanges() })
+				.flatMap({[unowned self] _ in self.cloudLoader.fetchChanges(localDb: true, itemType: CloudKitShoppingList.self)})
+				.flatMap({ $0.persistModelChanges() })
+				.observeOnMain()
 					.sink(receiveCompletion: {completion in
 				switch completion {
 				case .finished:

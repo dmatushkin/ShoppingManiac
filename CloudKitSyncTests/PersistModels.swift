@@ -84,6 +84,12 @@ class TestShoppingList: CloudKitSyncItemProtocol {
 		list.items = dependentItems as? [TestShoppingItem] ?? []
 		return list
 	}
+
+	func persistModelChanges() -> AnyPublisher<Void, Error> {
+		return Future { v in
+			return v(.success(()))
+		}.eraseToAnyPublisher()
+	}
 }
 
 class TestShoppingItem: CloudKitSyncItemProtocol, Equatable {
@@ -137,5 +143,9 @@ class TestShoppingItem: CloudKitSyncItemProtocol, Equatable {
 		item.goodName = record["goodName"] as? String
 		item.storeName = record["storeName"] as? String
 		return item
+	}
+
+	func persistModelChanges() -> AnyPublisher<Void, Error> {
+		fatalError()
 	}
 }

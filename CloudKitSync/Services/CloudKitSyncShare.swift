@@ -174,7 +174,7 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 				return self.cloudKitUtils.updateRecords(records: [record, share], localDb: !item.isRemote)
 					.flatMap({[unowned self] _ in
 						self.cloudKitUtils.updateRecords(records: records, localDb: !item.isRemote)
-					}).map({_ in share}).eraseToAnyPublisher()
+					}).flatMap({ item.persistModelChanges() }).map({_ in share}).eraseToAnyPublisher()
 			}).eraseToAnyPublisher()
 		}).eraseToAnyPublisher()
 	}
@@ -198,6 +198,6 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 							self.cloudKitUtils.updateRecords(records: records, localDb: !item.isRemote)
 						}).map({_ in ()}).eraseToAnyPublisher()
 				}).eraseToAnyPublisher()
-		}).eraseToAnyPublisher()
+		}).flatMap({ item.persistModelChanges().map({_ in ()})}).eraseToAnyPublisher()
 	}
 }

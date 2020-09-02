@@ -146,9 +146,7 @@ class CloudLoaderUnitTests: XCTestCase {
 			return [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22, listRecord3]
 		}
 		
-		_ = try self.cloudLoader.fetchChanges(localDb: true, itemType: CloudKitShoppingList.self).flatMap({models in
-			ShoppingList.storeModels(models: models)
-		}).getValue(test: self, timeout: 10)
+		_ = try self.cloudLoader.fetchChanges(localDb: true, itemType: CloudKitShoppingList.self).flatMap({ $0.persistModelChanges() }).getValue(test: self, timeout: 10)
 		let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
 		let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
 		let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
@@ -215,9 +213,7 @@ class CloudLoaderUnitTests: XCTestCase {
 			return [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22]
 		}
 		
-		_ = try self.cloudLoader.fetchChanges(localDb: false, itemType: CloudKitShoppingList.self).flatMap({models in
-			ShoppingList.storeModels(models: models)
-		}).getValue(test: self, timeout: 10)
+		_ = try self.cloudLoader.fetchChanges(localDb: false, itemType: CloudKitShoppingList.self).flatMap({ $0.persistModelChanges() }).getValue(test: self, timeout: 10)
 		let shoppingLists = try CoreStoreDefaults.dataStack.fetchAll(From<ShoppingList>().orderBy(.ascending(\.name)))
 		let items1 = shoppingLists[0].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})
 		let items2 = shoppingLists[1].listItems.sorted(by: {($0.good?.name ?? "") < ($1.good?.name ?? "")})

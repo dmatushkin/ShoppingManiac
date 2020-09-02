@@ -72,4 +72,16 @@ class CloudKitShoppingList: CloudKitSyncItemProtocol {
 		shoppingList.items = dependentItems as? [CloudKitShoppingItem] ?? []
 		return shoppingList
 	}
+
+	func persistModelChanges() -> AnyPublisher<Void, Error> {
+		return ShoppingList.storeModel(model: self).map({ _ in }).eraseToAnyPublisher()
+	}
+}
+
+
+extension Array where Element == CloudKitShoppingList {
+
+	func persistModelChanges() -> AnyPublisher<Void, Error> {
+		return ShoppingList.storeModels(models: self).map({_ in }).eraseToAnyPublisher()
+	}
 }

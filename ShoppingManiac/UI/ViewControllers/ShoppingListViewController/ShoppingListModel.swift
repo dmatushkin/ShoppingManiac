@@ -101,9 +101,7 @@ class ShoppingListModel {
 		guard let shoppingList = self.shoppingList else { return }
         if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
 			shoppingList.toModel().flatMap({[unowned self] model in
-				self.cloudShare.updateItem(item: model).flatMap({_ in
-					ShoppingList.storeModel(model: model)
-				})
+				self.cloudShare.updateItem(item: model)
 			}).sink(receiveCompletion: {_ in }, receiveValue: {_ in }).store(in: &self.cancellables)
         }
     }

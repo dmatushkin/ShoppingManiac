@@ -23,6 +23,7 @@ public protocol CloudKitSyncItemProtocol: class {
 	var ownerName: String? { get } // Name of record zone owner, if exists
 	func populate(record: CKRecord) // Populate record with data from item
 	static func store(record: CKRecord, isRemote: Bool, dependentItems: [CloudKitSyncItemProtocol]) -> CloudKitSyncItemProtocol // Store record data locally in item
+	func persistModelChanges() -> AnyPublisher<Void, Error>
 }
 
 extension CloudKitSyncItemProtocol {
