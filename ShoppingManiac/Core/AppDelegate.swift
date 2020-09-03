@@ -43,7 +43,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 		application.registerForRemoteNotifications()
         let log = SwiftyBeaver.self
-        log.addDestination(FileDestination())
         log.addDestination(ConsoleDestination())
         
         let defaultCoreDataFileURL = AppDelegate.documentsRootDirectory.appendingPathComponent((Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String) ?? "ShoppingManiac", isDirectory: false).appendingPathExtension("sqlite")
