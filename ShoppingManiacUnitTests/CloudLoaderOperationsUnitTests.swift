@@ -76,6 +76,15 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 				fatalError()
 			}
 		}
+		self.operations.onContainerOperation = { operation, containerOperations in
+			if containerOperations.count == 1 {
+				guard let operation = operation as? CKAcceptSharesOperation else { fatalError() }
+				operation.perShareCompletionBlock?(metadata, nil, nil)
+			} else {
+				fatalError()
+			}
+
+		}
 		let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
         let shoppingList = CoreStoreDefaults.dataStack.fetchExisting(shoppingListLink)!
         XCTAssertEqual(shoppingList.name, "Test Shopping List")
@@ -143,6 +152,15 @@ class CloudLoaderOperationsUnitTests: XCTestCase {
 			} else {
 				fatalError()
 			}
+		}
+		self.operations.onContainerOperation = { operation, containerOperations in
+			if containerOperations.count == 1 {
+				guard let operation = operation as? CKAcceptSharesOperation else { fatalError() }
+				operation.perShareCompletionBlock?(metadata, nil, nil)
+			} else {
+				fatalError()
+			}
+
 		}
         let shoppingListLink = try self.cloudLoader.loadShare(metadata: metadata, itemType: ShoppingList.self).getValue(test: self, timeout: 10)
         let shoppingList = CoreStoreDefaults.dataStack.fetchExisting(shoppingListLink)!

@@ -14,6 +14,7 @@
 		4507262C24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4507262B24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift */; };
 		4521D1D923D9D85B00775CC5 /* CloudKitOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */; };
 		4521D1DB23D9DAC600775CC5 /* CloudKitTokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */; };
+		455A0545250121BB00DE8938 /* CloudKitAcceptSharePublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 455A0544250121BB00DE8938 /* CloudKitAcceptSharePublisher.swift */; };
 		456C324D24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */; };
 		456C325024F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C324F24F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift */; };
 		456C325224F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456C325124F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift */; };
@@ -251,6 +252,7 @@
 		4507262B24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncSharePermissionsTests.swift; sourceTree = "<group>"; };
 		4521D1D823D9D85B00775CC5 /* CloudKitOperations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitOperations.swift; sourceTree = "<group>"; };
 		4521D1DA23D9DAC600775CC5 /* CloudKitTokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitTokenStorage.swift; sourceTree = "<group>"; };
+		455A0544250121BB00DE8938 /* CloudKitAcceptSharePublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitAcceptSharePublisher.swift; sourceTree = "<group>"; };
 		456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncShareTests.swift; sourceTree = "<group>"; };
 		456C324F24F7C83C00DA1E1B /* ShoppingListCloudKitSyncExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListCloudKitSyncExtension.swift; sourceTree = "<group>"; };
 		456C325124F7CA7D00DA1E1B /* ShoppingListItemCloudKitSyncExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListItemCloudKitSyncExtension.swift; sourceTree = "<group>"; };
@@ -834,6 +836,7 @@
 				4507262524F8E25500C4DBCF /* CloudKitPermissionStatusPublisher.swift */,
 				4507262724F8E3A200C4DBCF /* CloudKitSaveZonePublisher.swift */,
 				4507262924F8E9AE00C4DBCF /* CloudKitRequestPermissionPublisher.swift */,
+				455A0544250121BB00DE8938 /* CloudKitAcceptSharePublisher.swift */,
 			);
 			path = Publishers;
 			sourceTree = "<group>";
@@ -1318,6 +1321,7 @@
 				45B3041E24F6D16900AB4C35 /* CloudKitSyncShare.swift in Sources */,
 				4507262A24F8E9AE00C4DBCF /* CloudKitRequestPermissionPublisher.swift in Sources */,
 				4507262824F8E3A200C4DBCF /* CloudKitSaveZonePublisher.swift in Sources */,
+				455A0545250121BB00DE8938 /* CloudKitAcceptSharePublisher.swift in Sources */,
 				45BBC64024F6716300B2FA8A /* CloudKitSyncLoader.swift in Sources */,
 				566B8A5824E6926300B87A63 /* CloudKitFetchRecordsPublisher.swift in Sources */,
 				566B8A6024E6941D00B87A63 /* CloudKitSyncErrorType.swift in Sources */,

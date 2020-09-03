@@ -16,7 +16,9 @@ class CloudKitTestOperations: CloudKitSyncOperationsProtocol {
     
     var localOperations: [CKDatabaseOperation] = []
     var sharedOperations: [CKDatabaseOperation] = []
+	var containerOperations: [CKOperation] = []
     var onAddOperation: ((CKDatabaseOperation, [CKDatabaseOperation], [CKDatabaseOperation]) -> Void)?
+	var onContainerOperation: ((CKOperation, [CKOperation]) -> Void)?
 	var onAccountStatus: (() -> (CKAccountStatus, Error?))?
 	var onPermissionStatus: ((CKContainer_Application_Permissions) -> (CKContainer_Application_PermissionStatus, Error?))?
 	var onRequestAppPermission: ((CKContainer_Application_Permissions) -> (CKContainer_Application_PermissionStatus, Error?))?
@@ -25,11 +27,13 @@ class CloudKitTestOperations: CloudKitSyncOperationsProtocol {
     func cleanup() {
         self.localOperations = []
         self.sharedOperations = []
+		self.containerOperations = []
         self.onAddOperation = nil
 		self.onAccountStatus = nil
 		self.onPermissionStatus = nil
 		self.onRequestAppPermission = nil
 		self.onSaveZone = nil
+		self.onContainerOperation = nil
     }
     
     func run(operation: CKDatabaseOperation, localDb: Bool) {
@@ -81,6 +85,14 @@ class CloudKitTestOperations: CloudKitSyncOperationsProtocol {
 			}
 			let (zone, error) = onSaveZone(zone)
 			completionHandler(zone, error)
+		}
+	}
+
+	func run(operation: CKOperation) {
+		self.containerOperations.append(operation)
+		self.operationsQueue.async {[weak self] in
+			guard let self = self, let onContainerOperation = self.onContainerOperation else { return }
+			onContainerOperation(operation, self.containerOperations)
 		}
 	}
 }

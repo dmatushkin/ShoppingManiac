@@ -21,6 +21,7 @@ class CloudKitSyncUtilsStub: CloudKitSyncUtilsProtocol {
     var onUpdateSubscriptions: (([CKSubscription], Bool) -> Void)?
     var onFetchDatabaseChanges: ((Bool) -> [CKRecordZone.ID])?
     var onFetchZoneChanges: (([CKRecordZone.ID]) -> [CKRecord])?
+	var onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?))?
 
     func cleanup() {
         self.onFetchRecords = nil
@@ -53,5 +54,10 @@ class CloudKitSyncUtilsStub: CloudKitSyncUtilsProtocol {
 	func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error> {
 		guard let onFetchZoneChanges = self.onFetchZoneChanges else { fatalError() }
 		return FetchZoneChangesTestPublisher(zoneIds: zoneIds, onFetchZoneChanges: onFetchZoneChanges).eraseToAnyPublisher()
+	}
+
+	func acceptShare(metadata: CKShare.Metadata) -> AnyPublisher<(CKShare.Metadata, CKShare?), Error> {
+		guard let onAcceptShare = self.onAcceptShare else { fatalError() }
+		return CloudKitAcceptShareTestPublisher(metadata: metadata, onAcceptShare: onAcceptShare).eraseToAnyPublisher()
 	}
 }

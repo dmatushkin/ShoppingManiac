@@ -275,3 +275,53 @@ struct FetchZoneChangesTestPublisher: Publisher {
 			subscriber.receive(subscription: subscription)
 	}
 }
+
+struct CloudKitAcceptShareTestPublisher: Publisher {
+
+	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == (CKShare.Metadata, CKShare?), S.Failure == Error {
+
+		private let metadata: CKShare.Metadata
+		private let onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?))
+		private var subscriber: S?
+
+		init(metadata: CKShare.Metadata, onAcceptShare: @escaping ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?)), subscriber: S) {
+			self.metadata = metadata
+			self.subscriber = subscriber
+			self.onAcceptShare = onAcceptShare
+		}
+
+		func request(_ demand: Subscribers.Demand) {
+			guard let subscriber = subscriber else { return }
+
+			CloudKitUtilsStub.operationsQueue.async { [weak self] in
+				guard let self = self else { fatalError() }
+				SwiftyBeaver.debug("about to accept share \(self.metadata)")
+				let result = self.onAcceptShare(self.metadata)
+				_ = subscriber.receive(result)
+				subscriber.receive(completion: .finished)
+			}
+		}
+
+		func cancel() {
+			subscriber = nil
+		}
+	}
+
+	typealias Output = (CKShare.Metadata, CKShare?)
+	typealias Failure = Error
+
+	private let metadata: CKShare.Metadata
+	private let onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?))
+
+	init(metadata: CKShare.Metadata, onAcceptShare: @escaping ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?))) {
+		self.metadata = metadata
+		self.onAcceptShare = onAcceptShare
+	}
+
+	func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
+		let subscription = CloudKitSubscription(metadata: metadata,
+												onAcceptShare: onAcceptShare,
+												subscriber: subscriber)
+		subscriber.receive(subscription: subscription)
+	}
+}

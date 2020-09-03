@@ -18,6 +18,7 @@ public protocol CloudKitSyncUtilsProtocol {
 	func updateRecords(records: [CKRecord], localDb: Bool) -> AnyPublisher<Void, Error>
 	func fetchDatabaseChanges(localDb: Bool) -> AnyPublisher<[CKRecordZone.ID], Error>
 	func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error>
+	func acceptShare(metadata: CKShare.Metadata) -> AnyPublisher<(CKShare.Metadata, CKShare?), Error>
 }
 
 public final class CloudKitSyncUtils: CloudKitSyncUtilsProtocol, DIDependency {
@@ -44,5 +45,9 @@ public final class CloudKitSyncUtils: CloudKitSyncUtilsProtocol, DIDependency {
 
 	public func fetchZoneChanges(zoneIds: [CKRecordZone.ID], localDb: Bool) -> AnyPublisher<[CKRecord], Error> {
 		return CloudKitFetchZoneChangesPublisher(zoneIds: zoneIds, localDb: localDb).eraseToAnyPublisher()
+	}
+
+	public func acceptShare(metadata: CKShare.Metadata) -> AnyPublisher<(CKShare.Metadata, CKShare?), Error> {
+		return CloudKitAcceptSharePublisher(metadata: metadata).eraseToAnyPublisher()
 	}
 }

@@ -98,32 +98,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
-        let operation = CKAcceptSharesOperation(shareMetadatas: [cloudKitShareMetadata])
-        operation.qualityOfService = .userInteractive
-        operation.perShareCompletionBlock = {[weak self] metadata, share, error in
-            guard let self = self else {return}
-            if let error = error {
-                SwiftyBeaver.debug("sharing accept error \(error.localizedDescription)")
-            } else {
-                SwiftyBeaver.debug("sharing accepted successfully")
-                DispatchQueue.main.async {
-                    HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
-                }
-				self.cloudLoader.loadShare(metadata: metadata, itemType: ShoppingList.self).observeOnMain().sink(receiveCompletion: {completion in
-					switch completion {
-					case .finished:
-						SwiftyBeaver.debug("loading lists done")
-					case .failure(let error):
-						HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
-					}
-				}, receiveValue: {[weak self] list in
-					HUD.hide()
-                    guard let list = CoreStoreDefaults.dataStack.fetchExisting(list) else { return }
-                    self?.showList(list: list)
-				}).store(in: &self.cancellables)
-            }
-        }
-        CKContainer.default().add(operation)
+		HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
+		self.cloudLoader.loadShare(metadata: cloudKitShareMetadata, itemType: ShoppingList.self).observeOnMain().sink(receiveCompletion: {completion in
+			switch completion {
+			case .finished:
+				SwiftyBeaver.debug("loading lists done")
+			case .failure(let error):
+				HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
+			}
+		}, receiveValue: {[weak self] list in
+			HUD.hide()
+			guard let list = CoreStoreDefaults.dataStack.fetchExisting(list) else { return }
+			self?.showList(list: list)
+		}).store(in: &self.cancellables)
     }
 
 	func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
@@ -131,8 +118,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	}
 
     func application(_ application: UIApplication, handleOpen url: URL) -> Bool {
-        let data = try? Data(contentsOf: url)
-        if let jsonObject = (try? JSONSerialization.jsonObject(with: data!, options: JSONSerialization.ReadingOptions())) as? NSDictionary, let list = ShoppingList.importShoppingList(fromJsonData: jsonObject) {
+        if let data = try? Data(contentsOf: url),
+			let jsonObject = (try? JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions())) as? NSDictionary,
+			let list = ShoppingList.importShoppingList(fromJsonData: jsonObject) {
             self.showList(list: list)
         }
         return true

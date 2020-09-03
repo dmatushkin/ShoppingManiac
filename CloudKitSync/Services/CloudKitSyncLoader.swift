@@ -26,12 +26,13 @@ public final class CloudKitSyncLoader: CloudKitSyncLoaderProtocol, DIDependency 
 	public init() { }
 
 	public func loadShare<T>(metadata: CKShare.Metadata, itemType: T.Type) -> AnyPublisher<T, Error> where T: CloudKitSyncItemProtocol {
-		return self.cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
-			.flatMap({[unowned self] record in
-				self.storeRecord(record: record, itemType: itemType, parent: nil)
-			}).flatMap({ item in
-				item.mapTo(type: T.self)
-			}).eraseToAnyPublisher()
+		self.cloudKitUtils.acceptShare(metadata: metadata).flatMap({[unowned self] _ in
+			return self.cloudKitUtils.fetchRecords(recordIds: [metadata.rootRecordID], localDb: false)
+		}).flatMap({[unowned self] record in
+			self.storeRecord(record: record, itemType: itemType, parent: nil)
+		}).flatMap({ item in
+			item.mapTo(type: T.self)
+		}).eraseToAnyPublisher()
 	}
 
 	private func storeRecord(record: CKRecord, itemType: CloudKitSyncItemProtocol.Type, parent: CloudKitSyncItemProtocol?) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {

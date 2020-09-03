@@ -36,10 +36,10 @@ class CloudKitSyncLoaderTests: XCTestCase {
 
 	func testLoadShare() throws {
         let metadata = TestShareMetadata()
-        var fetchRecordCounter: Int = 0
+        var operationsCounter: Int = 0
         self.utilsStub.onFetchRecords = { recordIds, localDb -> [CKRecord] in
-            fetchRecordCounter += 1
-            if fetchRecordCounter == 1 {
+            operationsCounter += 1
+            if operationsCounter == 2 {
                 XCTAssertEqual(recordIds.count, 1)
                 XCTAssertTrue(!localDb)
                 XCTAssertEqual(recordIds[0].recordName, "testShareRecord")
@@ -50,7 +50,7 @@ class CloudKitSyncLoaderTests: XCTestCase {
                 record["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 record["items"] = [CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem1"), action: .none), CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem2"), action: .none)]
                 return [record]
-            } else if fetchRecordCounter == 2 {
+            } else if operationsCounter == 3 {
                 XCTAssertEqual(recordIds.count, 2)
                 XCTAssertTrue(!localDb)
                 XCTAssertEqual(recordIds[0].recordName, "testItem1")
@@ -67,6 +67,11 @@ class CloudKitSyncLoaderTests: XCTestCase {
                 return []
             }
         }
+		self.utilsStub.onAcceptShare = { testMetadata in
+			operationsCounter += 1
+			XCTAssertEqual(testMetadata, metadata)
+			return (testMetadata, nil)
+		}
 		let shoppingList = try self.cloudLoader.loadShare(metadata: metadata, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
         XCTAssertEqual(shoppingList.name, "Test Shopping List")
         XCTAssertEqual(shoppingList.ownerName, "testRecordOwner")
@@ -75,6 +80,7 @@ class CloudKitSyncLoaderTests: XCTestCase {
         XCTAssertEqual(shoppingList.date, 602175855.0)
         let items = shoppingList.items
         XCTAssertEqual(items.count, 2)
+		XCTAssertEqual(operationsCounter, 3)
         if items[0].goodName == "Test good 1" {
             XCTAssertEqual(items[0].recordId, "testItem1")
             XCTAssertEqual(items[0].goodName, "Test good 1")

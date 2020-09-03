@@ -19,6 +19,10 @@ class CloudKitOperations: CloudKitSyncOperationsProtocol, DIDependency {
 		CKContainer.default().database(localDb: localDb).add(operation)
 	}
 
+	func run(operation: CKOperation) {
+		CKContainer.default().add(operation)
+	}
+
 	func accountStatus(completionHandler: @escaping (CKAccountStatus, Error?) -> Void) {
 		CKContainer.default().accountStatus(completionHandler: completionHandler)
 	}
