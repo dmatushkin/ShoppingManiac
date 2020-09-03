@@ -790,14 +790,14 @@
 			isa = PBXGroup;
 			children = (
 				566B8A3124E68AD000B87A63 /* CloudKitSyncUtilsTests.swift */,
+				45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */,
+				456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */,
 				566B8A3324E68AD000B87A63 /* Info.plist */,
 				566B8A9224E6D64900B87A63 /* CloudKitSyncTestOperations.swift */,
 				566B8A9424E6D72B00B87A63 /* CloudKitSyncTestTokenStorage.swift */,
-				45B3041524F6A42000AB4C35 /* CloudKitSyncLoaderTests.swift */,
 				45B3041724F6A4E300AB4C35 /* CloudKitSyncUtilsStub.swift */,
 				45B3041924F6A63200AB4C35 /* CloudKitSyncUtilsPublishers.swift */,
 				45B3041B24F6A85000AB4C35 /* PersistModels.swift */,
-				456C324C24F7B3A000DA1E1B /* CloudKitSyncShareTests.swift */,
 				4507262B24F8F69300C4DBCF /* CloudKitSyncSharePermissionsTests.swift */,
 			);
 			path = CloudKitSyncTests;

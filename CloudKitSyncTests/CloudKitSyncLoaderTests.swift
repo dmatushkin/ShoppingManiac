@@ -37,7 +37,7 @@ class CloudKitSyncLoaderTests: XCTestCase {
 	func testLoadShare() throws {
         let metadata = TestShareMetadata()
         var operationsCounter: Int = 0
-        self.utilsStub.onFetchRecords = { recordIds, localDb -> [CKRecord] in
+        self.utilsStub.onFetchRecords = { recordIds, localDb -> ([CKRecord], Error?) in
             operationsCounter += 1
             if operationsCounter == 2 {
                 XCTAssertEqual(recordIds.count, 1)
@@ -49,7 +49,7 @@ class CloudKitSyncLoaderTests: XCTestCase {
                 record["name"] = "Test Shopping List"
                 record["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
                 record["items"] = [CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem1"), action: .none), CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem2"), action: .none)]
-                return [record]
+                return ([record], nil)
             } else if operationsCounter == 3 {
                 XCTAssertEqual(recordIds.count, 2)
                 XCTAssertTrue(!localDb)
@@ -61,16 +61,16 @@ class CloudKitSyncLoaderTests: XCTestCase {
                 let record2 = CKRecord(recordType: TestShoppingItem.recordType, recordID: recordIds[1])
                 record2["goodName"] = "Test good 2"
                 record2["storeName"] = "Test store 2"
-                return [record1, record2]
+                return ([record1, record2], nil)
             } else {
                 XCTAssertTrue(false)
-                return []
+                return ([], nil)
             }
         }
 		self.utilsStub.onAcceptShare = { testMetadata in
 			operationsCounter += 1
 			XCTAssertEqual(testMetadata, metadata)
-			return (testMetadata, nil)
+			return (testMetadata, nil, nil)
 		}
 		let shoppingList = try self.cloudLoader.loadShare(metadata: metadata, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
         XCTAssertEqual(shoppingList.name, "Test Shopping List")
@@ -98,15 +98,107 @@ class CloudKitSyncLoaderTests: XCTestCase {
         }
     }
 
+	func testLoadShareFailAccept() throws {
+        let metadata = TestShareMetadata()
+        var operationsCounter: Int = 0
+        self.utilsStub.onFetchRecords = { recordIds, localDb -> ([CKRecord], Error?) in
+            operationsCounter += 1
+			XCTAssertTrue(false)
+			return ([], nil)
+        }
+		self.utilsStub.onAcceptShare = { testMetadata in
+			operationsCounter += 1
+			XCTAssertEqual(testMetadata, metadata)
+			return (testMetadata, nil, CommonError(description: "test error") as Error)
+		}
+		do {
+			_ = try self.cloudLoader.loadShare(metadata: metadata, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
+			XCTAssertFalse(true, "should not be here")
+		} catch {
+			XCTAssertEqual(error.localizedDescription, "test error")
+		}
+
+		XCTAssertEqual(operationsCounter, 1)
+    }
+
+	func testLoadShareFailFetchList() throws {
+        let metadata = TestShareMetadata()
+        var operationsCounter: Int = 0
+        self.utilsStub.onFetchRecords = { recordIds, localDb -> ([CKRecord], Error?) in
+            operationsCounter += 1
+			XCTAssertEqual(recordIds.count, 1)
+			XCTAssertTrue(!localDb)
+			XCTAssertEqual(recordIds[0].recordName, "testShareRecord")
+			XCTAssertEqual(recordIds[0].zoneID.zoneName, "testRecordZone")
+			XCTAssertEqual(recordIds[0].zoneID.ownerName, "testRecordOwner")
+			return ([], CommonError(description: "test error"))
+        }
+		self.utilsStub.onAcceptShare = { testMetadata in
+			operationsCounter += 1
+			XCTAssertEqual(testMetadata, metadata)
+			return (testMetadata, nil, nil)
+		}
+		do {
+			_ = try self.cloudLoader.loadShare(metadata: metadata, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
+			XCTAssertFalse(true, "should not be here")
+		} catch {
+			XCTAssertEqual(error.localizedDescription, "test error")
+		}
+
+		XCTAssertEqual(operationsCounter, 2)
+    }
+
+	func testLoadShareFailFetchItems() throws {
+        let metadata = TestShareMetadata()
+        var operationsCounter: Int = 0
+        self.utilsStub.onFetchRecords = { recordIds, localDb -> ([CKRecord], Error?) in
+            operationsCounter += 1
+			if operationsCounter == 2 {
+                XCTAssertEqual(recordIds.count, 1)
+                XCTAssertTrue(!localDb)
+                XCTAssertEqual(recordIds[0].recordName, "testShareRecord")
+                XCTAssertEqual(recordIds[0].zoneID.zoneName, "testRecordZone")
+                XCTAssertEqual(recordIds[0].zoneID.ownerName, "testRecordOwner")
+				let record = CKRecord(recordType: TestShoppingList.recordType, recordID: recordIds[0])
+                record["name"] = "Test Shopping List"
+                record["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
+                record["items"] = [CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem1"), action: .none), CKRecord.Reference(recordID: CKRecord.ID(recordName: "testItem2"), action: .none)]
+                return ([record], nil)
+			} else {
+				XCTAssertEqual(recordIds.count, 2)
+                XCTAssertTrue(!localDb)
+                XCTAssertEqual(recordIds[0].recordName, "testItem1")
+                XCTAssertEqual(recordIds[1].recordName, "testItem2")
+				return ([], CommonError(description: "test error"))
+			}
+        }
+		self.utilsStub.onAcceptShare = { testMetadata in
+			operationsCounter += 1
+			XCTAssertEqual(testMetadata, metadata)
+			return (testMetadata, nil, nil)
+		}
+		do {
+			_ = try self.cloudLoader.loadShare(metadata: metadata, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
+			XCTAssertFalse(true, "should not be here")
+		} catch {
+			XCTAssertEqual(error.localizedDescription, "test error")
+		}
+
+		XCTAssertEqual(operationsCounter, 3)
+    }
+
 	func testFetchChangesLocal() throws {
-		self.utilsStub.onFetchDatabaseChanges = { localDb -> [CKRecordZone.ID] in
+		var operationsCounter: Int = 0
+		self.utilsStub.onFetchDatabaseChanges = { localDb -> ([CKRecordZone.ID], Error?) in
+			operationsCounter += 1
 			XCTAssertTrue(localDb)
 			let recordId1 = CKRecordZone.ID(zoneName: "testZone1", ownerName: "testOwner")
 			let recordId2 = CKRecordZone.ID(zoneName: "testZone2", ownerName: "testOwner")
 			let recordId3 = CKRecordZone.ID(zoneName: "testZone3", ownerName: "testOwner")
-			return [recordId1, recordId2, recordId3]
+			return ([recordId1, recordId2, recordId3], nil)
 		}
-		self.utilsStub.onFetchZoneChanges = { zoneIds -> [CKRecord] in
+		self.utilsStub.onFetchZoneChanges = { zoneIds -> ([CKRecord], Error?) in
+			operationsCounter += 1
 			XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
 			XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
 			XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
@@ -144,7 +236,7 @@ class CloudKitSyncLoaderTests: XCTestCase {
 			listRecord3["name"] = "Test Shopping List 3"
 			listRecord3["date"] = Date(timeIntervalSinceReferenceDate: 602175855.0)
 
-			return [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22, listRecord3]
+			return ([listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22, listRecord3], nil)
 		}
 
 		let shoppingLists = try self.cloudLoader.fetchChanges(localDb: true, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
@@ -178,16 +270,71 @@ class CloudKitSyncLoaderTests: XCTestCase {
 		XCTAssertEqual(items1.count, 2)
 		XCTAssertEqual(items2.count, 2)
 		XCTAssertEqual(items3.count, 0)
+		XCTAssertEqual(operationsCounter, 2)
+	}
+
+	func testFetchChangesLocalFailOnDb() throws {
+		var operationsCounter: Int = 0
+		self.utilsStub.onFetchDatabaseChanges = { localDb -> ([CKRecordZone.ID], Error?) in
+			operationsCounter += 1
+			XCTAssertTrue(localDb)
+			return ([], CommonError(description: "test error") as Error)
+		}
+		self.utilsStub.onFetchZoneChanges = { zoneIds -> ([CKRecord], Error?) in
+			operationsCounter += 1
+			return ([], nil)
+		}
+
+		do {
+			_ = try self.cloudLoader.fetchChanges(localDb: true, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
+			XCTAssertFalse(true, "should not be here")
+		} catch {
+			XCTAssertEqual(error.localizedDescription, "test error")
+		}
+		XCTAssertEqual(operationsCounter, 1)
+	}
+
+	func testFetchChangesLocalFailOnZone() throws {
+		var operationsCounter: Int = 0
+		self.utilsStub.onFetchDatabaseChanges = { localDb -> ([CKRecordZone.ID], Error?) in
+			operationsCounter += 1
+			XCTAssertTrue(localDb)
+			let recordId1 = CKRecordZone.ID(zoneName: "testZone1", ownerName: "testOwner")
+			let recordId2 = CKRecordZone.ID(zoneName: "testZone2", ownerName: "testOwner")
+			let recordId3 = CKRecordZone.ID(zoneName: "testZone3", ownerName: "testOwner")
+			return ([recordId1, recordId2, recordId3], nil)
+		}
+		self.utilsStub.onFetchZoneChanges = { zoneIds -> ([CKRecord], Error?) in
+			operationsCounter += 1
+			XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
+			XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
+			XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
+			XCTAssertEqual(zoneIds[1].ownerName, "testOwner")
+			XCTAssertEqual(zoneIds[2].zoneName, "testZone3")
+			XCTAssertEqual(zoneIds[2].ownerName, "testOwner")
+			return ([], CommonError(description: "test error") as Error)
+		}
+
+		do {
+			_ = try self.cloudLoader.fetchChanges(localDb: true, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
+			XCTAssertFalse(true, "should not be here")
+		} catch {
+			XCTAssertEqual(error.localizedDescription, "test error")
+		}
+		XCTAssertEqual(operationsCounter, 2)
 	}
 
 	func testFetchChangesRemote() throws {
-		self.utilsStub.onFetchDatabaseChanges = { localDb -> [CKRecordZone.ID] in
+		var operationsCounter: Int = 0
+		self.utilsStub.onFetchDatabaseChanges = { localDb -> ([CKRecordZone.ID], Error?) in
+			operationsCounter += 1
 			XCTAssertTrue(!localDb)
 			let recordId1 = CKRecordZone.ID(zoneName: "testZone1", ownerName: "testOwner")
 			let recordId2 = CKRecordZone.ID(zoneName: "testZone2", ownerName: "testOwner")
-			return [recordId1, recordId2]
+			return ([recordId1, recordId2], nil)
 		}
-		self.utilsStub.onFetchZoneChanges = { zoneIds -> [CKRecord] in
+		self.utilsStub.onFetchZoneChanges = { zoneIds -> ([CKRecord], Error?) in
+			operationsCounter += 1
 			XCTAssertEqual(zoneIds[0].zoneName, "testZone1")
 			XCTAssertEqual(zoneIds[0].ownerName, "testOwner")
 			XCTAssertEqual(zoneIds[1].zoneName, "testZone2")
@@ -219,7 +366,7 @@ class CloudKitSyncLoaderTests: XCTestCase {
 			listItem22["storeName"] = "Test store 22"
 			listItem22.parent = CKRecord.Reference(recordID: listRecord2.recordID, action: .none)
 
-			return [listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22]
+			return ([listRecord1, listItem11, listItem12, listRecord2, listItem21, listItem22], nil)
 		}
 
 		let shoppingLists = try self.cloudLoader.fetchChanges(localDb: false, itemType: TestShoppingList.self).getValue(test: self, timeout: 10)
@@ -246,5 +393,6 @@ class CloudKitSyncLoaderTests: XCTestCase {
 		XCTAssertEqual(items2[1].storeName, "Test store 22")
 		XCTAssertEqual(items1.count, 2)
 		XCTAssertEqual(items2.count, 2)
+		XCTAssertEqual(operationsCounter, 2)
 	}
 }

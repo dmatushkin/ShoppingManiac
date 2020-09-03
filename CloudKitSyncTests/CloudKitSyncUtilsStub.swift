@@ -12,16 +12,18 @@ import SwiftyBeaver
 import Combine
 @testable import CloudKitSync
 
+//swiftlint:disable large_tuple
+
 class CloudKitSyncUtilsStub: CloudKitSyncUtilsProtocol {
 
     static let operationsQueue = DispatchQueue(label: "CloudKitUtilsStub.operationsQueue", attributes: .concurrent)
 
-    var onFetchRecords: (([CKRecord.ID], Bool) -> [CKRecord])?
-    var onUpdateRecords: (([CKRecord], Bool) -> Void)?
-    var onUpdateSubscriptions: (([CKSubscription], Bool) -> Void)?
-    var onFetchDatabaseChanges: ((Bool) -> [CKRecordZone.ID])?
-    var onFetchZoneChanges: (([CKRecordZone.ID]) -> [CKRecord])?
-	var onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?))?
+    var onFetchRecords: (([CKRecord.ID], Bool) -> ([CKRecord], Error?))?
+    var onUpdateRecords: (([CKRecord], Bool) -> Error?)?
+    var onUpdateSubscriptions: (([CKSubscription], Bool) -> Error?)?
+    var onFetchDatabaseChanges: ((Bool) -> ([CKRecordZone.ID], Error?))?
+    var onFetchZoneChanges: (([CKRecordZone.ID]) -> ([CKRecord], Error?))?
+	var onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?, Error?))?
 
     func cleanup() {
         self.onFetchRecords = nil

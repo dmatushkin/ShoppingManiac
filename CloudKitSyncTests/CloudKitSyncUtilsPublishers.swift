@@ -11,6 +11,8 @@ import Combine
 import CloudKit
 import SwiftyBeaver
 
+//swiftlint:disable large_tuple
+
 struct FetchRecordsTestPublisher: Publisher {
 
 	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == CKRecord, S.Failure == Error {
@@ -18,9 +20,9 @@ struct FetchRecordsTestPublisher: Publisher {
 		private let recordIds: [CKRecord.ID]
 		private let localDb: Bool
 		private var subscriber: S?
-		private let onFetchRecords: (([CKRecord.ID], Bool) -> [CKRecord])
+		private let onFetchRecords: (([CKRecord.ID], Bool) -> ([CKRecord], Error?))
 
-		init(recordIds: [CKRecord.ID], localDb: Bool, subscriber: S, onFetchRecords: @escaping (([CKRecord.ID], Bool) -> [CKRecord])) {
+		init(recordIds: [CKRecord.ID], localDb: Bool, subscriber: S, onFetchRecords: @escaping (([CKRecord.ID], Bool) -> ([CKRecord], Error?))) {
 			self.recordIds = recordIds
 			self.localDb = localDb
 			self.subscriber = subscriber
@@ -33,10 +35,14 @@ struct FetchRecordsTestPublisher: Publisher {
                 guard let self = self else { fatalError() }
 				SwiftyBeaver.debug("about to fetch records \(self.recordIds)")
 				let result = self.onFetchRecords(self.recordIds, self.localDb)
-				for record in result {
-					_ = subscriber.receive(record)
+				if let error = result.1 {
+					subscriber.receive(completion: .failure(error))
+				} else {
+					for record in result.0 {
+						_ = subscriber.receive(record)
+					}
+					subscriber.receive(completion: .finished)
 				}
-				subscriber.receive(completion: .finished)
             }
 		}
 
@@ -50,9 +56,9 @@ struct FetchRecordsTestPublisher: Publisher {
 
 	private let recordIds: [CKRecord.ID]
 	private let localDb: Bool
-	private let onFetchRecords: (([CKRecord.ID], Bool) -> [CKRecord])
+	private let onFetchRecords: (([CKRecord.ID], Bool) -> ([CKRecord], Error?))
 
-	init(recordIds: [CKRecord.ID], localDb: Bool, onFetchRecords: @escaping (([CKRecord.ID], Bool) -> [CKRecord])) {
+	init(recordIds: [CKRecord.ID], localDb: Bool, onFetchRecords: @escaping (([CKRecord.ID], Bool) -> ([CKRecord], Error?))) {
 		self.recordIds = recordIds
 		self.localDb = localDb
 		self.onFetchRecords = onFetchRecords
@@ -74,9 +80,9 @@ struct UpdateRecordsTestPublisher: Publisher {
 		private let records: [CKRecord]
 		private let localDb: Bool
 		private var subscriber: S?
-		private let onUpdateRecords: (([CKRecord], Bool) -> Void)
+		private let onUpdateRecords: (([CKRecord], Bool) -> Error?)
 
-		init(records: [CKRecord], localDb: Bool, subscriber: S, onUpdateRecords: @escaping (([CKRecord], Bool) -> Void)) {
+		init(records: [CKRecord], localDb: Bool, subscriber: S, onUpdateRecords: @escaping (([CKRecord], Bool) -> Error?)) {
 			self.records = records
 			self.localDb = localDb
 			self.subscriber = subscriber
@@ -88,9 +94,12 @@ struct UpdateRecordsTestPublisher: Publisher {
 			CloudKitSyncUtilsStub.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
 				SwiftyBeaver.debug("about to update records \(self.records)")
-				_ = self.onUpdateRecords(self.records, self.localDb)
-				_ = subscriber.receive(())
-				subscriber.receive(completion: .finished)
+				if let error = self.onUpdateRecords(self.records, self.localDb) {
+					subscriber.receive(completion: .failure(error))
+				} else {
+					_ = subscriber.receive(())
+					subscriber.receive(completion: .finished)
+				}
             }
 		}
 
@@ -104,9 +113,9 @@ struct UpdateRecordsTestPublisher: Publisher {
 
 	private let records: [CKRecord]
 	private let localDb: Bool
-	private let onUpdateRecords: (([CKRecord], Bool) -> Void)
+	private let onUpdateRecords: (([CKRecord], Bool) -> Error?)
 
-	init(records: [CKRecord], localDb: Bool, onUpdateRecords: @escaping (([CKRecord], Bool) -> Void)) {
+	init(records: [CKRecord], localDb: Bool, onUpdateRecords: @escaping (([CKRecord], Bool) -> Error?)) {
 		self.records = records
 		self.localDb = localDb
 		self.onUpdateRecords = onUpdateRecords
@@ -128,9 +137,9 @@ struct UpdateSubscriptionsTestPublisher: Publisher {
 		private let subscriptions: [CKSubscription]
 		private let localDb: Bool
 		private var subscriber: S?
-		private let onUpdateSubscriptions: (([CKSubscription], Bool) -> Void)
+		private let onUpdateSubscriptions: (([CKSubscription], Bool) -> Error?)
 
-		init(subscriptions: [CKSubscription], localDb: Bool, subscriber: S, onUpdateSubscriptions: @escaping (([CKSubscription], Bool) -> Void)) {
+		init(subscriptions: [CKSubscription], localDb: Bool, subscriber: S, onUpdateSubscriptions: @escaping (([CKSubscription], Bool) -> Error?)) {
 			self.subscriptions = subscriptions
 			self.localDb = localDb
 			self.subscriber = subscriber
@@ -142,9 +151,12 @@ struct UpdateSubscriptionsTestPublisher: Publisher {
 			CloudKitSyncUtilsStub.operationsQueue.async { [weak self] in
                 guard let self = self else { fatalError() }
 				SwiftyBeaver.debug("about to update subscriptions \(self.subscriptions)")
-				_ = self.onUpdateSubscriptions(self.subscriptions, self.localDb)
-				_ = subscriber.receive(())
-				subscriber.receive(completion: .finished)
+				if let error = self.onUpdateSubscriptions(self.subscriptions, self.localDb) {
+					subscriber.receive(completion: .failure(error))
+				} else {
+					_ = subscriber.receive(())
+					subscriber.receive(completion: .finished)
+				}
             }
 		}
 
@@ -158,9 +170,9 @@ struct UpdateSubscriptionsTestPublisher: Publisher {
 
 	private let subscriptions: [CKSubscription]
 	private let localDb: Bool
-	private let onUpdateSubscriptions: (([CKSubscription], Bool) -> Void)
+	private let onUpdateSubscriptions: (([CKSubscription], Bool) -> Error?)
 
-	init(subscriptions: [CKSubscription], localDb: Bool, onUpdateSubscriptions: @escaping (([CKSubscription], Bool) -> Void)) {
+	init(subscriptions: [CKSubscription], localDb: Bool, onUpdateSubscriptions: @escaping (([CKSubscription], Bool) -> Error?)) {
 		self.subscriptions = subscriptions
 		self.localDb = localDb
 		self.onUpdateSubscriptions = onUpdateSubscriptions
@@ -182,9 +194,9 @@ struct FetchDatabaseChangesTestPublisher: Publisher {
 		private var loadedZoneIds: [CKRecordZone.ID] = []
 		private let localDb: Bool
 		private var subscriber: S?
-		private let onFetchDatabaseChanges: ((Bool) -> [CKRecordZone.ID])
+		private let onFetchDatabaseChanges: ((Bool) -> ([CKRecordZone.ID], Error?))
 
-		init(localDb: Bool, subscriber: S, onFetchDatabaseChanges: @escaping ((Bool) -> [CKRecordZone.ID])) {
+		init(localDb: Bool, subscriber: S, onFetchDatabaseChanges: @escaping ((Bool) -> ([CKRecordZone.ID], Error?))) {
 			self.localDb = localDb
 			self.subscriber = subscriber
 			self.onFetchDatabaseChanges = onFetchDatabaseChanges
@@ -196,8 +208,12 @@ struct FetchDatabaseChangesTestPublisher: Publisher {
                 guard let self = self else { fatalError() }
                 SwiftyBeaver.debug("about to fetch database changes")
 				let result = self.onFetchDatabaseChanges(self.localDb)
-				_ = subscriber.receive(result)
-				subscriber.receive(completion: .finished)
+				if let error = result.1 {
+					subscriber.receive(completion: .failure(error))
+				} else {
+					_ = subscriber.receive(result.0)
+					subscriber.receive(completion: .finished)
+				}
             }
 		}
 
@@ -210,9 +226,9 @@ struct FetchDatabaseChangesTestPublisher: Publisher {
 	typealias Failure = Error
 
 	private let localDb: Bool
-	private let onFetchDatabaseChanges: ((Bool) -> [CKRecordZone.ID])
+	private let onFetchDatabaseChanges: ((Bool) -> ([CKRecordZone.ID], Error?))
 
-	init(localDb: Bool, onFetchDatabaseChanges: @escaping ((Bool) -> [CKRecordZone.ID])) {
+	init(localDb: Bool, onFetchDatabaseChanges: @escaping ((Bool) -> ([CKRecordZone.ID], Error?))) {
 		self.localDb = localDb
 		self.onFetchDatabaseChanges = onFetchDatabaseChanges
 	}
@@ -232,9 +248,9 @@ struct FetchZoneChangesTestPublisher: Publisher {
 		private var records: [CKRecord] = []
 		private let zoneIds: [CKRecordZone.ID]
 		private var subscriber: S?
-		private let onFetchZoneChanges: (([CKRecordZone.ID]) -> [CKRecord])
+		private let onFetchZoneChanges: (([CKRecordZone.ID]) -> ([CKRecord], Error?))
 
-		init(zoneIds: [CKRecordZone.ID], subscriber: S, onFetchZoneChanges: @escaping (([CKRecordZone.ID]) -> [CKRecord])) {
+		init(zoneIds: [CKRecordZone.ID], subscriber: S, onFetchZoneChanges: @escaping (([CKRecordZone.ID]) -> ([CKRecord], Error?))) {
 			self.zoneIds = zoneIds
 			self.subscriber = subscriber
 			self.onFetchZoneChanges = onFetchZoneChanges
@@ -246,8 +262,12 @@ struct FetchZoneChangesTestPublisher: Publisher {
                 guard let self = self else { fatalError() }
 				SwiftyBeaver.debug("about to fetch zone changes \(self.zoneIds)")
 				let result = self.onFetchZoneChanges(self.zoneIds)
-				_ = subscriber.receive(result)
-				subscriber.receive(completion: .finished)
+				if let error = result.1 {
+					subscriber.receive(completion: .failure(error))
+				} else {
+					_ = subscriber.receive(result.0)
+					subscriber.receive(completion: .finished)
+				}
             }
 		}
 
@@ -260,9 +280,9 @@ struct FetchZoneChangesTestPublisher: Publisher {
 	typealias Failure = Error
 
 	private let zoneIds: [CKRecordZone.ID]
-	private let onFetchZoneChanges: (([CKRecordZone.ID]) -> [CKRecord])
+	private let onFetchZoneChanges: (([CKRecordZone.ID]) -> ([CKRecord], Error?))
 
-	init(zoneIds: [CKRecordZone.ID], onFetchZoneChanges: @escaping (([CKRecordZone.ID]) -> [CKRecord])) {
+	init(zoneIds: [CKRecordZone.ID], onFetchZoneChanges: @escaping (([CKRecordZone.ID]) -> ([CKRecord], Error?))) {
 		self.zoneIds = zoneIds
 		self.onFetchZoneChanges = onFetchZoneChanges
 	}
@@ -280,10 +300,10 @@ struct CloudKitAcceptShareTestPublisher: Publisher {
 	private final class CloudKitSubscription<S: Subscriber>: Subscription where S.Input == (CKShare.Metadata, CKShare?), S.Failure == Error {
 
 		private let metadata: CKShare.Metadata
-		private let onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?))
+		private let onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?, Error?))
 		private var subscriber: S?
 
-		init(metadata: CKShare.Metadata, onAcceptShare: @escaping ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?)), subscriber: S) {
+		init(metadata: CKShare.Metadata, onAcceptShare: @escaping ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?, Error?)), subscriber: S) {
 			self.metadata = metadata
 			self.subscriber = subscriber
 			self.onAcceptShare = onAcceptShare
@@ -296,8 +316,12 @@ struct CloudKitAcceptShareTestPublisher: Publisher {
 				guard let self = self else { fatalError() }
 				SwiftyBeaver.debug("about to accept share \(self.metadata)")
 				let result = self.onAcceptShare(self.metadata)
-				_ = subscriber.receive(result)
-				subscriber.receive(completion: .finished)
+				if let error = result.2 {
+					subscriber.receive(completion: .failure(error))
+				} else {
+					_ = subscriber.receive((result.0, result.1))
+					subscriber.receive(completion: .finished)
+				}
 			}
 		}
 
@@ -310,9 +334,9 @@ struct CloudKitAcceptShareTestPublisher: Publisher {
 	typealias Failure = Error
 
 	private let metadata: CKShare.Metadata
-	private let onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?))
+	private let onAcceptShare: ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?, Error?))
 
-	init(metadata: CKShare.Metadata, onAcceptShare: @escaping ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?))) {
+	init(metadata: CKShare.Metadata, onAcceptShare: @escaping ((CKShare.Metadata) -> (CKShare.Metadata, CKShare?, Error?))) {
 		self.metadata = metadata
 		self.onAcceptShare = onAcceptShare
 	}
