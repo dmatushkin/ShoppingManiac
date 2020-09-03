@@ -82,33 +82,22 @@ extension ShoppingListItem: CloudKitSyncItemProtocol {
 		}).eraseToAnyPublisher()
 	}
 
-	public func populate(record: CKRecord) {
-		if Thread.isMainThread {
-			record["comment"] = (comment ?? "") as CKRecordValue
-			record["goodName"] = (good?.name ?? "") as CKRecordValue
-			record["isWeight"] = isWeight as CKRecordValue
-			record["price"] = price as CKRecordValue
-			record["purchased"] = purchased as CKRecordValue
-			record["quantity"] = quantity as CKRecordValue
-			record["storeName"] = (store?.name ?? "") as CKRecordValue
-			record["isRemoved"] = isRemoved as CKRecordValue
-			record["isCrossListItem"] = isCrossListItem as CKRecordValue
-		} else {
-			let value = self
-			try? CoreStoreDefaults.dataStack.perform(synchronous: {transaction in
-				if let item = transaction.fetchExisting(value) {
-					record["comment"] = (item.comment ?? "") as CKRecordValue
-					record["goodName"] = (item.good?.name ?? "") as CKRecordValue
-					record["isWeight"] = item.isWeight as CKRecordValue
-					record["price"] = item.price as CKRecordValue
-					record["purchased"] = item.purchased as CKRecordValue
-					record["quantity"] = item.quantity as CKRecordValue
-					record["storeName"] = (item.store?.name ?? "") as CKRecordValue
-					record["isRemoved"] = item.isRemoved as CKRecordValue
-					record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
-				}
-			})
-		}
+	public func populate(record: CKRecord) -> AnyPublisher<CKRecord, Error> {
+		let value = self
+		return CoreDataOperationPublisher(operation: {transaction in
+			if let item = transaction.fetchExisting(value) {
+				record["comment"] = (item.comment ?? "") as CKRecordValue
+				record["goodName"] = (item.good?.name ?? "") as CKRecordValue
+				record["isWeight"] = item.isWeight as CKRecordValue
+				record["price"] = item.price as CKRecordValue
+				record["purchased"] = item.purchased as CKRecordValue
+				record["quantity"] = item.quantity as CKRecordValue
+				record["storeName"] = (item.store?.name ?? "") as CKRecordValue
+				record["isRemoved"] = item.isRemoved as CKRecordValue
+				record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
+			}
+			return record
+		}).eraseToAnyPublisher()
 	}
 
 	public static func store(record: CKRecord, isRemote: Bool) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {

@@ -22,7 +22,7 @@ public protocol CloudKitSyncItemProtocol: class {
 	var recordId: String? { get } // Id of the record, if exists
 	var ownerName: String? { get } // Name of record zone owner, if exists
 	func setRecordId(_ recordId: String) -> AnyPublisher<CloudKitSyncItemProtocol, Error> // Set id of the record
-	func populate(record: CKRecord) // Populate record with data from item
+	func populate(record: CKRecord) -> AnyPublisher<CKRecord, Error> // Populate record with data from item
 	static func store(record: CKRecord, isRemote: Bool) -> AnyPublisher<CloudKitSyncItemProtocol, Error> // Store record data locally in item
 	func setParent(item: CloudKitSyncItemProtocol) -> AnyPublisher<CloudKitSyncItemProtocol, Error> // Set parent item
 }

@@ -71,21 +71,16 @@ extension ShoppingList: CloudKitSyncItemProtocol {
 		}).eraseToAnyPublisher()
 	}
 
-	public func populate(record: CKRecord) {
-		if Thread.isMainThread {
-			record["name"] = (name ?? "") as CKRecordValue
-			record["date"] = Date(timeIntervalSinceReferenceDate: date) as CKRecordValue
-			record["isRemoved"] = isRemoved as CKRecordValue
-		} else {
-			let value = self
-			try? CoreStoreDefaults.dataStack.perform(synchronous: {transaction in
-				if let list = transaction.fetchExisting(value) {
-					record["name"] = (list.name ?? "") as CKRecordValue
-					record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
-					record["isRemoved"] = list.isRemoved as CKRecordValue
-				}
-			})
-		}
+	public func populate(record: CKRecord) -> AnyPublisher<CKRecord, Error> {
+		let value = self
+		return CoreDataOperationPublisher(operation: {transaction in
+			if let list = transaction.fetchExisting(value) {
+				record["name"] = (list.name ?? "") as CKRecordValue
+				record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
+				record["isRemoved"] = list.isRemoved as CKRecordValue
+			}
+			return record
+		}).eraseToAnyPublisher()
 	}
 
 	public static func store(record: CKRecord, isRemote: Bool) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {

@@ -75,9 +75,12 @@ class TestShoppingList: CloudKitSyncItemProtocol {
 		}.eraseToAnyPublisher()
 	}
 
-	func populate(record: CKRecord) {
+	func populate(record: CKRecord) -> AnyPublisher<CKRecord, Error> {
 		record["name"] = name
 		record["date"] = Date(timeIntervalSinceReferenceDate: date)
+		return Future { promise in
+			return promise(.success(record))
+		}.eraseToAnyPublisher()
 	}
 
 	static func store(record: CKRecord, isRemote: Bool) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
@@ -143,9 +146,12 @@ class TestShoppingItem: CloudKitSyncItemProtocol, Equatable {
 		}.eraseToAnyPublisher()
 	}
 
-	func populate(record: CKRecord) {
+	func populate(record: CKRecord) -> AnyPublisher<CKRecord, Error> {
 		record["goodName"] = goodName
 		record["storeName"] = storeName
+		return Future { promise in
+			return promise(.success(record))
+		}.eraseToAnyPublisher()
 	}
 
 	static func store(record: CKRecord, isRemote: Bool) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {

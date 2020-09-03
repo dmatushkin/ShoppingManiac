@@ -113,18 +113,16 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 		if let recordName = item.recordId {
 			let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZoneID)
 			return cloudKitUtils.fetchRecords(recordIds: [recordId], localDb: !item.isRemote)
-				.map({ record in
-				item.populate(record: record)
-				return record
+				.flatMap({ record in
+				return item.populate(record: record)
 			}).eraseToAnyPublisher()
 		} else {
 			let recordName = CKRecord.ID().recordName
 			let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZoneID)
 			let record = CKRecord(recordType: type(of: item).recordType, recordID: recordId)
-			item.populate(record: record)
-			return item.setRecordId(recordName)
-				.map({ _ in record})
-				.eraseToAnyPublisher()
+			return item.setRecordId(recordName).flatMap({item in
+				item.populate(record: record)
+			}).eraseToAnyPublisher()
 		}
 	}
 
@@ -139,13 +137,14 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 			}
 		})
 		return self.cloudKitUtils.fetchRecords(recordIds: remoteRecordIds, localDb: !rootItem.isRemote)
-		.compactMap({ record -> (CloudKitSyncItemProtocol, CKRecord)? in
+		.flatMap({ record -> AnyPublisher<(CloudKitSyncItemProtocol, CKRecord), Error> in
 			if let item = remoteItemsMap[record.recordID.recordName] {
-				item.populate(record: record)
 				record.setParent(rootRecord)
-				return (item, record)
+				return item.populate(record: record).map({(item, $0)}).eraseToAnyPublisher()
 			} else {
-				return nil
+				return Future { promise in
+					promise(.failure(CommonError(description: "Consistency error") as Error))
+				}.eraseToAnyPublisher()
 			}
 		}).eraseToAnyPublisher()
 	}
@@ -164,9 +163,8 @@ public final class CloudKitSyncShare: CloudKitSyncShareProtocol, DIDependency {
 				let recordId = CKRecord.ID(recordName: recordName, zoneID: recordZoneID)
 				let record = CKRecord(recordType: type(of: item).recordType, recordID: recordId)
 				record.setParent(rootRecord)
-				return item.setRecordId(recordName).map({_ in
-					item.populate(record: record)
-					return (item, record)
+				return item.setRecordId(recordName).flatMap({item in
+					item.populate(record: record).map({(item, $0)})
 				}).eraseToAnyPublisher()
 			}).eraseToAnyPublisher()
 		return Publishers.Concatenate(prefix: remoteItems, suffix: localItems).collect().flatMap({tuples -> AnyPublisher<[CKRecord], Error> in
