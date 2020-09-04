@@ -26,11 +26,8 @@ enum CloudKitSyncErrorType {
 		}
 		switch ckError.code {
 		case .serviceUnavailable, .requestRateLimited, .zoneBusy:
-			if let retry = ckError.userInfo[CKErrorRetryAfterKey] as? Double {
-				return .retry(timeout: retry)
-			} else {
-				return .failure(error: error)
-			}
+			let retry = ckError.retryAfterSeconds ?? (ckError.userInfo[CKErrorRetryAfterKey] as? Double) ?? 3
+			return .retry(timeout: retry)
 		case .changeTokenExpired:
 			return .tokenReset
 		default:

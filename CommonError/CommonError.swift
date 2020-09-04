@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftyBeaver
+import CloudKit
 
 public class CommonError: LocalizedError {
     
@@ -21,18 +22,27 @@ public class CommonError: LocalizedError {
         return self.description
     }
 
-	public class func logDebug(_ text: String) {
-		SwiftyBeaver.debug(text)
+	public class func logDebug(_ text: String, file: String = #file, function: String = #function, line: Int = #line) {
+		SwiftyBeaver.debug(text, file, function, line: line)
 	}
 
-	public static func logError(_ text: String) {
-		SwiftyBeaver.error(text)
+	public static func logError(_ text: String, file: String = #file, function: String = #function, line: Int = #line) {
+		SwiftyBeaver.error(text, file, function, line: line)
 	}
 }
 
 public extension Error {
     
-    func log() {
-		CommonError.logError(self.localizedDescription)
+	func log(file: String = #file, line: Int = #line, function: String = #function) {
+		if let ckError = self as? CKError {
+			let serverRecord = String(describing: ckError.serverRecord)
+			let clientRecord = String(describing: ckError.clientRecord)
+			let ancestorRecord = String(describing: ckError.ancestorRecord)
+			let partialErrors = String(describing: ckError.partialErrorsByItemID)
+			let additionalDescription = "Error code \(ckError.code.rawValue), serverRecord \(serverRecord), clientRecord \(clientRecord), ancestorRecord \(ancestorRecord), partialErrors \(partialErrors)\n"
+			CommonError.logError(self.localizedDescription + "\nAdditional: " + additionalDescription, file: file, function: function, line: line)
+		} else {
+			CommonError.logError(self.localizedDescription, file: file, function: function, line: line)
+		}
     }
 }
