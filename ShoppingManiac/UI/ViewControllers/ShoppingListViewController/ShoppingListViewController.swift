@@ -93,6 +93,9 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     }
 
     @IBAction private func shoppingList(unwindSegue: UIStoryboardSegue) {
+		if unwindSegue.identifier == "addShoppingItemSaveSegue" {
+			self.model.syncWithCloud()
+		}
     }
 
     @IBAction private func shareAction(_ sender: Any) {

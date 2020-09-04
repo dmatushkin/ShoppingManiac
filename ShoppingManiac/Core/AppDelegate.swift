@@ -51,7 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		cloudShare.setupUserPermissions(itemType: ShoppingList.self).sink(receiveCompletion: { completion in
 			switch completion {
 			case .finished:
-				break
+				AppDelegate.discoverabilityStatus = true
 			case .failure(let error):
 				AppDelegate.showAlert(title: "CloudKit permissions error", message: error.localizedDescription)
 			}
