@@ -2,12 +2,39 @@
   "object": {
     "pins": [
       {
+        "package": "CloudKitSync",
+        "repositoryURL": "https://github.com/dmatushkin/CloudKitSync.git",
+        "state": {
+          "branch": "master",
+          "revision": "c16a33eaac41706917486d3cb99a5bbae6d0dcd8",
+          "version": null
+        }
+      },
+      {
+        "package": "CommonError",
+        "repositoryURL": "https://github.com/dmatushkin/CommonError.git",
+        "state": {
+          "branch": "master",
+          "revision": "3150d7c8e7d443521aedfe95a89a9a742f243fe4",
+          "version": null
+        }
+      },
+      {
         "package": "CoreStore",
         "repositoryURL": "https://github.com/JohnEstropia/CoreStore",
         "state": {
           "branch": null,
           "revision": "e7205048559e839f4b428f732bde6c056a572fb1",
           "version": "7.2.0"
+        }
+      },
+      {
+        "package": "DependencyInjection",
+        "repositoryURL": "https://github.com/dmatushkin/DependencyInjection.git",
+        "state": {
+          "branch": "master",
+          "revision": "8690a8ca40c9311b37a455e4c4eb66d2e1a688ba",
+          "version": null
         }
       },
       {
@@ -57,7 +84,7 @@
       },
       {
         "package": "SwiftyBeaver",
-        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver",
+        "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
         "state": {
           "branch": null,
           "revision": "e0fb3a74cb993d7dcf1e56734cdc98ad6e6d8176",
