@@ -99,14 +99,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
 		HUD.show(.labeledProgress(title: "Loading data", subtitle: nil))
 		self.cloudLoader.loadShare(metadata: cloudKitShareMetadata, itemType: ShoppingList.self).observeOnMain().sink(receiveCompletion: {completion in
+			HUD.hide()
 			switch completion {
 			case .finished:
 				SwiftyBeaver.debug("loading lists done")
 			case .failure(let error):
-				HUD.flash(.labeledError(title: "Data loading error", subtitle: error.localizedDescription), delay: 3)
+				AppDelegate.showAlert(title: "Data loading error", message: error.localizedDescription)
 			}
 		}, receiveValue: {[weak self] list in
-			HUD.hide()
 			guard let list = CoreStoreDefaults.dataStack.fetchExisting(list) else { return }
 			self?.showList(list: list)
 		}).store(in: &self.cancellables)

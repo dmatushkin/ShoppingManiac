@@ -13,6 +13,13 @@ import UIKit
 import CloudKitSync
 import DependencyInjection
 
+enum ICloudSyncStatus {
+	case inProgress
+	case success
+	case failure(Error)
+	case notApplicable
+}
+
 class ShoppingListModel {
 
 	var cancellables = Set<AnyCancellable>()
@@ -21,12 +28,14 @@ class ShoppingListModel {
 	let totalText = CurrentValueSubject<String?, Never>("")
 
     var shoppingList: ShoppingList?
+	let icloudStatus = CurrentValueSubject<ICloudSyncStatus, Never>(.notApplicable)
 
 	private var dataSource: EditableListDataSource<ShoppingGroup, GroupItem>?
 	private var listPublisher: ListPublisher<ShoppingListItem>?
 	private var goodsPublisher = CoreStoreDefaults.dataStack.publishList(From<Good>().orderBy(.ascending(\.name)))
 	private var storesPublisher = CoreStoreDefaults.dataStack.publishList(From<Store>().orderBy(.ascending(\.name)))
 	private var categoriesPublisher = CoreStoreDefaults.dataStack.publishList(From<Category>().orderBy(.ascending(\.name)))
+	private var icloudOperationsCount: Int = 0
 
 	deinit {
 		listPublisher?.removeObserver(self)
@@ -37,6 +46,7 @@ class ShoppingListModel {
 
 	func setupTable(tableView: UITableView) {
 		guard let shoppingList = self.shoppingList else { return }
+		icloudStatus.value = shoppingList.recordId == nil ? .notApplicable : .success
 		listPublisher = CoreStoreDefaults.dataStack.publishList(shoppingList.itemsFetchBuilder.orderBy(.descending(\.good?.name)))
 
 		dataSource = EditableListDataSource<ShoppingGroup, GroupItem>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
@@ -100,7 +110,23 @@ class ShoppingListModel {
     func syncWithCloud() {
 		guard let shoppingList = self.shoppingList else { return }
         if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
-			self.cloudShare.updateItem(item: shoppingList).sink(receiveCompletion: {_ in }, receiveValue: {}).store(in: &self.cancellables)
+			self.icloudOperationsCount += 1
+			self.icloudStatus.value = .inProgress
+			self.cloudShare.updateItem(item: shoppingList).observeOnMain().sink(receiveCompletion: {[weak self] result in
+				guard let self = self else { return }
+				self.icloudOperationsCount -= 1
+				switch result {
+				case .finished:
+					if self.icloudOperationsCount <= 0 {
+						self.icloudStatus.value = .success
+					}
+				case .failure(let error):
+					AppDelegate.showAlert(title: "iCloud sync", message: error.localizedDescription)
+					if self.icloudOperationsCount <= 0 {
+						self.icloudStatus.value = .failure(error)
+					}
+				}
+			}, receiveValue: {}).store(in: &self.cancellables)
         }
     }
         

@@ -21,6 +21,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     @IBOutlet private weak var tableView: UITableView!
     @IBOutlet private weak var totalLabel: UILabel!
     @IBOutlet private weak var shareButton: UIButton!
+	@IBOutlet private weak var loadingIndicator: UIActivityIndicatorView!
+	@IBOutlet private weak var icloudStatusImageView: UIImageView!
     
     let model = ShoppingListModel()
 	@Autowired
@@ -28,10 +30,33 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+		self.loadingIndicator.isHidden = true
+		self.icloudStatusImageView.isHidden = true
         if self.model.shoppingList == nil {
             self.model.setLatestList()
         }
+		self.model.icloudStatus.observeOnMain().sink(receiveValue: {status in
+			switch status {
+			case .success:
+				self.loadingIndicator.stopAnimating()
+				self.loadingIndicator.isHidden = true
+				self.icloudStatusImageView.isHidden = false
+				self.icloudStatusImageView.image = UIImage(systemName: "icloud")
+			case .failure:
+				self.loadingIndicator.stopAnimating()
+				self.loadingIndicator.isHidden = true
+				self.icloudStatusImageView.isHidden = false
+				self.icloudStatusImageView.image = UIImage(systemName: "exclamationmark.icloud")
+			case .inProgress:
+				self.loadingIndicator.isHidden = false
+				self.loadingIndicator.startAnimating()
+				self.icloudStatusImageView.isHidden = true
+			case .notApplicable:
+				self.loadingIndicator.stopAnimating()
+				self.loadingIndicator.isHidden = true
+				self.icloudStatusImageView.isHidden = true
+			}
+		}).store(in: &model.cancellables)
 		self.model.setupTable(tableView: tableView)
         self.tableView.contentInsetAdjustmentBehavior = .never
         self.tableView.setBottomInset(inset: 70)
@@ -146,12 +171,15 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     private func icloudShare() {
 		guard let shoppingList = self.model.shoppingList else { return }
         HUD.show(.labeledProgress(title: "Creating share", subtitle: nil))
-		self.cloudShare.shareItem(item: shoppingList, shareTitle: "Shopping List", shareType: "org.md.ShoppingManiac").observeOnMain().sink(receiveCompletion: { completion in
+		self.cloudShare.shareItem(item: shoppingList, shareTitle: "Shopping List", shareType: "org.md.ShoppingManiac").observeOnMain().sink(receiveCompletion: {[weak self] completion in
+			HUD.hide()
+			guard let self = self else { return }
 			switch completion {
 			case .failure(let error):
-				HUD.flash(.labeledError(title: "iCloud sharing error", subtitle: error.localizedDescription), delay: 3)
+				self.model.icloudStatus.value = .failure(error)
+				AppDelegate.showAlert(title: "iCloud sharing error", message: error.localizedDescription)
 			case .finished:
-				break
+				self.model.icloudStatus.value = .success
 			}
 		}, receiveValue: {[weak self] value in
 			self?.createSharingController(share: value)
@@ -164,7 +192,6 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
         controller.availablePermissions = [.allowReadWrite, .allowPublic]
         controller.popoverPresentationController?.sourceView = self.shareButton
         controller.popoverPresentationController?.sourceRect = self.shareButton.frame
-        HUD.hide()
         self.present(controller, animated: true, completion: nil)
     }
 

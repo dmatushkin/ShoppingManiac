@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="2Bx-FO-PuE">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="2Bx-FO-PuE">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
@@ -364,9 +364,17 @@
                                     <action selector="shareAction:" destination="xGt-Cw-N2w" eventType="touchUpInside" id="1TI-PA-oxB"/>
                                 </connections>
                             </button>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="rcO-7N-0ir">
+                                <rect key="frame" x="74.5" y="573" width="20" height="20"/>
+                            </activityIndicatorView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icloud" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="MMS-fe-qWF">
+                                <rect key="frame" x="72.5" y="574" width="24" height="16.5"/>
+                                <color key="tintColor" systemColor="labelColor" cocoaTouchSystemColor="darkTextColor"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" name="backgroundColor"/>
                         <constraints>
+                            <constraint firstItem="MMS-fe-qWF" firstAttribute="centerY" secondItem="rcO-7N-0ir" secondAttribute="centerY" id="6Ha-ey-KPJ"/>
                             <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="gTN-Hh-Vcc" secondAttribute="bottom" constant="10" id="8Jw-L3-sqz"/>
                             <constraint firstItem="Mdm-xs-5Ne" firstAttribute="leading" secondItem="ntx-KH-wh6" secondAttribute="leadingMargin" id="9tb-TD-q18"/>
                             <constraint firstAttribute="trailing" secondItem="2kt-zi-AVO" secondAttribute="trailing" id="AMG-bb-LZp"/>
@@ -375,9 +383,12 @@
                             <constraint firstItem="2kt-zi-AVO" firstAttribute="leading" secondItem="ntx-KH-wh6" secondAttribute="leading" id="FyB-HN-W4J"/>
                             <constraint firstItem="BXI-LZ-CeD" firstAttribute="top" secondItem="Xil-3x-Kwo" secondAttribute="bottom" id="IwT-Zo-oP5"/>
                             <constraint firstAttribute="trailingMargin" secondItem="gTN-Hh-Vcc" secondAttribute="trailing" id="OGI-WN-Fem"/>
+                            <constraint firstItem="rcO-7N-0ir" firstAttribute="centerY" secondItem="Mdm-xs-5Ne" secondAttribute="centerY" id="TuE-RV-Glv"/>
                             <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="Mdm-xs-5Ne" secondAttribute="bottom" constant="14" id="XZq-Kb-bVN"/>
                             <constraint firstItem="BXI-LZ-CeD" firstAttribute="leading" secondItem="ntx-KH-wh6" secondAttribute="leading" id="fxf-0b-vxz"/>
                             <constraint firstItem="HLK-py-j1r" firstAttribute="top" secondItem="2kt-zi-AVO" secondAttribute="bottom" id="mFU-qg-vgz"/>
+                            <constraint firstItem="rcO-7N-0ir" firstAttribute="leading" secondItem="Mdm-xs-5Ne" secondAttribute="trailing" constant="16" id="nbM-yC-dFZ"/>
+                            <constraint firstItem="MMS-fe-qWF" firstAttribute="centerX" secondItem="rcO-7N-0ir" secondAttribute="centerX" id="pbj-9Q-m6u"/>
                             <constraint firstItem="wH0-fc-Iyl" firstAttribute="centerX" secondItem="ntx-KH-wh6" secondAttribute="centerX" id="upd-2h-EoR"/>
                             <constraint firstAttribute="trailing" secondItem="BXI-LZ-CeD" secondAttribute="trailing" id="yEX-r7-bcW"/>
                         </constraints>
@@ -385,6 +396,8 @@
                     <navigationItem key="navigationItem" title="Shopping list" id="9GV-DD-hvM"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics"/>
                     <connections>
+                        <outlet property="icloudStatusImageView" destination="MMS-fe-qWF" id="Kc3-Hx-Ygw"/>
+                        <outlet property="loadingIndicator" destination="rcO-7N-0ir" id="vCo-ZE-Go8"/>
                         <outlet property="shareButton" destination="Mdm-xs-5Ne" id="lRi-pO-aNe"/>
                         <outlet property="tableView" destination="BXI-LZ-CeD" id="cXa-WX-Tpw"/>
                         <outlet property="totalLabel" destination="wH0-fc-Iyl" id="2fa-cE-Qrl"/>
@@ -1436,6 +1449,7 @@
         <image name="documents" width="18" height="22"/>
         <image name="empty_cart" width="22" height="22"/>
         <image name="goods" width="22" height="22"/>
+        <image name="icloud" catalog="system" width="128" height="88"/>
         <image name="share_icon" width="42.5" height="42.5"/>
         <image name="star_not_selected" width="23" height="20"/>
         <image name="star_selected" width="23" height="20"/>
