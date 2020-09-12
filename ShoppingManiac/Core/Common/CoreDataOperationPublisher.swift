@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import CoreStore
 import CoreData
+import CommonError
 
 struct CoreDataOperationPublisher<R>: Publisher {
 
@@ -25,7 +26,8 @@ struct CoreDataOperationPublisher<R>: Publisher {
 
 		func request(_ demand: Subscribers.Demand) {
 			guard let subscriber = subscriber else { return }
-			CoreStoreDefaults.dataStack.perform(asynchronous: {[unowned self] transaction in
+			CoreStoreDefaults.dataStack.perform(asynchronous: {[weak self] transaction -> R in
+				guard let self = self else { throw CommonError(description: "Unexpected self release at CoreDataOperationPublisher") }
 				return try self.operation(transaction)
 			}, completion: {result in
 				switch result {
