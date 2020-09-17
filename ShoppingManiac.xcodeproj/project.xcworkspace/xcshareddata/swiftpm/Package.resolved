@@ -6,7 +6,7 @@
         "repositoryURL": "https://github.com/dmatushkin/CloudKitSync.git",
         "state": {
           "branch": "master",
-          "revision": "c16a33eaac41706917486d3cb99a5bbae6d0dcd8",
+          "revision": "cc0f9a27f5318b460842c4083c41906c7a3a8735",
           "version": null
         }
       },
@@ -69,8 +69,8 @@
         "repositoryURL": "https://github.com/malcommac/SwiftDate",
         "state": {
           "branch": null,
-          "revision": "700dde1b3417fd4a7fd2bec9f5bc8ab2de1b96b4",
-          "version": "6.1.0"
+          "revision": "a25913b19833860b61fac161a706e44834f03c47",
+          "version": "6.2.0"
         }
       },
       {
@@ -78,8 +78,8 @@
         "repositoryURL": "https://github.com/huri000/SwiftEntryKit",
         "state": {
           "branch": null,
-          "revision": "796981500de29ee72f72ef8e9c46eaed2fe6364e",
-          "version": "1.2.3"
+          "revision": "f280a02c60f4c2563561312df26a357a1cf714e2",
+          "version": "1.2.6"
         }
       },
       {
