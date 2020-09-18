@@ -73,8 +73,7 @@ extension ShoppingListItem: CloudKitSyncItemProtocol {
 	}
 
 	public func setRecordId(_ recordId: String) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
-		return CoreDataOperationPublisher(operation: {[weak self] transaction in
-			guard let self = self else { fatalError() }
+		return CoreDataOperationPublisher(operation: { transaction in
 			if let shoppingListItem: ShoppingListItem = transaction.edit(self) {
 				shoppingListItem.recordid = recordId
 			}
@@ -83,9 +82,8 @@ extension ShoppingListItem: CloudKitSyncItemProtocol {
 	}
 
 	public func populate(record: CKRecord) -> AnyPublisher<CKRecord, Error> {
-		let value = self
 		return CoreDataOperationPublisher(operation: {transaction in
-			if let item = transaction.fetchExisting(value) {
+			if let item = transaction.fetchExisting(self) {
 				record["comment"] = (item.comment ?? "") as CKRecordValue
 				record["goodName"] = (item.good?.name ?? "") as CKRecordValue
 				record["isWeight"] = item.isWeight as CKRecordValue
@@ -130,12 +128,11 @@ extension ShoppingListItem: CloudKitSyncItemProtocol {
 	}
 
 	public func setParent(item: CloudKitSyncItemProtocol) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
-		let value = self
 		return CoreDataOperationPublisher(operation: { transaction in
-			if let shoppingListItem: ShoppingListItem = transaction.edit(value), let shoppingList: ShoppingList = transaction.edit(item as? ShoppingList) {
+			if let shoppingListItem: ShoppingListItem = transaction.edit(self), let shoppingList: ShoppingList = transaction.edit(item as? ShoppingList) {
 				shoppingListItem.list = shoppingList
 			}
-			return value
+			return self
 		}).eraseToAnyPublisher()
 	}
 }

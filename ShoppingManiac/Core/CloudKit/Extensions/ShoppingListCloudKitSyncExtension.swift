@@ -62,8 +62,7 @@ extension ShoppingList: CloudKitSyncItemProtocol {
 	}
 
 	public func setRecordId(_ recordId: String) -> AnyPublisher<CloudKitSyncItemProtocol, Error> {
-		return CoreDataOperationPublisher(operation: {[weak self] transaction in
-			guard let self = self else { fatalError() }
+		return CoreDataOperationPublisher(operation: { transaction in
             if let shoppingList: ShoppingList = transaction.edit(self) {
                 shoppingList.recordid = recordId
             }
@@ -72,9 +71,8 @@ extension ShoppingList: CloudKitSyncItemProtocol {
 	}
 
 	public func populate(record: CKRecord) -> AnyPublisher<CKRecord, Error> {
-		let value = self
 		return CoreDataOperationPublisher(operation: {transaction in
-			if let list = transaction.fetchExisting(value) {
+			if let list = transaction.fetchExisting(self) {
 				record["name"] = (list.name ?? "") as CKRecordValue
 				record["date"] = Date(timeIntervalSinceReferenceDate: list.date) as CKRecordValue
 				record["isRemoved"] = list.isRemoved as CKRecordValue
