@@ -20,14 +20,24 @@ class ShoppingListTableViewCell: UITableViewCell {
     }
 
     func setup(withItem item: GroupItem) {
-        //CCFFE5
         self.contentView.backgroundColor = item.isCrossListItem ? UIColor(named: "crossListItemColor") : UIColor.clear
-        self.statusImageView.image = item.purchased ? #imageLiteral(resourceName: "checkbox_marked") : #imageLiteral(resourceName: "checkbox_unmarked")
+        self.statusImageView.image = (item.purchased ? #imageLiteral(resourceName: "checkbox_marked") : #imageLiteral(resourceName: "checkbox_unmarked")).withTintColor(self.itemColor(item: item), renderingMode: .alwaysOriginal)
         self.productTitleLabel.text = item.itemName
         self.storeTitleLabel.text = item.itemCategoryName
         self.productQuantityLabel.text = item.itemQuantityString
-        self.productTitleLabel.textColor = item.purchased ? UIColor.gray : UIColor.black
-        self.storeTitleLabel.textColor = item.purchased ? UIColor.gray : UIColor.black
-        self.productQuantityLabel.textColor = item.purchased ? UIColor.gray : UIColor.black
+        self.productTitleLabel.textColor = self.itemColor(item: item)
+        self.storeTitleLabel.textColor = self.itemColor(item: item)
+        self.productQuantityLabel.textColor = self.itemColor(item: item)
     }
+    
+    private func itemColor(item: GroupItem) -> UIColor {
+        if item.purchased {
+            return UIColor.secondaryLabel
+        }
+        if item.isImportantItem {
+            return UIColor(named: "importantItemColor") ?? UIColor.label
+        } else {
+            return UIColor.label
+        }
+    }    
 }

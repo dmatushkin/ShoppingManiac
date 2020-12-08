@@ -6,7 +6,7 @@
         "repositoryURL": "https://github.com/dmatushkin/CloudKitSync.git",
         "state": {
           "branch": "master",
-          "revision": "cc0f9a27f5318b460842c4083c41906c7a3a8735",
+          "revision": "db248a63581660b5e98404e30a2869d6eedec228",
           "version": null
         }
       },
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/JohnEstropia/CoreStore",
         "state": {
           "branch": null,
-          "revision": "e7205048559e839f4b428f732bde6c056a572fb1",
-          "version": "7.2.0"
+          "revision": "a40df37192622b093321fc2003f4a5cbe3860ffb",
+          "version": "7.3.1"
         }
       },
       {
@@ -69,8 +69,8 @@
         "repositoryURL": "https://github.com/malcommac/SwiftDate",
         "state": {
           "branch": null,
-          "revision": "a25913b19833860b61fac161a706e44834f03c47",
-          "version": "6.2.0"
+          "revision": "6190d0cefff3013e77ed567e6b074f324e5c5bf5",
+          "version": "6.3.1"
         }
       },
       {
@@ -87,8 +87,8 @@
         "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
         "state": {
           "branch": null,
-          "revision": "e0fb3a74cb993d7dcf1e56734cdc98ad6e6d8176",
-          "version": "1.9.1"
+          "revision": "2c513a2e8fbfbd6495afc4a05941d8e3fdba68e9",
+          "version": "1.9.3"
         }
       }
     ]

@@ -102,6 +102,7 @@ public class ShoppingList: NSManagedObject {
                     itemDict["quantity"] = item.quantity
                     itemDict["isWeight"] = item.isWeight
                     itemDict["isCrossListItem"] = item.isCrossListItem
+                    itemDict["isImportant"] = item.isImportant
                     resultItems.append(itemDict)
                 }
                 return resultItems
@@ -148,6 +149,7 @@ public class ShoppingList: NSManagedObject {
                         shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
                         shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
                         shoppingListItem.isCrossListItem = (itemDict["isCrossListItem"] as? NSNumber)?.boolValue ?? false
+                        shoppingListItem.isImportant = (itemDict["isImportant"] as? NSNumber)?.boolValue ?? false
 						shoppingListItem.recordid = itemDict["recordId"] as? String
                         shoppingListItem.list = list
                     }

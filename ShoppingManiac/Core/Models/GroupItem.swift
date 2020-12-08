@@ -17,6 +17,7 @@ struct GroupItem: Hashable {
     let itemQuantityString: String
     var purchased: Bool = false
     let isCrossListItem: Bool
+    let isImportantItem: Bool
 
     init(shoppingListItem: ShoppingListItem) {
         self.objectId = shoppingListItem.objectID
@@ -25,6 +26,7 @@ struct GroupItem: Hashable {
         self.itemQuantityString = shoppingListItem.quantityText
         self.purchased = shoppingListItem.purchased
         self.isCrossListItem = shoppingListItem.isCrossListItem
+        self.isImportantItem = shoppingListItem.isImportant
     }
 
     func lessThan(item: GroupItem) -> Bool {

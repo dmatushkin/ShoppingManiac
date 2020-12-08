@@ -25,7 +25,7 @@ class ShoppingListsListTableViewCell: UITableViewCell {
     func setup(withList shoppingList: ShoppingList, isSelected: Bool) {
         self.listTitleLabel.text = shoppingList.title
         self.cloudIconView.isHidden = !shoppingList.isRemote
-        self.listTitleLabel.textColor = shoppingList.isPurchased ? UIColor.gray : UIColor.black
+        self.listTitleLabel.textColor = shoppingList.isPurchased ? UIColor.secondaryLabel : UIColor.label
         if UIDevice.current.userInterfaceIdiom == .phone || isSelected == false {
             self.backgroundColor = UIColor.clear
         } else {

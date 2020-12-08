@@ -24,6 +24,7 @@ class AddShoppingListItemModel {
     let isWeight = CurrentValueSubject<Bool, Never>(false)
     let rating = CurrentValueSubject<Int, Never>(0)
     let crossListItem = CurrentValueSubject<Bool, Never>(false)
+    let importantItem = CurrentValueSubject<Bool, Never>(false)
     
     func listAllGoods() -> [String] {
         return (try? CoreStoreDefaults.dataStack.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
@@ -45,6 +46,7 @@ class AddShoppingListItemModel {
         self.isWeight.send((self.shoppingListItem?.isWeight == true))
         self.rating.send(Int(self.shoppingListItem?.good?.personalRating ?? 0))
         self.crossListItem.send(self.shoppingListItem?.isCrossListItem ?? false)
+        self.importantItem.send(self.shoppingListItem?.isImportant ?? false)
     }
     
 	func persistDataAsync() -> AnyPublisher<Void, Error> {
@@ -72,6 +74,7 @@ class AddShoppingListItemModel {
 				item.price = 0
 			}
 			item.isCrossListItem = self.crossListItem.value
+            item.isImportant = self.importantItem.value
 			item.isRemoved = false
 			if self.shoppingListItem == nil {
 				item.purchased = false

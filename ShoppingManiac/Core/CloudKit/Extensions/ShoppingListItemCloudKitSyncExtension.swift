@@ -93,6 +93,7 @@ extension ShoppingListItem: CloudKitSyncItemProtocol {
 				record["storeName"] = (item.store?.name ?? "") as CKRecordValue
 				record["isRemoved"] = item.isRemoved as CKRecordValue
 				record["isCrossListItem"] = item.isCrossListItem as CKRecordValue
+                record["isImportant"] = item.isImportant as CKRecordValue
 			}
 			return record
 		}).eraseToAnyPublisher()
@@ -116,6 +117,7 @@ extension ShoppingListItem: CloudKitSyncItemProtocol {
 			item.quantity = record["quantity"] as? Float ?? 1
 			item.isRemoved = record["isRemoved"] as? Bool ?? false
 			item.isCrossListItem = record["isCrossListItem"] as? Bool ?? false
+            item.isImportant = record["isImportant"] as? Bool ?? false
 			if let storeName = record["storeName"] as? String, storeName.count > 0 {
 				let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
 				store.name = storeName

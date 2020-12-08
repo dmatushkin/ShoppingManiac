@@ -224,6 +224,7 @@
 		568ADB2120A2B4930005B14C /* ShoppingListsListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingListsListModel.swift; sourceTree = "<group>"; };
 		568ADB2320A2C1260005B14C /* AddShoppingListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddShoppingListModel.swift; sourceTree = "<group>"; };
 		569114D123E4A1C3003B0419 /* SharedRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedRecord.swift; sourceTree = "<group>"; };
+		56ABD5F2257F3B4E00C76020 /* ShoppingManiac 10.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ShoppingManiac 10.xcdatamodel"; sourceTree = "<group>"; };
 		56B0718624C8C56600E26A23 /* TestPublisherExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPublisherExtension.swift; sourceTree = "<group>"; };
 		56C7334B208EF05800E085FF /* CKContainerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKContainerExtension.swift; sourceTree = "<group>"; };
 		56CF400824CED21200D9D176 /* EditableListDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableListDataSource.swift; sourceTree = "<group>"; };
@@ -1090,7 +1091,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.4;
+				MARKETING_VERSION = 1.5.6;
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = NO;
@@ -1115,7 +1116,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.4;
+				MARKETING_VERSION = 1.5.6;
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = NO;
@@ -1309,6 +1310,7 @@
 		565C3B9D1ED1A5D1003D8EE8 /* ShoppingManiac.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				56ABD5F2257F3B4E00C76020 /* ShoppingManiac 10.xcdatamodel */,
 				5671386A22CCDAAB0055423D /* ShoppingManiac 9.xcdatamodel */,
 				565C3BC51ED1EA79003D8EE8 /* ShoppingManiac 8.xcdatamodel */,
 				565C3B9E1ED1A5D1003D8EE8 /* ShoppingManiac 2.xcdatamodel */,
@@ -1319,7 +1321,7 @@
 				565C3BA31ED1A5D1003D8EE8 /* ShoppingManiac 7.xcdatamodel */,
 				565C3BA41ED1A5D1003D8EE8 /* ShoppingManiac.xcdatamodel */,
 			);
-			currentVersion = 5671386A22CCDAAB0055423D /* ShoppingManiac 9.xcdatamodel */;
+			currentVersion = 56ABD5F2257F3B4E00C76020 /* ShoppingManiac 10.xcdatamodel */;
 			path = ShoppingManiac.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
