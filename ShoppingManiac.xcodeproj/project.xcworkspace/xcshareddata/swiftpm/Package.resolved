@@ -38,15 +38,6 @@
         }
       },
       {
-        "package": "Hero",
-        "repositoryURL": "https://github.com/HeroTransitions/Hero",
-        "state": {
-          "branch": null,
-          "revision": "ae951b89f23485de8a7b95aaa5cead7f78ab1df0",
-          "version": "1.5.0"
-        }
-      },
-      {
         "package": "PKHUD",
         "repositoryURL": "https://github.com/dmatushkin/PKHUD",
         "state": {
@@ -78,8 +69,8 @@
         "repositoryURL": "https://github.com/huri000/SwiftEntryKit",
         "state": {
           "branch": null,
-          "revision": "f280a02c60f4c2563561312df26a357a1cf714e2",
-          "version": "1.2.6"
+          "revision": "c2d42574e4fe4e1f9719843f35add7922942a16b",
+          "version": "1.2.7"
         }
       },
       {

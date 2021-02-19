@@ -20,7 +20,7 @@ class ShoppingListTableViewCell: UITableViewCell {
     }
 
     func setup(withItem item: GroupItem) {
-        self.contentView.backgroundColor = item.isCrossListItem ? UIColor(named: "crossListItemColor") : UIColor.clear
+        self.contentView.backgroundColor = UIColor.clear
         self.statusImageView.image = (item.purchased ? #imageLiteral(resourceName: "checkbox_marked") : #imageLiteral(resourceName: "checkbox_unmarked")).withTintColor(self.itemColor(item: item), renderingMode: .alwaysOriginal)
         self.productTitleLabel.text = item.itemName
         self.storeTitleLabel.text = item.itemCategoryName

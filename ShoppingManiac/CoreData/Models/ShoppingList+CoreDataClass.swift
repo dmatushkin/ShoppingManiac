@@ -19,7 +19,7 @@ public class ShoppingList: NSManagedObject {
     }
 
 	var itemsFetchBuilder: FetchChainBuilder<ShoppingListItem> {
-		return From<ShoppingListItem>().where(Where("(list = %@ OR (isCrossListItem == true AND purchased == false)) AND isRemoved == false", self))
+		return From<ShoppingListItem>().where(Where("list = %@ AND isRemoved == false", self))
 	}
 
     var isPurchased: Bool {
@@ -101,7 +101,6 @@ public class ShoppingList: NSManagedObject {
                     itemDict["purchaseDate"] = item.jsonPurchaseDate
                     itemDict["quantity"] = item.quantity
                     itemDict["isWeight"] = item.isWeight
-                    itemDict["isCrossListItem"] = item.isCrossListItem
                     itemDict["isImportant"] = item.isImportant
                     resultItems.append(itemDict)
                 }
@@ -148,7 +147,6 @@ public class ShoppingList: NSManagedObject {
                         shoppingListItem.quantity = (itemDict["quantity"] as? NSNumber)?.floatValue ?? 0
                         shoppingListItem.isWeight = (itemDict["isWeight"] as? NSNumber)?.boolValue ?? false
                         shoppingListItem.jsonPurchaseDate = (itemDict["purchaseDate"] as? String) ?? ""
-                        shoppingListItem.isCrossListItem = (itemDict["isCrossListItem"] as? NSNumber)?.boolValue ?? false
                         shoppingListItem.isImportant = (itemDict["isImportant"] as? NSNumber)?.boolValue ?? false
 						shoppingListItem.recordid = itemDict["recordId"] as? String
                         shoppingListItem.list = list

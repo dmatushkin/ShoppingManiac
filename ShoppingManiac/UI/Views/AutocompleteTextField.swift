@@ -93,7 +93,7 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         if frame.origin.y > (availableHeight - frame.origin.y - frame.size.height) { //appears from top of the field
             let height = min(frame.origin.y, CGFloat(self.tableView(self.autocompleteTable, numberOfRowsInSection: 0)) * self.autocompleteTable.rowHeight)
             self.autocompleteTable.frame = CGRect(x: self.frame.origin.x + 1, y: self.frame.origin.y - height, width: self.bounds.size.width - 2, height: height)
-        } else { //appears from bottom of the field
+        } else { // appears from bottom of the field
             let height = min(availableHeight, CGFloat(self.tableView(self.autocompleteTable, numberOfRowsInSection: 0)) * self.autocompleteTable.rowHeight)
             self.autocompleteTable.frame = CGRect(x: self.frame.origin.x + 1, y: self.frame.origin.y + self.bounds.size.height, width: self.bounds.size.width - 2, height: height)
         }

@@ -23,7 +23,6 @@ class AddShoppingListItemModel {
     let amountText = CurrentValueSubject<String?, Never>("")
     let isWeight = CurrentValueSubject<Bool, Never>(false)
     let rating = CurrentValueSubject<Int, Never>(0)
-    let crossListItem = CurrentValueSubject<Bool, Never>(false)
     let importantItem = CurrentValueSubject<Bool, Never>(false)
     
     func listAllGoods() -> [String] {
@@ -45,7 +44,6 @@ class AddShoppingListItemModel {
         }
         self.isWeight.send((self.shoppingListItem?.isWeight == true))
         self.rating.send(Int(self.shoppingListItem?.good?.personalRating ?? 0))
-        self.crossListItem.send(self.shoppingListItem?.isCrossListItem ?? false)
         self.importantItem.send(self.shoppingListItem?.isImportant ?? false)
     }
     
@@ -73,7 +71,6 @@ class AddShoppingListItemModel {
 			} else {
 				item.price = 0
 			}
-			item.isCrossListItem = self.crossListItem.value
             item.isImportant = self.importantItem.value
 			item.isRemoved = false
 			if self.shoppingListItem == nil {

@@ -23,7 +23,6 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
     @IBOutlet private weak var starButton4: UIButton!
     @IBOutlet private weak var starButton5: UIButton!
     @IBOutlet private weak var weightSwitch: UISwitch!
-    @IBOutlet private weak var crossListItemSwitch: UISwitch!
     @IBOutlet private weak var importantItemSwitch: UISwitch!
     
     let model = AddShoppingListItemModel()
@@ -40,7 +39,6 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
         self.starButton3.tagRatingBinding(variable: self.model.rating, store: &model.cancellables)
         self.starButton4.tagRatingBinding(variable: self.model.rating, store: &model.cancellables)
         self.starButton5.tagRatingBinding(variable: self.model.rating, store: &model.cancellables)
-		self.crossListItemSwitch.bind(to: self.model.crossListItem, store: &model.cancellables)
         self.importantItemSwitch.bind(to: self.model.importantItem, store: &model.cancellables)
         self.nameEditField.autocompleteStrings = self.model.listAllGoods()
         self.storeEditField.autocompleteStrings = self.model.listAllStores()

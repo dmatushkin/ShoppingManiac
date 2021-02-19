@@ -18,7 +18,6 @@
 		5600737B25037F31009F5912 /* CloudKitSync in Frameworks */ = {isa = PBXBuildFile; productRef = 5600737A25037F31009F5912 /* CloudKitSync */; };
 		560E122C1ED17B5800E2529E /* ShoppingListsListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560E122B1ED17B5800E2529E /* ShoppingListsListViewController.swift */; };
 		561BA786232BF73800381E02 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA785232BF73800381E02 /* SwiftDate */; };
-		561BA789232BF7C600381E02 /* Hero in Frameworks */ = {isa = PBXBuildFile; productRef = 561BA788232BF7C600381E02 /* Hero */; };
 		562BAA4F20A60CC30061D654 /* AddShoppingListItemModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BAA4E20A60CC30061D654 /* AddShoppingListItemModel.swift */; };
 		562BABB1208C9E980063013A /* ShoppingManiacViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */; };
 		56376FB21FE8EA07007FA0D1 /* DataSaveSegue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */; };
@@ -163,6 +162,7 @@
 		562BABB0208C9E980063013A /* ShoppingManiacViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShoppingManiacViewController.swift; sourceTree = "<group>"; };
 		56376FB11FE8EA07007FA0D1 /* DataSaveSegue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSaveSegue.swift; sourceTree = "<group>"; };
 		5644D78423239C3E00982D4E /* ListSplitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSplitViewController.swift; sourceTree = "<group>"; };
+		5647F0E625DFD32E0065C2EE /* ShoppingManiac 11.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ShoppingManiac 11.xcdatamodel"; sourceTree = "<group>"; };
 		564FA21F23E433A500E4B1CB /* CloudShareUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudShareUnitTests.swift; sourceTree = "<group>"; };
 		564FA22123E4343400E4B1CB /* CloudKitUtilsStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitUtilsStub.swift; sourceTree = "<group>"; };
 		5650C1331EDAA3EB00977503 /* AddShoppingItemViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddShoppingItemViewController.swift; sourceTree = "<group>"; };
@@ -265,7 +265,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				567F7322206F915B00B67B5C /* CloudKit.framework in Frameworks */,
-				561BA789232BF7C600381E02 /* Hero in Frameworks */,
 				561BA786232BF73800381E02 /* SwiftDate in Frameworks */,
 				56466CBB250379D5000ED683 /* CloudKitSync in Frameworks */,
 				56438BDB232CE1DE005DAC77 /* PKHUD in Frameworks */,
@@ -681,7 +680,6 @@
 			name = ShoppingManiac;
 			packageProductDependencies = (
 				561BA785232BF73800381E02 /* SwiftDate */,
-				561BA788232BF7C600381E02 /* Hero */,
 				565BC9DD232CC69E001A90A3 /* CoreStore */,
 				56438BDA232CE1DE005DAC77 /* PKHUD */,
 				56CDEE5B24701695006C52C2 /* SwiftEntryKit */,
@@ -757,7 +755,6 @@
 			mainGroup = 566A7DCB1ED1759B005F9D31;
 			packageReferences = (
 				561BA784232BF73800381E02 /* XCRemoteSwiftPackageReference "SwiftDate" */,
-				561BA787232BF7C600381E02 /* XCRemoteSwiftPackageReference "Hero" */,
 				565BC9DC232CC69E001A90A3 /* XCRemoteSwiftPackageReference "CoreStore" */,
 				56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */,
 				56CDEE5A24701694006C52C2 /* XCRemoteSwiftPackageReference "SwiftEntryKit" */,
@@ -1091,7 +1088,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.6;
+				MARKETING_VERSION = 1.5.7;
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = NO;
@@ -1116,7 +1113,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.6;
+				MARKETING_VERSION = 1.5.7;
 				PRODUCT_BUNDLE_IDENTIFIER = org.md.ShoppingManiac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTS_MACCATALYST = NO;
@@ -1216,14 +1213,6 @@
 				minimumVersion = 6.1.0;
 			};
 		};
-		561BA787232BF7C600381E02 /* XCRemoteSwiftPackageReference "Hero" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/HeroTransitions/Hero";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.5.0;
-			};
-		};
 		56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/dmatushkin/PKHUD";
@@ -1269,11 +1258,6 @@
 			package = 561BA784232BF73800381E02 /* XCRemoteSwiftPackageReference "SwiftDate" */;
 			productName = SwiftDate;
 		};
-		561BA788232BF7C600381E02 /* Hero */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 561BA787232BF7C600381E02 /* XCRemoteSwiftPackageReference "Hero" */;
-			productName = Hero;
-		};
 		56438BDA232CE1DE005DAC77 /* PKHUD */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 56438BD9232CE1DE005DAC77 /* XCRemoteSwiftPackageReference "PKHUD" */;
@@ -1310,6 +1294,7 @@
 		565C3B9D1ED1A5D1003D8EE8 /* ShoppingManiac.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				5647F0E625DFD32E0065C2EE /* ShoppingManiac 11.xcdatamodel */,
 				56ABD5F2257F3B4E00C76020 /* ShoppingManiac 10.xcdatamodel */,
 				5671386A22CCDAAB0055423D /* ShoppingManiac 9.xcdatamodel */,
 				565C3BC51ED1EA79003D8EE8 /* ShoppingManiac 8.xcdatamodel */,
@@ -1321,7 +1306,7 @@
 				565C3BA31ED1A5D1003D8EE8 /* ShoppingManiac 7.xcdatamodel */,
 				565C3BA41ED1A5D1003D8EE8 /* ShoppingManiac.xcdatamodel */,
 			);
-			currentVersion = 56ABD5F2257F3B4E00C76020 /* ShoppingManiac 10.xcdatamodel */;
+			currentVersion = 5647F0E625DFD32E0065C2EE /* ShoppingManiac 11.xcdatamodel */;
 			path = ShoppingManiac.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

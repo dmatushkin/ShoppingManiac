@@ -13,7 +13,7 @@ import DependencyInjection
 import CommonError
 import CloudKitSync
 
-//swiftlint:disable type_body_length file_length function_body_length cyclomatic_complexity
+// swiftlint:disable type_body_length file_length function_body_length cyclomatic_complexity
 class CloudLoaderOperationsUnitTests: XCTestCase {
 
     private let operations = CloudKitTestOperations()

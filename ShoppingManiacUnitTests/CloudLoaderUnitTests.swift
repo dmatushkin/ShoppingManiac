@@ -14,7 +14,7 @@ import DependencyInjection
 import CommonError
 import CloudKitSync
 
-//swiftlint:disable type_body_length function_body_length superfluous_disable_command
+// swiftlint:disable type_body_length function_body_length superfluous_disable_command
 
 class CloudLoaderUnitTests: XCTestCase {
     

@@ -2,8 +2,8 @@
 //  ShoppingListItem+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 12/8/20.
-//  Copyright © 2020 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 2/19/21.
+//  Copyright © 2021 Dmitry Matyushkin. All rights reserved.
 //
 //
 
@@ -17,7 +17,6 @@ extension ShoppingListItem {
     }
 
     @NSManaged public var comment: String?
-    @NSManaged public var isCrossListItem: Bool
     @NSManaged public var isImportant: Bool
     @NSManaged public var isRemoved: Bool
     @NSManaged public var isWeight: Bool

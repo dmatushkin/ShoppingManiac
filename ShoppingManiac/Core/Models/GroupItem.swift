@@ -16,7 +16,6 @@ struct GroupItem: Hashable {
     let itemCategoryName: String?
     let itemQuantityString: String
     var purchased: Bool = false
-    let isCrossListItem: Bool
     let isImportantItem: Bool
 
     init(shoppingListItem: ShoppingListItem) {
@@ -25,7 +24,6 @@ struct GroupItem: Hashable {
         self.itemCategoryName = shoppingListItem.good?.category?.name
         self.itemQuantityString = shoppingListItem.quantityText
         self.purchased = shoppingListItem.purchased
-        self.isCrossListItem = shoppingListItem.isCrossListItem
         self.isImportantItem = shoppingListItem.isImportant
     }
 
