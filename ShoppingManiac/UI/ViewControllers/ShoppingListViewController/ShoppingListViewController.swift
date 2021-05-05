@@ -125,7 +125,17 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
 
     @IBAction private func shareAction(_ sender: Any) {
         if AppDelegate.discoverabilityStatus {
-            let controller = UIAlertController(title: "Sharing", message: "Select sharing type", preferredStyle: .actionSheet)
+            let style: UIAlertController.Style
+            #if targetEnvironment(macCatalyst)
+            style = .alert
+            #else
+            if UIDevice.current.userInterfaceIdiom == .phone {
+                style = .actionSheet
+            } else {
+                style = .alert
+            }
+            #endif
+            let controller = UIAlertController(title: "Sharing", message: "Select sharing type", preferredStyle: style)
             let smsAction = UIAlertAction(title: "Text message", style: .default) {[weak self] _ in
                 self?.smsShare()
             }

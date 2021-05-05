@@ -73,7 +73,7 @@ class ShoppingListModel {
 			guard let self = self else { return }
 			self.reloadTable(publisher: self.listPublisher!)
 		})
-		dataSource!.canMoveRow = true
+        setupMoveRow()
 		dataSource!.moveRow = {[weak self] from, to in
 			guard let self = self else { return }
 			if from.section != to.section {
@@ -88,6 +88,18 @@ class ShoppingListModel {
 		}
 		reloadTable(publisher: listPublisher!)
 	}
+    
+    private func setupMoveRow() {
+        if #available(iOS 14.0, *) {
+            if ProcessInfo.processInfo.isiOSAppOnMac {
+                dataSource!.canMoveRow = false
+            } else {
+                dataSource!.canMoveRow = true
+            }
+        } else {
+            dataSource!.canMoveRow = true
+        }
+    }
 
 	private func reloadTable(publisher: ListPublisher<ShoppingListItem>) {
 		let items = publisher.snapshot.compactMap({ $0.object })
