@@ -57,6 +57,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			}
 		}, receiveValue: {}).store(in: &self.cancellables)
         CloudSubscriptions.setupSubscriptions()
+        if #available(iOS 14.0, *) {
+            if ProcessInfo.processInfo.isiOSAppOnMac {
+                UIDevice.current.setValue(UIInterfaceOrientation.landscapeLeft.rawValue, forKey: "orientation")
+                UINavigationController.attemptRotationToDeviceOrientation()
+            }
+        }
         return true
     }
     
@@ -153,5 +159,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 			let contentView = EKAlertMessageView(with: alertMessage)
 			SwiftEntryKit.display(entry: contentView, using: attributes)
         }
+    }
+    
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        if #available(iOS 14.0, *) {
+            if ProcessInfo.processInfo.isiOSAppOnMac {
+                return .landscape
+            }
+        }
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return .all
+        }
+        return .portrait
     }
 }
