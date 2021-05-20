@@ -30,6 +30,8 @@ class ShoppingListViewController: ShoppingManiacViewController, UITableViewDeleg
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.tableView.rowHeight = UITableView.automaticDimension
+        self.tableView.estimatedRowHeight = 44
 		self.loadingIndicator.isHidden = true
 		self.icloudStatusImageView.isHidden = true
         if self.model.shoppingList == nil {

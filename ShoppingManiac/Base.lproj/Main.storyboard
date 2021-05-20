@@ -263,15 +263,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="BXI-LZ-CeD">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="default" rowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="BXI-LZ-CeD">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="ShoppingListTableViewCell" id="3Lb-Bg-7yd" customClass="ShoppingListTableViewCell" customModule="ShoppingManiac" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="49.5" width="375" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="ShoppingListTableViewCell" rowHeight="71" id="3Lb-Bg-7yd" customClass="ShoppingListTableViewCell" customModule="ShoppingManiac" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="49.5" width="375" height="71"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3Lb-Bg-7yd" id="hQN-kh-tvE">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="71"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" image="checkbox_unmarked" translatesAutoresizingMaskIntoConstraints="NO" id="WDh-hV-UjT">
@@ -290,8 +290,8 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Продукты" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LHi-o0-bpn">
-                                                    <rect key="frame" x="50" y="33" width="310" height="8"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                                    <rect key="frame" x="50" y="33" width="310" height="35"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
@@ -302,8 +302,9 @@
                                                 <constraint firstItem="LHi-o0-bpn" firstAttribute="top" secondItem="85D-hB-501" secondAttribute="bottom" constant="1" id="7Hx-Jj-c0z"/>
                                                 <constraint firstItem="tTd-6n-IKS" firstAttribute="leading" secondItem="85D-hB-501" secondAttribute="trailing" constant="5" id="Jne-Py-JZk"/>
                                                 <constraint firstAttribute="trailing" secondItem="LHi-o0-bpn" secondAttribute="trailing" constant="15" id="OO0-fb-uca"/>
+                                                <constraint firstItem="WDh-hV-UjT" firstAttribute="centerY" secondItem="85D-hB-501" secondAttribute="centerY" id="OsB-Xa-vrP"/>
                                                 <constraint firstItem="85D-hB-501" firstAttribute="leading" secondItem="WDh-hV-UjT" secondAttribute="trailing" constant="15" id="UYg-1f-dbI"/>
-                                                <constraint firstItem="WDh-hV-UjT" firstAttribute="centerY" secondItem="hQN-kh-tvE" secondAttribute="centerY" id="ZyT-aA-Dta"/>
+                                                <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="85D-hB-501" secondAttribute="bottom" constant="12" id="Wed-OO-bRn"/>
                                                 <constraint firstAttribute="trailing" secondItem="tTd-6n-IKS" secondAttribute="trailing" constant="15" id="ePi-uW-g5E"/>
                                                 <constraint firstItem="tTd-6n-IKS" firstAttribute="firstBaseline" secondItem="85D-hB-501" secondAttribute="firstBaseline" id="lzA-yR-6HI"/>
                                                 <constraint firstItem="85D-hB-501" firstAttribute="top" secondItem="hQN-kh-tvE" secondAttribute="top" constant="12" id="nLe-2h-IMi"/>
@@ -412,7 +413,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uo7-bn-DNh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3129" y="-1567"/>
+            <point key="canvasLocation" x="3128.8000000000002" y="-1567.4662668665669"/>
         </scene>
         <!--Add Shopping Item View Controller-->
         <scene sceneID="Tn9-fl-rQe">
