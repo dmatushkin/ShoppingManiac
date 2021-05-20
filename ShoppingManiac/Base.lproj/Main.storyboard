@@ -278,35 +278,38 @@
                                                     <rect key="frame" x="15" y="12" width="20" height="20"/>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="Шаурма" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="85D-hB-501">
-                                                    <rect key="frame" x="50" y="11.5" width="207.5" height="21"/>
+                                                    <rect key="frame" x="50" y="12" width="298" height="20"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tTd-6n-IKS">
-                                                    <rect key="frame" x="352" y="11.5" width="8" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <rect key="frame" x="353" y="13" width="7" height="18"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Продукты" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LHi-o0-bpn">
-                                                    <rect key="frame" x="264.5" y="11.5" width="79.5" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Продукты" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LHi-o0-bpn">
+                                                    <rect key="frame" x="15" y="30" width="345" height="12"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <constraints>
-                                                <constraint firstItem="LHi-o0-bpn" firstAttribute="leading" secondItem="85D-hB-501" secondAttribute="trailing" constant="7" id="2q9-Jf-3ij"/>
                                                 <constraint firstItem="WDh-hV-UjT" firstAttribute="leading" secondItem="hQN-kh-tvE" secondAttribute="leading" constant="15" id="5jk-KX-zJS"/>
-                                                <constraint firstItem="tTd-6n-IKS" firstAttribute="leading" secondItem="LHi-o0-bpn" secondAttribute="trailing" constant="8" id="T15-JH-soU"/>
+                                                <constraint firstAttribute="bottom" secondItem="85D-hB-501" secondAttribute="bottom" constant="12" id="6rW-lV-NbH"/>
+                                                <constraint firstItem="tTd-6n-IKS" firstAttribute="leading" secondItem="85D-hB-501" secondAttribute="trailing" constant="5" id="Jne-Py-JZk"/>
+                                                <constraint firstAttribute="trailing" secondItem="LHi-o0-bpn" secondAttribute="trailing" constant="15" id="OO0-fb-uca"/>
                                                 <constraint firstItem="85D-hB-501" firstAttribute="leading" secondItem="WDh-hV-UjT" secondAttribute="trailing" constant="15" id="UYg-1f-dbI"/>
                                                 <constraint firstItem="WDh-hV-UjT" firstAttribute="centerY" secondItem="hQN-kh-tvE" secondAttribute="centerY" id="ZyT-aA-Dta"/>
                                                 <constraint firstItem="85D-hB-501" firstAttribute="centerY" secondItem="WDh-hV-UjT" secondAttribute="centerY" id="dZ8-iw-vMd"/>
                                                 <constraint firstAttribute="trailing" secondItem="tTd-6n-IKS" secondAttribute="trailing" constant="15" id="ePi-uW-g5E"/>
-                                                <constraint firstItem="LHi-o0-bpn" firstAttribute="centerY" secondItem="tTd-6n-IKS" secondAttribute="centerY" id="m3e-0H-zjU"/>
                                                 <constraint firstItem="tTd-6n-IKS" firstAttribute="centerY" secondItem="hQN-kh-tvE" secondAttribute="centerY" id="mrh-Pv-iie"/>
+                                                <constraint firstItem="85D-hB-501" firstAttribute="top" secondItem="hQN-kh-tvE" secondAttribute="top" constant="12" id="nLe-2h-IMi"/>
+                                                <constraint firstItem="LHi-o0-bpn" firstAttribute="leading" secondItem="hQN-kh-tvE" secondAttribute="leading" constant="15" id="sTV-Ox-Ony"/>
+                                                <constraint firstAttribute="bottom" secondItem="LHi-o0-bpn" secondAttribute="bottom" constant="2" id="x97-xm-61i"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
