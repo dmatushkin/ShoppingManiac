@@ -16,9 +16,10 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
 
     var autocompleteStrings: [String] = [] {
         didSet {
-            self.autocompleteStrings = self.autocompleteStrings.map({ $0.lowercased() })
+            self.lowercasedStrings = autocompleteStrings.map({ $0.lowercased() })
         }
     }
+    private var lowercasedStrings: [String] = []
 
     private var keyboardHeight: CGFloat = 0
 
@@ -55,11 +56,12 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
     }
 
     private func item(forIndexPath indexPath: IndexPath) -> String {
-        return self.autocompleteStrings.filter({ $0.contains(self.text?.lowercased() ?? "") })[indexPath.row]
+        let idx = self.lowercasedStrings.enumerated().filter({ (_, value) in value.contains(self.text?.lowercased() ?? "") })[indexPath.row].offset
+        return self.autocompleteStrings[idx]
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.autocompleteStrings.filter({ $0.contains(self.text?.lowercased() ?? "") }).count
+        return self.lowercasedStrings.filter({ $0.contains(self.text?.lowercased() ?? "") }).count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
