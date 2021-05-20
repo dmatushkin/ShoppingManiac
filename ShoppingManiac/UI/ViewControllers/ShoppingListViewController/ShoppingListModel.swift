@@ -35,6 +35,7 @@ class ShoppingListModel {
 	private var goodsPublisher = CoreStoreDefaults.dataStack.publishList(From<Good>().orderBy(.ascending(\.name)))
 	private var storesPublisher = CoreStoreDefaults.dataStack.publishList(From<Store>().orderBy(.ascending(\.name)))
 	private var categoriesPublisher = CoreStoreDefaults.dataStack.publishList(From<Category>().orderBy(.ascending(\.name)))
+    private var orderPublisher = CoreStoreDefaults.dataStack.publishList(From<CategoryStoreOrder>().orderBy(.ascending(\.order)))
 	private var icloudOperationsCount: Int = 0
 
 	deinit {
@@ -42,6 +43,7 @@ class ShoppingListModel {
 		goodsPublisher.removeObserver(self)
 		storesPublisher.removeObserver(self)
 		categoriesPublisher.removeObserver(self)
+        orderPublisher.removeObserver(self)
 	}
 
 	func setupTable(tableView: UITableView) {
@@ -73,6 +75,10 @@ class ShoppingListModel {
 			guard let self = self else { return }
 			self.reloadTable(publisher: self.listPublisher!)
 		})
+        orderPublisher.addObserver(self, {[weak self] publisher in
+            guard let self = self else { return }
+            self.reloadTable(publisher: self.listPublisher!)
+        })
         setupMoveRow()
 		dataSource!.moveRow = {[weak self] from, to in
 			guard let self = self else { return }
