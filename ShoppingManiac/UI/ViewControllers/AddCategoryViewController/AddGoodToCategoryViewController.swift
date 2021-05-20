@@ -23,6 +23,7 @@ class AddGoodToCategoryViewController: UIViewController {
         super.viewDidLoad()
         self.goodNameField.autocompleteStrings = model.listAllGoods()
         self.goodNameField.becomeFirstResponder()
+        self.preferredContentSize = self.view.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
     }
     
     @IBAction private func addGoodAction() {
@@ -35,8 +36,7 @@ class AddGoodToCategoryViewController: UIViewController {
     
     @IBAction private func cancelAction() {
         self.dismiss(animated: true, completion: nil)
-    }
-    
+    }    
 
     /*
     // MARK: - Navigation

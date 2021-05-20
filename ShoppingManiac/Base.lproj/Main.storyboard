@@ -1242,7 +1242,9 @@
                                 <rect key="frame" x="329" y="95.5" width="30" height="30"/>
                                 <state key="normal" title="Add"/>
                                 <connections>
-                                    <segue destination="PNc-Bz-nvs" kind="presentation" id="LEF-eU-OAn"/>
+                                    <segue destination="PNc-Bz-nvs" kind="popoverPresentation" popoverAnchorView="f4C-b0-aYd" id="LEF-eU-OAn">
+                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                                    </segue>
                                 </connections>
                             </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Fyu-In-QdA">
@@ -1334,6 +1336,7 @@
                                 <rect key="frame" x="16" y="100" width="164" height="40"/>
                                 <color key="backgroundColor" name="cancelColor"/>
                                 <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="GRH-Mw-Jk1"/>
                                     <constraint firstAttribute="height" constant="40" id="eMQ-xS-6fj"/>
                                 </constraints>
                                 <state key="normal" title="Cancel">
@@ -1371,6 +1374,7 @@
                         <constraints>
                             <constraint firstItem="VrM-Sc-hNW" firstAttribute="leading" secondItem="sPd-Um-zNr" secondAttribute="leading" constant="16" id="04r-bJ-ET2"/>
                             <constraint firstItem="ECn-Mb-jle" firstAttribute="top" secondItem="4FO-Rf-k4I" secondAttribute="top" id="2HM-dR-WxL"/>
+                            <constraint firstItem="XAb-py-oGn" firstAttribute="top" relation="greaterThanOrEqual" secondItem="ECn-Mb-jle" secondAttribute="bottom" constant="15" id="5Jv-Aj-x6W"/>
                             <constraint firstItem="4FO-Rf-k4I" firstAttribute="trailing" secondItem="VrM-Sc-hNW" secondAttribute="trailing" id="BfT-ao-Vrv"/>
                             <constraint firstItem="ECn-Mb-jle" firstAttribute="width" secondItem="4FO-Rf-k4I" secondAttribute="width" id="X47-bC-e2H"/>
                             <constraint firstAttribute="trailing" secondItem="VrM-Sc-hNW" secondAttribute="trailing" constant="16" id="a4C-aG-l2V"/>
@@ -1456,7 +1460,9 @@
                                 <rect key="frame" x="329" y="95.5" width="30" height="30"/>
                                 <state key="normal" title="Add"/>
                                 <connections>
-                                    <segue destination="24l-RE-6sx" kind="presentation" id="YxA-5Q-4V7"/>
+                                    <segue destination="24l-RE-6sx" kind="popoverPresentation" popoverAnchorView="5Uf-A1-ZSD" id="YxA-5Q-4V7">
+                                        <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
+                                    </segue>
                                 </connections>
                             </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="J8W-co-Xqg">
@@ -1567,6 +1573,7 @@
                                 <color key="backgroundColor" name="cancelColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="Xnw-X3-AaT"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="s1c-vX-Suz"/>
                                 </constraints>
                                 <state key="normal" title="Cancel">
                                     <color key="titleColor" name="buttonTextColor"/>
@@ -1605,6 +1612,7 @@
                             <constraint firstItem="xe5-Qt-KN4" firstAttribute="top" secondItem="p01-dU-fb9" secondAttribute="top" id="B6H-mb-bNG"/>
                             <constraint firstItem="xe5-Qt-KN4" firstAttribute="top" secondItem="38l-TI-wsb" secondAttribute="bottom" constant="20" id="BWM-4O-JHT"/>
                             <constraint firstItem="p01-dU-fb9" firstAttribute="leading" secondItem="xe5-Qt-KN4" secondAttribute="trailing" constant="15" id="Lje-RT-TDX"/>
+                            <constraint firstItem="bsT-y9-4Dx" firstAttribute="top" relation="greaterThanOrEqual" secondItem="xe5-Qt-KN4" secondAttribute="bottom" constant="15" id="blx-4d-dlh"/>
                             <constraint firstItem="p01-dU-fb9" firstAttribute="trailing" secondItem="38l-TI-wsb" secondAttribute="trailing" id="d3D-EC-Ywn"/>
                             <constraint firstItem="xe5-Qt-KN4" firstAttribute="leading" secondItem="38l-TI-wsb" secondAttribute="leading" id="hKE-Ni-Z39"/>
                             <constraint firstItem="38l-TI-wsb" firstAttribute="leading" secondItem="c8k-IO-KJ0" secondAttribute="leading" constant="16" id="rsA-B5-urh"/>

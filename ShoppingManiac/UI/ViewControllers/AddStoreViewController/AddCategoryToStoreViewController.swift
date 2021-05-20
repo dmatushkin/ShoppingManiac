@@ -23,6 +23,7 @@ class AddCategoryToStoreViewController: UIViewController {
         super.viewDidLoad()
         self.categoryNameField.autocompleteStrings = model.listAllCategories()
         self.categoryNameField.becomeFirstResponder()
+        self.preferredContentSize = self.view.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
     }
     
     @IBAction private func addCategoryAction() {
