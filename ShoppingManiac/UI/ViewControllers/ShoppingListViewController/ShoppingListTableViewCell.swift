@@ -23,7 +23,7 @@ class ShoppingListTableViewCell: UITableViewCell {
         self.contentView.backgroundColor = UIColor.clear
         self.statusImageView.image = (item.purchased ? #imageLiteral(resourceName: "checkbox_marked") : #imageLiteral(resourceName: "checkbox_unmarked")).withTintColor(self.itemColor(item: item), renderingMode: .alwaysOriginal)
         self.productTitleLabel.text = item.itemName
-        self.storeTitleLabel.text = item.itemCategoryName
+        self.storeTitleLabel.text = item.itemCategoryName?.nilIfEmpty
         self.productQuantityLabel.text = item.itemQuantityString
         self.productTitleLabel.textColor = self.itemColor(item: item)
         self.storeTitleLabel.textColor = self.itemColor(item: item)
