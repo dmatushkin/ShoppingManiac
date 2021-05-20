@@ -173,7 +173,7 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textField>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Yd-aB-ucG">
-                                <rect key="frame" x="195" y="136" width="164" height="40"/>
+                                <rect key="frame" x="195" y="156" width="164" height="40"/>
                                 <color key="backgroundColor" name="acceptColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="NcH-Am-o6r"/>
@@ -191,7 +191,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SSd-C3-23m">
-                                <rect key="frame" x="16" y="136" width="164" height="40"/>
+                                <rect key="frame" x="16" y="156" width="164" height="40"/>
                                 <color key="backgroundColor" name="cancelColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="HaN-2B-HTD"/>
@@ -215,7 +215,7 @@
                             <constraint firstItem="3Yd-aB-ucG" firstAttribute="leading" secondItem="SSd-C3-23m" secondAttribute="trailing" constant="15" id="4ab-tj-UlJ"/>
                             <constraint firstItem="SSd-C3-23m" firstAttribute="width" secondItem="3Yd-aB-ucG" secondAttribute="width" id="60a-uj-F2s"/>
                             <constraint firstItem="mCb-qb-Y0h" firstAttribute="leading" secondItem="0vD-DF-hYI" secondAttribute="leadingMargin" id="86Z-4Z-1Z9"/>
-                            <constraint firstItem="3Yd-aB-ucG" firstAttribute="top" secondItem="mCb-qb-Y0h" secondAttribute="bottom" constant="20" id="D3N-Ur-ajb"/>
+                            <constraint firstItem="3Yd-aB-ucG" firstAttribute="top" secondItem="mCb-qb-Y0h" secondAttribute="bottom" constant="40" id="D3N-Ur-ajb"/>
                             <constraint firstItem="3Yd-aB-ucG" firstAttribute="trailing" secondItem="mCb-qb-Y0h" secondAttribute="trailing" id="KxQ-I2-a2G"/>
                             <constraint firstAttribute="trailingMargin" secondItem="mCb-qb-Y0h" secondAttribute="trailing" id="aWx-tg-TEv"/>
                             <constraint firstItem="mCb-qb-Y0h" firstAttribute="top" secondItem="I8t-RF-T4H" secondAttribute="bottom" constant="20" id="eea-WC-s9C"/>
@@ -1325,7 +1325,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Category name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VrM-Sc-hNW" customClass="AutocompleteTextField" customModule="ShoppingManiac" customModuleProvider="target">
-                                <rect key="frame" x="16" y="40" width="343" height="40"/>
+                                <rect key="frame" x="16" y="30" width="343" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="eeb-Qf-4iA"/>
                                 </constraints>
@@ -1333,10 +1333,10 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ECn-Mb-jle">
-                                <rect key="frame" x="16" y="100" width="164" height="40"/>
+                                <rect key="frame" x="16" y="110" width="164" height="40"/>
                                 <color key="backgroundColor" name="cancelColor"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="GRH-Mw-Jk1"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="120" id="GRH-Mw-Jk1"/>
                                     <constraint firstAttribute="height" constant="40" id="eMQ-xS-6fj"/>
                                 </constraints>
                                 <state key="normal" title="Cancel">
@@ -1352,7 +1352,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4FO-Rf-k4I">
-                                <rect key="frame" x="195" y="100" width="164" height="40"/>
+                                <rect key="frame" x="195" y="110" width="164" height="40"/>
                                 <color key="backgroundColor" name="acceptColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="gCe-pW-iiX"/>
@@ -1374,14 +1374,14 @@
                         <constraints>
                             <constraint firstItem="VrM-Sc-hNW" firstAttribute="leading" secondItem="sPd-Um-zNr" secondAttribute="leading" constant="16" id="04r-bJ-ET2"/>
                             <constraint firstItem="ECn-Mb-jle" firstAttribute="top" secondItem="4FO-Rf-k4I" secondAttribute="top" id="2HM-dR-WxL"/>
-                            <constraint firstItem="XAb-py-oGn" firstAttribute="top" relation="greaterThanOrEqual" secondItem="ECn-Mb-jle" secondAttribute="bottom" constant="15" id="5Jv-Aj-x6W"/>
+                            <constraint firstItem="XAb-py-oGn" firstAttribute="top" relation="greaterThanOrEqual" secondItem="ECn-Mb-jle" secondAttribute="bottom" constant="30" id="5Jv-Aj-x6W"/>
                             <constraint firstItem="4FO-Rf-k4I" firstAttribute="trailing" secondItem="VrM-Sc-hNW" secondAttribute="trailing" id="BfT-ao-Vrv"/>
                             <constraint firstItem="ECn-Mb-jle" firstAttribute="width" secondItem="4FO-Rf-k4I" secondAttribute="width" id="X47-bC-e2H"/>
                             <constraint firstAttribute="trailing" secondItem="VrM-Sc-hNW" secondAttribute="trailing" constant="16" id="a4C-aG-l2V"/>
-                            <constraint firstItem="VrM-Sc-hNW" firstAttribute="top" secondItem="Ifi-hY-9w5" secondAttribute="bottom" constant="40" id="c7J-d9-AxW"/>
+                            <constraint firstItem="VrM-Sc-hNW" firstAttribute="top" secondItem="Ifi-hY-9w5" secondAttribute="bottom" constant="30" id="c7J-d9-AxW"/>
                             <constraint firstItem="4FO-Rf-k4I" firstAttribute="leading" secondItem="ECn-Mb-jle" secondAttribute="trailing" constant="15" id="hVs-Uf-y0u"/>
                             <constraint firstItem="ECn-Mb-jle" firstAttribute="leading" secondItem="VrM-Sc-hNW" secondAttribute="leading" id="zXu-Fk-xBZ"/>
-                            <constraint firstItem="ECn-Mb-jle" firstAttribute="top" secondItem="VrM-Sc-hNW" secondAttribute="bottom" constant="20" id="zi8-TI-BnU"/>
+                            <constraint firstItem="ECn-Mb-jle" firstAttribute="top" secondItem="VrM-Sc-hNW" secondAttribute="bottom" constant="40" id="zi8-TI-BnU"/>
                         </constraints>
                     </view>
                     <connections>
@@ -1561,7 +1561,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Good name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="38l-TI-wsb" customClass="AutocompleteTextField" customModule="ShoppingManiac" customModuleProvider="target">
-                                <rect key="frame" x="16" y="40" width="343" height="40"/>
+                                <rect key="frame" x="16" y="30" width="343" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="q6a-Qh-eUU"/>
                                 </constraints>
@@ -1569,11 +1569,11 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xe5-Qt-KN4">
-                                <rect key="frame" x="16" y="100" width="164" height="40"/>
+                                <rect key="frame" x="16" y="110" width="164" height="40"/>
                                 <color key="backgroundColor" name="cancelColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="Xnw-X3-AaT"/>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="s1c-vX-Suz"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="120" id="s1c-vX-Suz"/>
                                 </constraints>
                                 <state key="normal" title="Cancel">
                                     <color key="titleColor" name="buttonTextColor"/>
@@ -1588,7 +1588,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="p01-dU-fb9">
-                                <rect key="frame" x="195" y="100" width="164" height="40"/>
+                                <rect key="frame" x="195" y="110" width="164" height="40"/>
                                 <color key="backgroundColor" name="acceptColor"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="D4h-0Y-9XI"/>
@@ -1610,14 +1610,14 @@
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="38l-TI-wsb" secondAttribute="trailing" constant="16" id="7c9-IV-3nf"/>
                             <constraint firstItem="xe5-Qt-KN4" firstAttribute="top" secondItem="p01-dU-fb9" secondAttribute="top" id="B6H-mb-bNG"/>
-                            <constraint firstItem="xe5-Qt-KN4" firstAttribute="top" secondItem="38l-TI-wsb" secondAttribute="bottom" constant="20" id="BWM-4O-JHT"/>
+                            <constraint firstItem="xe5-Qt-KN4" firstAttribute="top" secondItem="38l-TI-wsb" secondAttribute="bottom" constant="40" id="BWM-4O-JHT"/>
                             <constraint firstItem="p01-dU-fb9" firstAttribute="leading" secondItem="xe5-Qt-KN4" secondAttribute="trailing" constant="15" id="Lje-RT-TDX"/>
-                            <constraint firstItem="bsT-y9-4Dx" firstAttribute="top" relation="greaterThanOrEqual" secondItem="xe5-Qt-KN4" secondAttribute="bottom" constant="15" id="blx-4d-dlh"/>
+                            <constraint firstItem="bsT-y9-4Dx" firstAttribute="top" relation="greaterThanOrEqual" secondItem="xe5-Qt-KN4" secondAttribute="bottom" constant="30" id="blx-4d-dlh"/>
                             <constraint firstItem="p01-dU-fb9" firstAttribute="trailing" secondItem="38l-TI-wsb" secondAttribute="trailing" id="d3D-EC-Ywn"/>
                             <constraint firstItem="xe5-Qt-KN4" firstAttribute="leading" secondItem="38l-TI-wsb" secondAttribute="leading" id="hKE-Ni-Z39"/>
                             <constraint firstItem="38l-TI-wsb" firstAttribute="leading" secondItem="c8k-IO-KJ0" secondAttribute="leading" constant="16" id="rsA-B5-urh"/>
                             <constraint firstItem="xe5-Qt-KN4" firstAttribute="width" secondItem="p01-dU-fb9" secondAttribute="width" id="sgH-hj-IBQ"/>
-                            <constraint firstItem="38l-TI-wsb" firstAttribute="top" secondItem="ZWT-9f-uax" secondAttribute="bottom" constant="40" id="xeF-Pm-y3q"/>
+                            <constraint firstItem="38l-TI-wsb" firstAttribute="top" secondItem="ZWT-9f-uax" secondAttribute="bottom" constant="30" id="xeF-Pm-y3q"/>
                         </constraints>
                     </view>
                     <connections>

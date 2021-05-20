@@ -94,7 +94,7 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
 
     private func layoutAutocompleteTable() {
         let frame = self.frame
-        let screenHeight = UIScreen.main.bounds.height
+        let screenHeight = self.screenHeight()
         let availableHeight = screenHeight - self.keyboardHeight - self.frame.origin.y - self.frame.size.height
         if frame.origin.y > (availableHeight - frame.origin.y - frame.size.height) { // appears from top of the field
             let height = min(frame.origin.y, CGFloat(self.tableView(self.autocompleteTable, numberOfRowsInSection: 0)) * self.autocompleteTable.rowHeight)
@@ -103,6 +103,15 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
             let height = min(availableHeight, CGFloat(self.tableView(self.autocompleteTable, numberOfRowsInSection: 0)) * self.autocompleteTable.rowHeight)
             self.autocompleteTable.frame = CGRect(x: self.frame.origin.x + 1, y: self.frame.origin.y + self.bounds.size.height, width: self.bounds.size.width - 2, height: height)
         }
+    }
+    
+    private func screenHeight() -> CGFloat {
+        if #available(iOS 14.0, *) {
+            if ProcessInfo.processInfo.isiOSAppOnMac {
+                return self.superview?.frame.height ?? 155
+            }
+        }
+        return UIScreen.main.bounds.height
     }
 
     override func editingDone() {
