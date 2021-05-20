@@ -1638,12 +1638,6 @@
         <designable name="38l-TI-wsb">
             <size key="intrinsicContentSize" width="102.5" height="34"/>
         </designable>
-        <designable name="BpW-Qr-93d">
-            <size key="intrinsicContentSize" width="127" height="34"/>
-        </designable>
-        <designable name="CnZ-9V-2Pv">
-            <size key="intrinsicContentSize" width="102" height="34"/>
-        </designable>
         <designable name="DtY-8I-6U3">
             <size key="intrinsicContentSize" width="66" height="34"/>
         </designable>
@@ -1652,18 +1646,6 @@
         </designable>
         <designable name="g9P-3F-QmA">
             <size key="intrinsicContentSize" width="127" height="34"/>
-        </designable>
-        <designable name="hqm-2c-4Rx">
-            <size key="intrinsicContentSize" width="78.5" height="34"/>
-        </designable>
-        <designable name="mCb-qb-Y0h">
-            <size key="intrinsicContentSize" width="151.5" height="34"/>
-        </designable>
-        <designable name="sOP-sb-Ls7">
-            <size key="intrinsicContentSize" width="61" height="34"/>
-        </designable>
-        <designable name="wYP-ec-JWL">
-            <size key="intrinsicContentSize" width="102.5" height="34"/>
         </designable>
     </designables>
     <inferredMetricsTieBreakers>

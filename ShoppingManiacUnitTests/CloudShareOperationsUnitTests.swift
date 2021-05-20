@@ -14,7 +14,7 @@ import DependencyInjection
 import CloudKitSync
 import CoreStore
 
-//swiftlint:disable type_body_length file_length function_body_length cyclomatic_complexity
+// swiftlint:disable type_body_length file_length function_body_length cyclomatic_complexity
 class CloudShareOperationsUnitTests: XCTestCase {
 	
 	private let operations = CloudKitTestOperations()

@@ -10,7 +10,6 @@
 import Foundation
 import CoreData
 
-
 extension CategoryStoreOrder {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<CategoryStoreOrder> {

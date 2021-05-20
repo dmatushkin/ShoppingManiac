@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol UpdateDelegate: class {
+protocol UpdateDelegate: AnyObject {
     func reloadData()
     func moveRow(fromPath: IndexPath, toPath: IndexPath)
 }

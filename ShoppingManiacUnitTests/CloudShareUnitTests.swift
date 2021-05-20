@@ -195,7 +195,7 @@ class CloudShareUnitTests: XCTestCase {
             recordsUpdateIteration += 1
         }
         var recordsFetchIteration: Int = 0
-        self.utilsStub.onFetchRecords = { (recordIds, localDb) -> [CKRecord] in
+        self.utilsStub.onFetchRecords = { (recordIds, _) -> [CKRecord] in
             recordsFetchIteration += 1
             if recordsFetchIteration == 1 {
                 XCTAssertEqual(recordIds.count, 1)
@@ -279,7 +279,7 @@ class CloudShareUnitTests: XCTestCase {
             recordsUpdateIteration += 1
         }
         var recordsFetchIteration: Int = 0
-        self.utilsStub.onFetchRecords = { (recordIds, localDb) -> [CKRecord] in
+        self.utilsStub.onFetchRecords = { (recordIds, _) -> [CKRecord] in
             recordsFetchIteration += 1
             if recordsFetchIteration == 1 {
                 XCTAssertEqual(recordIds.count, 1)

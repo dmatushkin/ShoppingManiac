@@ -8,7 +8,6 @@
 
 import UIKit
 
-@IBDesignable
 class RoundRectTextField: UITextField {
 
     private let floatingLabelActiveColor = UIColor(named: "floatingLabelColor")!
