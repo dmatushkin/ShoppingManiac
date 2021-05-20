@@ -15,50 +15,18 @@ import UIKit
 class AddGoodModel {
 
     var good: Good?
-    var category: Category? = nil {
-        didSet {
-            self.goodCategory.send(category?.name ?? "")
-        }
-    }
-	private let categoriesPublisher = CoreStoreDefaults.dataStack.publishList(From<Category>().orderBy(.ascending(\.name)))
-	private var dataSource: EditableListDataSource<String, Category>!
     
     let goodName = CurrentValueSubject<String?, Never>("")
     let goodCategory = CurrentValueSubject<String?, Never>("")
     let rating = CurrentValueSubject<Int, Never>(0)
 
-	deinit {
-		self.categoriesPublisher.removeObserver(self)
-	}
-
-	func setupTable(tableView: UITableView) {
-		dataSource = EditableListDataSource<String, Category>(tableView: tableView) { (tableView, indexPath, item) -> UITableViewCell? in
-			if let cell: CategorySelectionTableViewCell = tableView.dequeueCell(indexPath: indexPath) {
-				cell.setup(withCategory: item)
-				return cell
-			} else {
-				fatalError()
-			}
-		}
-		categoriesPublisher.addObserver(self) {[weak self] publisher in
-			self?.reloadTable(publisher: publisher)
-		}
-		reloadTable(publisher: categoriesPublisher)
-	}
-
-	private func reloadTable(publisher: ListPublisher<Category>) {
-		var snapshot = NSDiffableDataSourceSnapshot<String, Category>()
-		let section = "Default"
-		snapshot.appendSections([section])
-		let items = publisher.snapshot.compactMap({ $0.object })
-		snapshot.appendItems(items, toSection: section)
-		self.dataSource.apply(snapshot, animatingDifferences: false)
-	}
+    func listAllCategories() -> [String] {
+        return (try? CoreStoreDefaults.dataStack.fetchAll(From<Category>().orderBy(.ascending(\.name))))?.compactMap({ $0.name?.nilIfEmpty }) ?? []
+    }
     
     func applyData() {
         self.goodName.send(self.good?.name ?? "")
         self.goodCategory.send(self.good?.category?.name ?? "")
-        self.category = good?.category
         self.rating.send(Int(good?.personalRating ?? 0))
     }
     
@@ -67,20 +35,18 @@ class AddGoodModel {
 			guard let self = self else { return }
 			let item = self.good.flatMap({ transaction.edit($0) }) ?? transaction.create(Into<Good>())
 			item.name = self.goodName.value
-            item.category = transaction.edit(self.category)
+            if let categoryName = self.goodCategory.value?.nilIfEmpty {
+                do {
+                    let category = try transaction.fetchOne(From<Category>().where(Where("name == %@", categoryName))) ?? transaction.create(Into<Category>())
+                    category.name = categoryName
+                    item.category = category
+                } catch {
+                    item.category = nil
+                }                
+            } else {
+                item.category = nil
+            }
             item.personalRating = Int16(self.rating.value)
 		}).eraseToAnyPublisher()
 	}
-
-	func clearCategory() {
-		self.category = nil
-	}
-
-    func categoriesCount() -> Int {
-		return dataSource.snapshot().numberOfItems
-    }
-    
-    func getCategoryItem(forIndex: IndexPath) -> Category? {
-		return dataSource.snapshot().itemIdentifiers(inSection: "Default")[forIndex.row]
-    }
 }

@@ -2,13 +2,14 @@
 //  ShoppingList+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 28/04/2018.
-//  Copyright © 2018 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 19.05.2021.
+//  Copyright © 2021 Dmitry Matyushkin. All rights reserved.
 //
 //
 
 import Foundation
 import CoreData
+
 
 extension ShoppingList {
 
@@ -18,10 +19,10 @@ extension ShoppingList {
 
     @NSManaged public var date: TimeInterval
     @NSManaged public var isRemote: Bool
+    @NSManaged public var isRemoved: Bool
     @NSManaged public var name: String?
     @NSManaged public var ownerName: String?
     @NSManaged public var recordid: String?
-    @NSManaged public var isRemoved: Bool
     @NSManaged public var items: NSSet?
 
 }
@@ -40,5 +41,9 @@ extension ShoppingList {
 
     @objc(removeItems:)
     @NSManaged public func removeFromItems(_ values: NSSet)
+
+}
+
+extension ShoppingList: Identifiable {
 
 }

@@ -2,12 +2,14 @@
 //  Store+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 21/05/2017.
-//  Copyright © 2017 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 19.05.2021.
+//  Copyright © 2021 Dmitry Matyushkin. All rights reserved.
+//
 //
 
 import Foundation
 import CoreData
+
 
 extension Store {
 
@@ -18,6 +20,7 @@ extension Store {
     @NSManaged public var name: String?
     @NSManaged public var recordid: String?
     @NSManaged public var items: NSSet?
+    @NSManaged public var orders: NSSet?
 
 }
 
@@ -35,5 +38,26 @@ extension Store {
 
     @objc(removeItems:)
     @NSManaged public func removeFromItems(_ values: NSSet)
+
+}
+
+// MARK: Generated accessors for orders
+extension Store {
+
+    @objc(addOrdersObject:)
+    @NSManaged public func addToOrders(_ value: CategoryStoreOrder)
+
+    @objc(removeOrdersObject:)
+    @NSManaged public func removeFromOrders(_ value: CategoryStoreOrder)
+
+    @objc(addOrders:)
+    @NSManaged public func addToOrders(_ values: NSSet)
+
+    @objc(removeOrders:)
+    @NSManaged public func removeFromOrders(_ values: NSSet)
+
+}
+
+extension Store: Identifiable {
 
 }

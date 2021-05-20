@@ -2,8 +2,9 @@
 //  Good+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 21/05/2017.
-//  Copyright © 2017 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 19.05.2021.
+//  Copyright © 2021 Dmitry Matyushkin. All rights reserved.
+//
 //
 
 import Foundation
@@ -16,8 +17,8 @@ extension Good {
     }
 
     @NSManaged public var name: String?
-    @NSManaged public var recordid: String?
     @NSManaged public var personalRating: Int16
+    @NSManaged public var recordid: String?
     @NSManaged public var category: Category?
     @NSManaged public var items: NSSet?
     @NSManaged public var pictures: NSSet?
@@ -73,5 +74,9 @@ extension Good {
 
     @objc(removeRatings:)
     @NSManaged public func removeFromRatings(_ values: NSSet)
+
+}
+
+extension Good: Identifiable {
 
 }

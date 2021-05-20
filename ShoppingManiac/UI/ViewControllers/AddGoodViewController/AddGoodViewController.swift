@@ -11,18 +11,15 @@ import CoreStore
 import Combine
 import CommonError
 
-class AddGoodViewController: ShoppingManiacViewController, UITableViewDelegate {
+class AddGoodViewController: ShoppingManiacViewController {
 
     @IBOutlet private weak var goodNameEditField: UITextField!
-    @IBOutlet private weak var goodCategoryEditField: UITextField!
+    @IBOutlet private weak var goodCategoryEditField: AutocompleteTextField!
     @IBOutlet private weak var ratingStar1Button: UIButton!
     @IBOutlet private weak var ratingStar2Button: UIButton!
     @IBOutlet private weak var ratingStar3Button: UIButton!
     @IBOutlet private weak var ratingStar4Button: UIButton!
     @IBOutlet private weak var ratingStar5Button: UIButton!
-    @IBOutlet private weak var categoriesTable: UITableView!
-    @IBOutlet private weak var cancelCategorySelectionButton: UIButton!
-    @IBOutlet var categorySelectionPanel: UIView!
     private var stars: [UIButton] = []
     
     let model = AddGoodModel()
@@ -39,23 +36,12 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDelegate {
         self.ratingStar4Button.tagRatingBinding(variable: self.model.rating, store: &cancellables)
         self.ratingStar5Button.tagRatingBinding(variable: self.model.rating, store: &cancellables)
         self.goodNameEditField.becomeFirstResponder()
-        self.goodCategoryEditField.inputView = self.categorySelectionPanel
-		self.model.setupTable(tableView: categoriesTable)
+        self.goodCategoryEditField.autocompleteStrings = self.model.listAllCategories()
         self.model.applyData()
     }
 
-    @IBAction private func editCategoryAction(_ sender: Any) {
-        self.categoriesTable.isHidden = self.model.categoriesCount() == 0
-        self.categoriesTable.reloadData()
-    }
-
-    @IBAction private func cancelCategorySelectionAction(_ sender: Any) {
-		self.model.clearCategory()
-        self.goodCategoryEditField.endEditing(true)
-    }
-
 	@IBAction private func saveAction() {
-		guard let value = self.model.goodName.value, value.count > 0 else {
+        guard let value = self.model.goodName.value, !value.isEmpty else {
 			CommonError(description: "Good name should not be empty").showError(title: "Unable to create good")
 			return
 		}
@@ -73,11 +59,6 @@ class AddGoodViewController: ShoppingManiacViewController, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return CGFloat.leastNormalMagnitude
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.model.category = self.model.getCategoryItem(forIndex: indexPath)
-        self.goodCategoryEditField.endEditing(true)
     }
     
     // MARK: - Navigation

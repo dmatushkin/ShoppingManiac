@@ -12,7 +12,7 @@ import CoreStore
 class DataSaveSegue: UIStoryboardSegue {
 
     var errorMessage: String?
-    var processBlock: (AsynchronousDataTransaction) -> Bool = {transaction in return true}
+    var processBlock: (AsynchronousDataTransaction) -> Bool = {_ in return true}
 
     override func perform() {
         CoreStoreDefaults.dataStack.perform(asynchronous: {[unowned self] transaction -> Bool in

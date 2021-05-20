@@ -26,11 +26,11 @@ class AddShoppingListItemModel {
     let importantItem = CurrentValueSubject<Bool, Never>(false)
     
     func listAllGoods() -> [String] {
-        return (try? CoreStoreDefaults.dataStack.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        return (try? CoreStoreDefaults.dataStack.fetchAll(From<Good>().orderBy(.ascending(\.name))))?.compactMap({ $0.name?.nilIfEmpty }) ?? []
     }
     
     func listAllStores() -> [String] {
-        return (try? CoreStoreDefaults.dataStack.fetchAll(From<Store>().orderBy(.ascending(\.name))))?.map({ $0.name }).filter({ $0 != nil && $0!.count > 0 }).map({ $0! }) ?? []
+        return (try? CoreStoreDefaults.dataStack.fetchAll(From<Store>().orderBy(.ascending(\.name))))?.compactMap({ $0.name?.nilIfEmpty }) ?? []
     }
     
     func applyData() {
@@ -60,13 +60,13 @@ class AddShoppingListItemModel {
 				item.store = try Store.item(forName: self.storeName.value ?? "", inTransaction: transaction)
 			}
 			let amount = self.amountText.value?.replacingOccurrences(of: ",", with: ".") ?? ""
-			if amount.count > 0, let value = Float(amount) {
+            if !amount.isEmpty, let value = Float(amount) {
 				item.quantity = value
 			} else {
 				item.quantity = 1
 			}
 			let price = self.priceText.value?.replacingOccurrences(of: ",", with: ".") ?? ""
-			if price.count > 0, let value = Float(price) {
+            if !price.isEmpty, let value = Float(price) {
 				item.price = value
 			} else {
 				item.price = 0

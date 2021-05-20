@@ -2,8 +2,9 @@
 //  Category+CoreDataProperties.swift
 //  ShoppingManiac
 //
-//  Created by Dmitry Matyushkin on 21/05/2017.
-//  Copyright © 2017 Dmitry Matyushkin. All rights reserved.
+//  Created by Dmitry Matyushkin on 19.05.2021.
+//  Copyright © 2021 Dmitry Matyushkin. All rights reserved.
+//
 //
 
 import Foundation
@@ -20,6 +21,7 @@ extension Category {
     @NSManaged public var children: NSSet?
     @NSManaged public var goods: NSSet?
     @NSManaged public var parent: Category?
+    @NSManaged public var orders: NSSet?
 
 }
 
@@ -54,5 +56,26 @@ extension Category {
 
     @objc(removeGoods:)
     @NSManaged public func removeFromGoods(_ values: NSSet)
+
+}
+
+// MARK: Generated accessors for orders
+extension Category {
+
+    @objc(addOrdersObject:)
+    @NSManaged public func addToOrders(_ value: CategoryStoreOrder)
+
+    @objc(removeOrdersObject:)
+    @NSManaged public func removeFromOrders(_ value: CategoryStoreOrder)
+
+    @objc(addOrders:)
+    @NSManaged public func addToOrders(_ values: NSSet)
+
+    @objc(removeOrders:)
+    @NSManaged public func removeFromOrders(_ values: NSSet)
+
+}
+
+extension Category: Identifiable {
 
 }

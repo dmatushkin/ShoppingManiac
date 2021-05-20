@@ -12,4 +12,7 @@ import CoreData
 @objc(Category)
 public class Category: NSManagedObject {
 
+    var listGoods: [Good] {
+        return Array(self.goods ?? []) as? [Good] ?? []
+    }
 }

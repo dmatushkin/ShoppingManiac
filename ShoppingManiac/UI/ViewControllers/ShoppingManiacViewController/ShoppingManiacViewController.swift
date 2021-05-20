@@ -8,20 +8,46 @@
 
 import UIKit
 import MessageUI
+import Combine
 
 class ShoppingManiacViewController: UIViewController, MFMailComposeViewControllerDelegate {
+    
+    private var keyboardCancellables = Set<AnyCancellable>()
 
     override func viewDidLoad() {
         super.viewDidLoad()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.setBottomOffset(keyboardInfo: UIKeyboardInfo(info: [:]))
+        LocalNotifications.keyboardWillChangeFrame.listen().sink(receiveCompletion: {_ in }, receiveValue: {[weak self] value in
+            self?.setBottomOffset(keyboardInfo: value)
+        }).store(in: &keyboardCancellables)
+        LocalNotifications.keyboardWillHide.listen().map({_ in UIKeyboardInfo(info: [:])}).sink(receiveCompletion: {_ in }, receiveValue: {[weak self] value in
+            self?.setBottomOffset(keyboardInfo: value)
+        }).store(in: &keyboardCancellables)
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.view.endEditing(true)
+        for item in self.keyboardCancellables {
+            item.cancel()
+        }
+        self.keyboardCancellables = []
     }
         
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true, completion: nil)
+    }
+    
+    private func setBottomOffset(keyboardInfo: UIKeyboardInfo) {
+        let offset = keyboardInfo.frame.size.height
+        let bottomAreaHeight = self.view.safeAreaInsets.bottom - self.additionalSafeAreaInsets.bottom
+        UIView.animate(withDuration: keyboardInfo.animationDuration, animations: { [weak self] in
+            self?.additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: offset > 0 ? offset - bottomAreaHeight : 0, right: 0)
+        })
     }
 
     /*

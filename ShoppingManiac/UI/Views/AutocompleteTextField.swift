@@ -14,7 +14,11 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
     private let autocompleteTable = UITableView()
     private var cancellables = Set<AnyCancellable>()
 
-    var autocompleteStrings: [String] = []
+    var autocompleteStrings: [String] = [] {
+        didSet {
+            self.autocompleteStrings = self.autocompleteStrings.map({ $0.lowercased() })
+        }
+    }
 
     private var keyboardHeight: CGFloat = 0
 
@@ -51,11 +55,11 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
     }
 
     private func item(forIndexPath indexPath: IndexPath) -> String {
-        return self.autocompleteStrings.filter({ $0.contains(self.text ?? "") })[indexPath.row]
+        return self.autocompleteStrings.filter({ $0.contains(self.text?.lowercased() ?? "") })[indexPath.row]
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.autocompleteStrings.filter({ $0.contains(self.text ?? "") }).count
+        return self.autocompleteStrings.filter({ $0.contains(self.text?.lowercased() ?? "") }).count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -90,7 +94,7 @@ class AutocompleteTextField: RoundRectTextField, UITableViewDelegate, UITableVie
         let frame = self.frame
         let screenHeight = UIScreen.main.bounds.height
         let availableHeight = screenHeight - self.keyboardHeight - self.frame.origin.y - self.frame.size.height
-        if frame.origin.y > (availableHeight - frame.origin.y - frame.size.height) { //appears from top of the field
+        if frame.origin.y > (availableHeight - frame.origin.y - frame.size.height) { // appears from top of the field
             let height = min(frame.origin.y, CGFloat(self.tableView(self.autocompleteTable, numberOfRowsInSection: 0)) * self.autocompleteTable.rowHeight)
             self.autocompleteTable.frame = CGRect(x: self.frame.origin.x + 1, y: self.frame.origin.y - height, width: self.bounds.size.width - 2, height: height)
         } else { // appears from bottom of the field

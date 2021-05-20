@@ -17,4 +17,8 @@ public class Store: NSManagedObject {
         store.name = name
         return store
     }
+    
+    var listCategories: [Category] {
+        return (Array(self.orders ?? []) as? [CategoryStoreOrder] ?? []).sorted(by: { $0.order < $1.order }).compactMap({ $0.category })
+    }
 }

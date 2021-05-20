@@ -48,7 +48,7 @@ class AddShoppingItemViewController: ShoppingManiacViewController {
     }
 
 	@IBAction private func saveAction(sender: UIButton) {
-		guard let value = self.model.itemName.value, value.count > 0 else {
+        guard let value = self.model.itemName.value, !value.isEmpty else {
 			CommonError(description: "Item name should not be empty").showError(title: "Unable to create item")
 			return
 		}

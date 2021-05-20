@@ -124,7 +124,7 @@ public class ShoppingList: NSManagedObject {
                 if let itemsArray = jsonData["items"] as? [NSDictionary] {
                     for itemDict in itemsArray {
                         let shoppingListItem = transaction.create(Into<ShoppingListItem>())
-                        if let goodName = itemDict["good"] as? String, goodName.count > 0 {
+                        if let goodName = itemDict["good"] as? String, !goodName.isEmpty {
                             if let good = try transaction.fetchOne(From<Good>().where(Where("name == %@", goodName))) {
                                 shoppingListItem.good = good
                             } else {
@@ -133,7 +133,7 @@ public class ShoppingList: NSManagedObject {
                                 shoppingListItem.good = good
                             }
                         }
-                        if let storeName = itemDict["store"] as? String, storeName.count > 0 {
+                        if let storeName = itemDict["store"] as? String, !storeName.isEmpty {
                             if let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) {
                                 shoppingListItem.store = store
                             } else {

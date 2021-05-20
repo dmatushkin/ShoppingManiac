@@ -116,7 +116,7 @@ extension ShoppingListItem: CloudKitSyncItemProtocol {
 			item.quantity = record["quantity"] as? Float ?? 1
 			item.isRemoved = record["isRemoved"] as? Bool ?? false
             item.isImportant = record["isImportant"] as? Bool ?? false
-			if let storeName = record["storeName"] as? String, storeName.count > 0 {
+            if let storeName = record["storeName"] as? String, !storeName.isEmpty {
 				let store = try transaction.fetchOne(From<Store>().where(Where("name == %@", storeName))) ?? transaction.create(Into<Store>())
 				store.name = storeName
 				item.store = store
