@@ -36,6 +36,11 @@ struct GroupItem: Hashable {
                     if self.itemCategoryName == item.itemCategoryName {
                         return self.itemName < item.itemName
                     } else {
+                        if self.itemCategoryName?.nilIfEmpty == nil && item.itemCategoryName?.nilIfEmpty != nil {
+                            return false
+                        } else if self.itemCategoryName?.nilIfEmpty != nil && item.itemCategoryName?.nilIfEmpty == nil {
+                            return true
+                        }
                         return (self.itemCategoryName ?? "") < (item.itemCategoryName ?? "")
                     }
                 } else {
