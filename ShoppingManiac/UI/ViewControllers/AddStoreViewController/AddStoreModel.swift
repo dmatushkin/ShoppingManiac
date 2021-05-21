@@ -42,11 +42,7 @@ class AddStoreModel {
             let sourceRow = sourceIndexPath.row
             let destRow = destinationIndexPath.row
             let value = model.categories.remove(at: sourceRow)
-            if destRow > sourceRow {
-                model.categories.insert(value, at: destRow - 1)
-            } else {
-                model.categories.insert(value, at: destRow)
-            }
+            model.categories.insert(value, at: destRow)
         }
     }
     
