@@ -27,7 +27,7 @@ class CloudKitOperations: CloudKitSyncOperationsProtocol, DIDependency {
 		CKContainer.default().accountStatus(completionHandler: completionHandler)
 	}
 
-	func permissionStatus(forApplicationPermission applicationPermission: CKContainer_Application_Permissions, completionHandler: @escaping CKContainer_Application_PermissionBlock) {
+    func permissionStatus(forApplicationPermission applicationPermission: CKContainer.ApplicationPermissions, completionHandler: @escaping CKContainer.ApplicationPermissionBlock) {
 		CKContainer.default().status(forApplicationPermission: applicationPermission, completionHandler: completionHandler)
 	}
 
@@ -35,7 +35,7 @@ class CloudKitOperations: CloudKitSyncOperationsProtocol, DIDependency {
 		CKContainer.default().privateCloudDatabase.save(zone, completionHandler: completionHandler)
 	}
 
-	func requestApplicationPermission(_ applicationPermission: CKContainer_Application_Permissions, completionHandler: @escaping CKContainer_Application_PermissionBlock) {
+    func requestApplicationPermission(_ applicationPermission: CKContainer.ApplicationPermissions, completionHandler: @escaping CKContainer.ApplicationPermissionBlock) {
 		CKContainer.default().requestApplicationPermission(applicationPermission, completionHandler: completionHandler)
 	}
 }

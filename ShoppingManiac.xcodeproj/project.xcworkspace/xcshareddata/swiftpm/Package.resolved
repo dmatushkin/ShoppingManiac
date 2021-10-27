@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/JohnEstropia/CoreStore",
         "state": {
           "branch": null,
-          "revision": "a40df37192622b093321fc2003f4a5cbe3860ffb",
-          "version": "7.3.1"
+          "revision": "496145761ab30e8cf1c44220c0882b95e6b41077",
+          "version": "8.1.0"
         }
       },
       {
@@ -33,7 +33,7 @@
         "repositoryURL": "https://github.com/dmatushkin/DependencyInjection.git",
         "state": {
           "branch": "master",
-          "revision": "1babedfed7d52bb7350e29f1ea3be72e449830d5",
+          "revision": "240ec5320263e1b1401585b8ef1a6f624f042e51",
           "version": null
         }
       },
@@ -78,8 +78,8 @@
         "repositoryURL": "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
         "state": {
           "branch": null,
-          "revision": "2c513a2e8fbfbd6495afc4a05941d8e3fdba68e9",
-          "version": "1.9.3"
+          "revision": "2c039501d6eeb4d4cd4aec4a8d884ad28862e044",
+          "version": "1.9.5"
         }
       }
     ]
