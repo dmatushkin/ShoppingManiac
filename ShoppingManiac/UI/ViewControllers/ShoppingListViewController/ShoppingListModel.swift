@@ -69,7 +69,7 @@ class ShoppingListModel {
 		})
 		storesPublisher.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
-			self.reloadTable(publisher: self.listPublisher!)
+			//self.reloadTable(publisher: self.listPublisher!)
 		})
 		categoriesPublisher.addObserver(self, {[weak self] publisher in
 			guard let self = self else { return }
@@ -108,6 +108,9 @@ class ShoppingListModel {
     }
 
 	private func reloadTable(publisher: ListPublisher<ShoppingListItem>) {
+        if let temp = self.dataSource?.snapshot() { // Fix of the very stupid crash on item move. Data source is changed on move itelf, and not synchronized with the snapshot. You have to request and apply snapshot to synchronize it again.
+            self.dataSource?.apply(temp)
+        }
 		let items = publisher.snapshot.compactMap({ $0.object })
 		let totalPrice = items.reduce(0.0) { acc, curr in
 			return acc + curr.totalPrice
@@ -126,26 +129,24 @@ class ShoppingListModel {
 	}
 
     func syncWithCloud() {
-		guard let shoppingList = self.shoppingList else { return }
-        if AppDelegate.discoverabilityStatus && shoppingList.recordid != nil {
-			self.icloudOperationsCount += 1
-			self.icloudStatus.value = .inProgress
-			self.cloudShare.updateItem(item: shoppingList).observeOnMain().sink(receiveCompletion: {[weak self] result in
-				guard let self = self else { return }
-				self.icloudOperationsCount -= 1
-				switch result {
-				case .finished:
-					if self.icloudOperationsCount <= 0 {
-						self.icloudStatus.value = .success
-					}
-				case .failure(let error):
-					AppDelegate.showAlert(title: "iCloud sync", message: error.localizedDescription)
-					if self.icloudOperationsCount <= 0 {
-						self.icloudStatus.value = .failure(error)
-					}
-				}
-			}, receiveValue: {}).store(in: &self.cancellables)
-        }
+		guard let shoppingList = self.shoppingList, AppDelegate.discoverabilityStatus && shoppingList.recordid != nil else { return }
+        self.icloudOperationsCount += 1
+        self.icloudStatus.value = .inProgress
+        self.cloudShare.updateItem(item: shoppingList).observeOnMain().sink(receiveCompletion: {[weak self] result in
+            guard let self = self else { return }
+            self.icloudOperationsCount -= 1
+            switch result {
+            case .finished:
+                if self.icloudOperationsCount <= 0 {
+                    self.icloudStatus.value = .success
+                }
+            case .failure(let error):
+                AppDelegate.showAlert(title: "iCloud sync", message: error.localizedDescription)
+                if self.icloudOperationsCount <= 0 {
+                    self.icloudStatus.value = .failure(error)
+                }
+            }
+        }, receiveValue: {}).store(in: &self.cancellables)
     }
         
     func setLatestList() {
